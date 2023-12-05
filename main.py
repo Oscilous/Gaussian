@@ -5,7 +5,6 @@ from scipy.stats import norm
 from picamera import PiCamera
 from picamera.array import PiRGBArray
 
-pellet_center_mask = np.zeros(camera.resolution, dtype="uint8")
 # Initial values for trackbars
 initial_x, initial_y, initial_diameter = 480, 468, 250
 initial_dev_up, initial_dev_down = 23, 23
@@ -29,7 +28,7 @@ def setup_camera():
     rawCapture = PiRGBArray(camera, size=camera.resolution)
 
 def update_mask():
-    global Csys, Dia, pellet_center_mask
+    global Csys, Dia, pellet_center_mask, camera
     # Update circle parameters
     Csys = (cv2.getTrackbarPos("Circle_X", "Trackbars"),
             cv2.getTrackbarPos("Circle_Y", "Trackbars"))
@@ -126,6 +125,7 @@ def plot_histogram():
     plt.pause(0.01)
 
 camera = PiCamera()
+update_mask()
 setup_camera()
 # Create the Trackbars, so the mask can be created
 create_trackbars()
