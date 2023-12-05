@@ -84,8 +84,8 @@ def histogram_and_threshold(image, mask):
     # Display the original and thresholded images
     if debug == 1:
         cv2.imshow('Original Image', image)
-        cv2.imshow('Masked image', masked_image_display)
-    cv2.imshow('Thresholded Image', binary_image)
+        cv2.imshow('Thresholded Image', binary_image)
+    cv2.imshow('Masked image', masked_image_display)
     count_black_pixels(binary_image, mask)
     
 
@@ -123,7 +123,8 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
     #original_image = cv2.imread('mask clean11.jpg' , cv2.IMREAD_GRAYSCALE)
     original_image = frame.array
     original_image = cv2.cvtColor(original_image, cv2.COLOR_BGR2GRAY)
-    cv2.imshow("Original", original_image)
+    if debug == 1:
+        cv2.imshow("Original", original_image)
     update_mask()
 
     histogram_and_threshold(original_image, pellet_center_mask)
