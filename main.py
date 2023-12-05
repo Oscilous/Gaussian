@@ -6,8 +6,18 @@ from picamera import PiCamera
 from picamera.array import PiRGBArray
 import time
 
-image_resolution = (960, 960)
-pellet_center_mask = np.zeros(image_resolution, dtype="uint8")
+camera = PiCamera()
+camera.framerate = 10
+camera.brightness = 47 #48 til clen mask5
+camera.contrast = 1 #1 giver bedst detection
+camera.shutter_speed = 10000
+camera.exposure_mode = 'off'
+camera.exposure_mode = 'backlight'
+camera.awb_mode = 'fluorescent'
+camera.resolution = (960, 960)
+rawCapture = PiRGBArray(camera, size=camera.resolution)
+
+pellet_center_mask = np.zeros(camera.resolution, dtype="uint8")
 # Initial values for trackbars
 initial_x, initial_y, initial_diameter = 480, 468, 350
 threshold_value = 1.5
@@ -114,17 +124,6 @@ def count_black_pixels(binary_image, mask):
 
 # Create the Trackbars, so the mask can be created
 create_trackbars()
-
-camera = PiCamera()
-camera.framerate = 10
-camera.brightness = 47 #48 til clen mask5
-camera.contrast = 1 #1 giver bedst detection
-camera.shutter_speed = 10000
-camera.exposure_mode = 'off'
-camera.exposure_mode = 'backlight'
-camera.awb_mode = 'fluorescent'
-camera.resolution = (960, 960)
-rawCapture = PiRGBArray(camera, size=camera.resolution)
 # Main loop
 for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):    #This would be the first thing in the big loop
     #original_image = cv2.imread('mask clean11.jpg' , cv2.IMREAD_GRAYSCALE)
