@@ -25,7 +25,6 @@ def setup_camera():
     camera.exposure_mode = 'backlight'
     camera.awb_mode = 'fluorescent'
     camera.resolution = (960, 960)
-    rawCapture = PiRGBArray(camera, size=camera.resolution)
 
 def update_mask():
     global Csys, Dia, pellet_center_mask, camera
@@ -125,8 +124,8 @@ def plot_histogram():
     plt.pause(0.01)
 
 camera = PiCamera()
-update_mask()
 setup_camera()
+rawCapture = PiRGBArray(camera, size=camera.resolution)
 # Create the Trackbars, so the mask can be created
 create_trackbars()
 # Main loop
