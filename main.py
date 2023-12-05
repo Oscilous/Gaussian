@@ -19,7 +19,8 @@ rawCapture = PiRGBArray(camera, size=camera.resolution)
 
 pellet_center_mask = np.zeros(camera.resolution, dtype="uint8")
 # Initial values for trackbars
-initial_x, initial_y, initial_diameter = 480, 468, 350
+initial_x, initial_y, initial_diameter = 480, 468, 250
+initial_dev_up, initial_dev_down = 23, 23
 threshold_value = 1.5
 debug = 0
 def nothing(val):
@@ -103,8 +104,8 @@ def create_trackbars():
     cv2.createTrackbar("Circle_X", "Trackbars", initial_x, 960, nothing)
     cv2.createTrackbar("Circle_Y", "Trackbars", initial_y, 960, nothing)
     cv2.createTrackbar("Circle_Diameter", "Trackbars", initial_diameter, 500, nothing)
-    cv2.createTrackbar("Threshold_upper", "Trackbars", 15, 20, nothing)
-    cv2.createTrackbar("Threshold_lower", "Trackbars", 15, 20, nothing)
+    cv2.createTrackbar("Threshold_upper", "Trackbars", initial_dev_up, 40, nothing)
+    cv2.createTrackbar("Threshold_lower", "Trackbars", initial_dev_down, 40, nothing)
     cv2.createTrackbar("Impurity_pixel_amount", "Trackbars", 1000,50000, nothing)
 
 def count_black_pixels(binary_image, mask):
@@ -125,14 +126,14 @@ def count_black_pixels(binary_image, mask):
 # Create the Trackbars, so the mask can be created
 create_trackbars()
 # Main loop
+
 for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):    #This would be the first thing in the big loop
     #original_image = cv2.imread('mask clean11.jpg' , cv2.IMREAD_GRAYSCALE)
     original_image = frame.array
     original_image = cv2.cvtColor(original_image, cv2.COLOR_BGR2GRAY)
     cv2.imshow("Original", original_image)
     update_mask()
-
-    histogram_and_threshold(original_image, pellet_center_mask)
+    histogram_and_threshold(original_image_bad, pellet_center_mask)
     
     key = cv2.waitKey(1) & 0xFF
     if key == 27:  # Press 'Esc' to exit
