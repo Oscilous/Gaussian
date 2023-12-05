@@ -6,7 +6,8 @@ from scipy.stats import norm
 image_resolution = (960, 960)
 pellet_center_mask = np.zeros(image_resolution, dtype="uint8")
 # Initial values for trackbars
-initial_x, initial_y, initial_diameter = 480, 468, 350
+initial_x, initial_y, initial_diameter = 480, 468, 250
+initial_dev_up, initial_dev_down = 23, 23
 threshold_value = 1.5
 debug = 0
 def nothing(val):
@@ -89,9 +90,9 @@ def create_trackbars():
     # Create trackbars with default values
     cv2.createTrackbar("Circle_X", "Trackbars", initial_x, 960, nothing)
     cv2.createTrackbar("Circle_Y", "Trackbars", initial_y, 960, nothing)
-    cv2.createTrackbar("Circle_Diameter", "Trackbars", initial_diameter, 250, nothing)
-    cv2.createTrackbar("Threshold_upper", "Trackbars", 23, 40, nothing)
-    cv2.createTrackbar("Threshold_lower", "Trackbars", 23, 40, nothing)
+    cv2.createTrackbar("Circle_Diameter", "Trackbars", initial_diameter, 500, nothing)
+    cv2.createTrackbar("Threshold_upper", "Trackbars", initial_dev_up, 40, nothing)
+    cv2.createTrackbar("Threshold_lower", "Trackbars", initial_dev_down, 40, nothing)
     cv2.createTrackbar("Impurity_pixel_amount", "Trackbars", 1000,50000, nothing)
 
 def count_black_pixels(binary_image, mask):
@@ -114,7 +115,7 @@ create_trackbars()
 
 # Main loop
 while True:
-    original_image_bad = cv2.imread('bad.jpg' , cv2.IMREAD_GRAYSCALE)
+    original_image_bad = cv2.imread('light.jpg' , cv2.IMREAD_GRAYSCALE)
     update_mask()
     histogram_and_threshold(original_image_bad, pellet_center_mask)
     
