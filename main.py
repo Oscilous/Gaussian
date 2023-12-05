@@ -49,7 +49,6 @@ def histogram_and_threshold(image, mask):
     masked_image_display = masked_image.filled(fill_value=0).astype(np.uint8)
     # Calculate the mean and standard deviation
     mean_value = np.mean(masked_image.compressed())
-    std_dev_value = np.std(masked_image.compressed())
 
     std_dev_multiplier_upper = cv2.getTrackbarPos("Threshold_upper", "Trackbars")
     std_dev_multiplier_lower = cv2.getTrackbarPos("Threshold_lower", "Trackbars")
@@ -57,25 +56,19 @@ def histogram_and_threshold(image, mask):
     # Calculate the threshold range
     lower_threshold = mean_value - std_dev_multiplier_lower
     upper_threshold = mean_value + std_dev_multiplier_upper
-    """
+    
     # Clear the previous plot
     plt.clf()
 
     # Plot the histogram
     plt.hist(masked_image.compressed(), bins=256, density=True, alpha=0.6, color='g')
 
-    # Plot the fitted normal distribution
-    xmin, xmax = plt.xlim()
-    x = np.linspace(xmin, xmax, 100)
-    p = norm.pdf(x, mean_value, std_dev_value)
-    plt.plot(x, p, 'k', linewidth=2)
-
     # Add vertical lines at thresholding points
     plt.axvline(x=lower_threshold, color='r', linestyle='--', label=f'Lower Threshold ({std_dev_multiplier_lower} std dev)')
     plt.axvline(x=upper_threshold, color='r', linestyle='--', label=f'Upper Threshold ({std_dev_multiplier_upper} std dev)')
 
     # Add labels and title
-    plt.title(f'Mean = {mean_value:.2f}, Standard Deviation = {std_dev_value:.2f}')
+    plt.title(f'Mean = {mean_value:.2f}')
     plt.xlabel('Pixel Value')
     plt.ylabel('Frequency')
 
@@ -84,7 +77,7 @@ def histogram_and_threshold(image, mask):
 
     # Pause for a short time to allow the plot window to update
     plt.pause(0.01)
-    """
+    
     # Perform thresholding using mean and standard deviation
     binary_image = ((masked_image >= lower_threshold) & (masked_image <= upper_threshold)).astype(np.uint8) * 255
 
@@ -126,14 +119,14 @@ def count_black_pixels(binary_image, mask):
 # Create the Trackbars, so the mask can be created
 create_trackbars()
 # Main loop
-
 for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):    #This would be the first thing in the big loop
     #original_image = cv2.imread('mask clean11.jpg' , cv2.IMREAD_GRAYSCALE)
     original_image = frame.array
     original_image = cv2.cvtColor(original_image, cv2.COLOR_BGR2GRAY)
     cv2.imshow("Original", original_image)
     update_mask()
-    histogram_and_threshold(original_image_bad, pellet_center_mask)
+
+    histogram_and_threshold(original_image, pellet_center_mask)
     
     key = cv2.waitKey(1) & 0xFF
     if key == 27:  # Press 'Esc' to exit
