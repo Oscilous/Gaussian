@@ -4,18 +4,6 @@ import matplotlib.pyplot as plt
 from scipy.stats import norm
 from picamera import PiCamera
 from picamera.array import PiRGBArray
-import time
-
-camera = PiCamera()
-camera.framerate = 10
-camera.brightness = 47 #48 til clen mask5
-camera.contrast = 1 #1 giver bedst detection
-camera.shutter_speed = 10000
-camera.exposure_mode = 'off'
-camera.exposure_mode = 'backlight'
-camera.awb_mode = 'fluorescent'
-camera.resolution = (960, 960)
-rawCapture = PiRGBArray(camera, size=camera.resolution)
 
 pellet_center_mask = np.zeros(camera.resolution, dtype="uint8")
 # Initial values for trackbars
@@ -23,8 +11,22 @@ initial_x, initial_y, initial_diameter = 480, 468, 250
 initial_dev_up, initial_dev_down = 23, 23
 threshold_value = 1.5
 debug = 0
+plots = 0
+
 def nothing(val):
     pass
+
+def setup_camera():
+    global camera
+    camera.framerate = 10
+    camera.brightness = 47 #48 til clen mask5
+    camera.contrast = 1 #1 giver bedst detection
+    camera.shutter_speed = 10000
+    camera.exposure_mode = 'off'
+    camera.exposure_mode = 'backlight'
+    camera.awb_mode = 'fluorescent'
+    camera.resolution = (960, 960)
+    rawCapture = PiRGBArray(camera, size=camera.resolution)
 
 def update_mask():
     global Csys, Dia, pellet_center_mask
@@ -35,7 +37,6 @@ def update_mask():
 
     # Create a black canvas the size of the camera feed
     pellet_center_mask = np.zeros(camera.resolution, dtype="uint8")
-
     # Draw a circle based on the trackbar values
     cv2.circle(pellet_center_mask, Csys, Dia, 255, -1)
     if debug == 1:
@@ -57,28 +58,10 @@ def histogram_and_threshold(image, mask):
     lower_threshold = mean_value - std_dev_multiplier_lower
     upper_threshold = mean_value + std_dev_multiplier_upper
     
-    # Clear the previous plot
-    plt.clf()
-
-    # Plot the histogram
-    plt.hist(masked_image.compressed(), bins=256, density=True, alpha=0.6, color='g')
-
-    # Add vertical lines at thresholding points
-    plt.axvline(x=lower_threshold, color='r', linestyle='--', label=f'Lower Threshold ({std_dev_multiplier_lower} std dev)')
-    plt.axvline(x=upper_threshold, color='r', linestyle='--', label=f'Upper Threshold ({std_dev_multiplier_upper} std dev)')
-
-    # Add labels and title
-    plt.title(f'Mean = {mean_value:.2f}')
-    plt.xlabel('Pixel Value')
-    plt.ylabel('Frequency')
-
-    # Add legend
-    plt.legend()
-
-    # Pause for a short time to allow the plot window to update
-    plt.pause(0.01)
+    if plots == 1:
+        plot_histogram()
     
-    # Perform thresholding using mean and standard deviation
+    # Perform thresholding using mean and brightness deviation
     binary_image = ((masked_image >= lower_threshold) & (masked_image <= upper_threshold)).astype(np.uint8) * 255
 
     # Display the original and thresholded images
@@ -88,7 +71,6 @@ def histogram_and_threshold(image, mask):
     cv2.imshow('Masked image', masked_image_display)
     count_black_pixels(binary_image, mask)
     
-
 def create_trackbars():
     # Set up the window and trackbars
     cv2.namedWindow("Trackbars")
@@ -115,7 +97,36 @@ def count_black_pixels(binary_image, mask):
     else:
         print("GOOD")
 
+def plot_histogram():
+    global masked_image
+    global lower_threshold
+    global upper_threshold
+    global std_dev_multiplier_lower
+    global std_dev_multiplier_upper
+    global mean_value
+    # Clear the previous plot
+    plt.clf()
 
+    # Plot the histogram
+    plt.hist(masked_image.compressed(), bins=256, density=True, alpha=0.6, color='g')
+
+    # Add vertical lines at thresholding points
+    plt.axvline(x=lower_threshold, color='r', linestyle='--', label=f'Lower Threshold ({std_dev_multiplier_lower} std dev)')
+    plt.axvline(x=upper_threshold, color='r', linestyle='--', label=f'Upper Threshold ({std_dev_multiplier_upper} std dev)')
+
+    # Add labels and title
+    plt.title(f'Mean = {mean_value:.2f}')
+    plt.xlabel('Pixel Value')
+    plt.ylabel('Frequency')
+
+    # Add legend
+    plt.legend()
+
+    # Pause for a short time to allow the plot window to update
+    plt.pause(0.01)
+
+camera = PiCamera()
+setup_camera()
 # Create the Trackbars, so the mask can be created
 create_trackbars()
 # Main loop
