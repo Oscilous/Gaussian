@@ -2,6 +2,9 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.stats import norm
+from picamera import PiCamera
+from picamera.array import PiRGBArray
+import time
 
 image_resolution = (960, 960)
 pellet_center_mask = np.zeros(image_resolution, dtype="uint8")
@@ -112,10 +115,20 @@ def count_black_pixels(binary_image, mask):
 # Create the Trackbars, so the mask can be created
 create_trackbars()
 
+camera = PiCamera()
+camera.framerate = 10
+camera.brightness = 47 #48 til clen mask5
+camera.contrast = 1 #1 giver bedst detection
+camera.shutter_speed = 10000
+camera.exposure_mode = 'off'
+camera.exposure_mode = 'backlight'
+camera.awb_mode = 'fluorescent'
+camera.resolution = (960, 960)
+rawCapture = PiRGBArray(camera, size=camera.resolution)
 # Main loop
-while True:
-    #This would be the first thing in the big loop
-    original_image = cv2.imread('mask clean11.jpg' , cv2.IMREAD_GRAYSCALE)
+for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):    #This would be the first thing in the big loop
+    #original_image = cv2.imread('mask clean11.jpg' , cv2.IMREAD_GRAYSCALE)
+    image = frame.array
     update_mask()
 
     histogram_and_threshold(original_image, pellet_center_mask)
