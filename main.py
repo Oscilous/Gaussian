@@ -1,14 +1,12 @@
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.stats import norm
 from picamera import PiCamera
 from picamera.array import PiRGBArray
 
 # Initial values for trackbars
 initial_x, initial_y, initial_diameter = 480, 468, 250
 initial_dev_up, initial_dev_down = 23, 23
-threshold_value = 1.5
 debug = 0
 plots = 0
 
