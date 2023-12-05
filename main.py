@@ -136,6 +136,8 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
     key = cv2.waitKey(1) & 0xFF
     if key == 27:  # Press 'Esc' to exit
         break
+    # Clear the stream in preparation for the next frame
+    rawCapture.truncate(0)
 
 # Release resources
 cv2.destroyAllWindows()
