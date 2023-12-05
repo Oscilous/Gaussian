@@ -33,7 +33,7 @@ def update_mask():
     Dia = cv2.getTrackbarPos("Circle_Diameter", "Trackbars")
 
     # Create a black canvas the size of the camera feed
-    pellet_center_mask = np.zeros(image_resolution, dtype="uint8")
+    pellet_center_mask = np.zeros(camera.resolution, dtype="uint8")
 
     # Draw a circle based on the trackbar values
     cv2.circle(pellet_center_mask, Csys, Dia, 255, -1)
