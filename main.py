@@ -128,6 +128,7 @@ create_trackbars()
 for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):    #This would be the first thing in the big loop
     #original_image = cv2.imread('mask clean11.jpg' , cv2.IMREAD_GRAYSCALE)
     original_image = frame.array
+    original_image = cv2.cvtColor(original_image, cv2.COLOR_BGR2GRAY)
     update_mask()
 
     histogram_and_threshold(original_image, pellet_center_mask)
