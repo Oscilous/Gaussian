@@ -114,10 +114,10 @@ create_trackbars()
 
 # Main loop
 while True:
-    #This would be the first thing in the big loop
-    original_image_good = cv2.imread('good.jpg' , cv2.IMREAD_GRAYSCALE)
+    original_image_bad = cv2.imread('bad.jpg' , cv2.IMREAD_GRAYSCALE)
     update_mask()
-    histogram_and_threshold(original_image_good, pellet_center_mask)
+    histogram_and_threshold(original_image_bad, pellet_center_mask)
+    
     key = cv2.waitKey(1) & 0xFF
     if key == 27:  # Press 'Esc' to exit
         break
