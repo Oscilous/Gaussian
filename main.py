@@ -37,12 +37,12 @@ def histogram_and_threshold(image, mask):
     mean_value = np.mean(masked_image.compressed())
     std_dev_value = np.std(masked_image.compressed())
 
-    std_dev_multiplier_upper = cv2.getTrackbarPos("Threshold_upper", "Trackbars") / 10
-    std_dev_multiplier_lower = cv2.getTrackbarPos("Threshold_lower", "Trackbars") / 10
+    std_dev_multiplier_upper = cv2.getTrackbarPos("Threshold_upper", "Trackbars")
+    std_dev_multiplier_lower = cv2.getTrackbarPos("Threshold_lower", "Trackbars")
 
     # Calculate the threshold range
-    lower_threshold = mean_value - std_dev_multiplier_lower * std_dev_value
-    upper_threshold = mean_value + std_dev_multiplier_upper * std_dev_value
+    lower_threshold = mean_value - std_dev_multiplier_lower
+    upper_threshold = mean_value + std_dev_multiplier_upper
 
     # Clear the previous plot
     plt.clf()
@@ -89,9 +89,9 @@ def create_trackbars():
     # Create trackbars with default values
     cv2.createTrackbar("Circle_X", "Trackbars", initial_x, 960, nothing)
     cv2.createTrackbar("Circle_Y", "Trackbars", initial_y, 960, nothing)
-    cv2.createTrackbar("Circle_Diameter", "Trackbars", initial_diameter, 500, nothing)
-    cv2.createTrackbar("Threshold_upper", "Trackbars", 15, 40, nothing)
-    cv2.createTrackbar("Threshold_lower", "Trackbars", 15, 40, nothing)
+    cv2.createTrackbar("Circle_Diameter", "Trackbars", initial_diameter, 250, nothing)
+    cv2.createTrackbar("Threshold_upper", "Trackbars", 23, 40, nothing)
+    cv2.createTrackbar("Threshold_lower", "Trackbars", 23, 40, nothing)
     cv2.createTrackbar("Impurity_pixel_amount", "Trackbars", 1000,50000, nothing)
 
 def count_black_pixels(binary_image, mask):
@@ -114,10 +114,10 @@ create_trackbars()
 
 # Main loop
 while True:
-    #This would be the first thing in the big loop
-    original_image_good = cv2.imread('good.jpg' , cv2.IMREAD_GRAYSCALE)
+    original_image_bad = cv2.imread('bad.jpg' , cv2.IMREAD_GRAYSCALE)
     update_mask()
-    histogram_and_threshold(original_image_good, pellet_center_mask)
+    histogram_and_threshold(original_image_bad, pellet_center_mask)
+    
     key = cv2.waitKey(1) & 0xFF
     if key == 27:  # Press 'Esc' to exit
         break
