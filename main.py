@@ -50,12 +50,12 @@ def histogram_and_threshold(image, mask):
     mean_value = np.mean(masked_image.compressed())
     std_dev_value = np.std(masked_image.compressed())
 
-    std_dev_multiplier_upper = cv2.getTrackbarPos("Threshold_upper", "Trackbars") / 10
-    std_dev_multiplier_lower = cv2.getTrackbarPos("Threshold_lower", "Trackbars") / 10
+    std_dev_multiplier_upper = cv2.getTrackbarPos("Threshold_upper", "Trackbars")
+    std_dev_multiplier_lower = cv2.getTrackbarPos("Threshold_lower", "Trackbars")
 
     # Calculate the threshold range
-    lower_threshold = mean_value - std_dev_multiplier_lower * std_dev_value
-    upper_threshold = mean_value + std_dev_multiplier_upper * std_dev_value
+    lower_threshold = mean_value - std_dev_multiplier_lower
+    upper_threshold = mean_value + std_dev_multiplier_upper
     """
     # Clear the previous plot
     plt.clf()
@@ -91,7 +91,7 @@ def histogram_and_threshold(image, mask):
     if debug == 1:
         cv2.imshow('Original Image', image)
         cv2.imshow('Masked image', masked_image_display)
-    #cv2.imshow('Thresholded Image', binary_image)
+    cv2.imshow('Thresholded Image', binary_image)
     count_black_pixels(binary_image, mask)
     
 
