@@ -56,7 +56,7 @@ def histogram_and_threshold(image, mask):
     # Calculate the threshold range
     lower_threshold = mean_value - std_dev_multiplier_lower * std_dev_value
     upper_threshold = mean_value + std_dev_multiplier_upper * std_dev_value
-
+    """
     # Clear the previous plot
     plt.clf()
 
@@ -83,7 +83,7 @@ def histogram_and_threshold(image, mask):
 
     # Pause for a short time to allow the plot window to update
     plt.pause(0.01)
-
+    """
     # Perform thresholding using mean and standard deviation
     binary_image = ((masked_image >= lower_threshold) & (masked_image <= upper_threshold)).astype(np.uint8) * 255
 
@@ -91,7 +91,7 @@ def histogram_and_threshold(image, mask):
     if debug == 1:
         cv2.imshow('Original Image', image)
         cv2.imshow('Masked image', masked_image_display)
-    cv2.imshow('Thresholded Image', binary_image)
+    #cv2.imshow('Thresholded Image', binary_image)
     count_black_pixels(binary_image, mask)
     
 
@@ -129,6 +129,7 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
     #original_image = cv2.imread('mask clean11.jpg' , cv2.IMREAD_GRAYSCALE)
     original_image = frame.array
     original_image = cv2.cvtColor(original_image, cv2.COLOR_BGR2GRAY)
+    cv2.imshow("Original", original_image)
     update_mask()
 
     histogram_and_threshold(original_image, pellet_center_mask)
