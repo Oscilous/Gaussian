@@ -128,7 +128,7 @@ rawCapture = PiRGBArray(camera, size=camera.resolution)
 # Main loop
 for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):    #This would be the first thing in the big loop
     #original_image = cv2.imread('mask clean11.jpg' , cv2.IMREAD_GRAYSCALE)
-    image = frame.array
+    original_image = frame.array
     update_mask()
 
     histogram_and_threshold(original_image, pellet_center_mask)
