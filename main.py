@@ -130,9 +130,11 @@ def is_pellet_present(image, mask):
     area_pixel_count = np.sum(mask == 255)
     detection_threshold = cv2.getTrackbarPos("detection_threshold", "Trackbars")
     percentage_light = int(impurity_pixel_count / area_pixel_count * 100)
+    """
     cv2.putText(binary, "Percentage light:" + str(percentage_light) + "%",  (28,30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
     cv2.putText(binary, "Percentage threshold:" + str(detection_threshold) + "%",  (28,60), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
     cv2.imshow("Binary", binary)
+    """
     if percentage_light > detection_threshold:
         return False
     else:
@@ -154,7 +156,6 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
     # Perform object detection qon the frame
     if is_pellet_present(original_image, pellet_center_mask):
         time.sleep(1)
-        cv2.destroyWindow("Binary")
         print("Pellet")
         rawCapture.truncate(0)
         original_image = frame.array
