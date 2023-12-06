@@ -7,9 +7,9 @@ from picamera.array import PiRGBArray
 # Initial values for trackbars
 initial_x, initial_y, initial_diameter = 480, 468, 250
 initial_dev_up, initial_dev_down = 23, 23
-debug = 0
-plots = 0
-
+debug_mode = False
+enable_plots = False
+pause_mode = True
 def nothing(val):
     pass
 
@@ -35,7 +35,7 @@ def update_mask():
     pellet_center_mask = np.zeros(camera.resolution, dtype="uint8")
     # Draw a circle based on the trackbar values
     cv2.circle(pellet_center_mask, Csys, Dia, 255, -1)
-    if debug == 1:
+    if debug_mode:
         # Display the mask
         cv2.imshow("Pellet center mask", pellet_center_mask)
 
@@ -54,14 +54,14 @@ def histogram_and_threshold(image, mask):
     lower_threshold = mean_value - std_dev_multiplier_lower
     upper_threshold = mean_value + std_dev_multiplier_upper
     
-    if plots == 1:
+    if enable_plots:
         plot_histogram()
     
     # Perform thresholding using mean and brightness deviation
     binary_image = ((masked_image >= lower_threshold) & (masked_image <= upper_threshold)).astype(np.uint8) * 255
 
     # Display the original and thresholded images
-    if debug == 1:
+    if debug_mode:
         cv2.imshow('Original Image', image)
         cv2.imshow('Thresholded Image', binary_image)
     cv2.imshow('Masked image', masked_image_display)
@@ -78,6 +78,7 @@ def create_trackbars():
     cv2.createTrackbar("Threshold_upper", "Trackbars", initial_dev_up, 40, nothing)
     cv2.createTrackbar("Threshold_lower", "Trackbars", initial_dev_down, 40, nothing)
     cv2.createTrackbar("Impurity_pixel_amount", "Trackbars", 1000,50000, nothing)
+    cv2.createTrackbar("detection_threshold", "Trackbars", 40,100, nothing)
 
 def count_black_pixels(binary_image, mask):
     # Apply the mask to the binary image
@@ -121,6 +122,22 @@ def plot_histogram():
     # Pause for a short time to allow the plot window to update
     plt.pause(0.01)
 
+def is_pellet_present(image, mask):
+    masked_image = cv2.bitwise_and(image, mask)
+    # Apply thresholding to create a binary image
+    _, binary = cv2.threshold(masked_image, 225, 255, cv2.THRESH_BINARY)
+    impurity_pixel_count = np.sum(binary == 255)
+    area_pixel_count = np.sum(mask == 255)
+    detection_threshold = cv2.getTrackbarPos("detection_threshold", "Trackbars")
+    percentage_light = int(impurity_pixel_count / area_pixel_count * 100)
+    cv2.putText(binary, "Percentage light:" + str(percentage_light) + "%",  (28,30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+    cv2.putText(binary, "Percentage threshold:" + str(detection_threshold) + "%",  (28,60), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+    cv2.imshow("Binary", binary)
+    if percentage_light > detection_threshold:
+        return False
+    else:
+        return True
+
 camera = PiCamera()
 setup_camera()
 rawCapture = PiRGBArray(camera, size=camera.resolution)
@@ -131,12 +148,18 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
     #original_image = cv2.imread('mask clean11.jpg' , cv2.IMREAD_GRAYSCALE)
     original_image = frame.array
     original_image = cv2.cvtColor(original_image, cv2.COLOR_BGR2GRAY)
-    if debug == 1:
+    if debug_mode:
         cv2.imshow("Original", original_image)
     update_mask()
-
-    histogram_and_threshold(original_image, pellet_center_mask)
-    
+    # Perform object detection qon the frame
+    if is_pellet_present(original_image, pellet_center_mask):
+        print("Pellet")
+        rawCapture.truncate(0)
+        histogram_and_threshold(original_image, pellet_center_mask)
+        while pause_mode:
+            print("pause")
+    else:
+        print("No")    
     key = cv2.waitKey(1) & 0xFF
     if key == 27:  # Press 'Esc' to exit
         break
