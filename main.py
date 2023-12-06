@@ -4,6 +4,9 @@ import matplotlib.pyplot as plt
 from picamera import PiCamera
 from picamera.array import PiRGBArray
 import time
+import tkinter as tk
+from tkinter import Button
+
 # Initial values for trackbars
 initial_x, initial_y, initial_diameter = 480, 468, 250
 initial_dev_up, initial_dev_down = 23, 23
@@ -64,7 +67,6 @@ def histogram_and_threshold(image, mask):
     if debug_mode:
         cv2.imshow('Original Image', image)
         cv2.imshow('Thresholded Image', binary_image)
-    cv2.imshow('Masked image', masked_image_display)
     count_black_pixels(binary_image, mask)
     
 def create_trackbars():
@@ -93,6 +95,8 @@ def count_black_pixels(binary_image, mask):
         print("BAD")
     else:
         print("GOOD")
+    return masked_binary_image
+
 
 def plot_histogram():
     global masked_image
@@ -140,6 +144,38 @@ def is_pellet_present(image, mask):
     else:
         return True
 
+#GUI
+
+# Create Tkinter window
+root = tk.Tk()
+root.title("OpenCV Viewer")
+
+# Create a variable to keep track of the current view
+current_view = "Trackbars"
+
+# Function to switch the current view based on button press
+def switch_view(view_name):
+    global current_view
+    cv2.destroyAllWindows()
+    current_view = view_name
+
+# Function to handle button clicks
+def on_button_click(view_name):
+    switch_view(view_name)
+
+# Create buttons in the Tkinter window
+trackbars_button = Button(root, text="Trackbars", command=lambda: on_button_click("Trackbars"))
+trackbars_button.pack(side="left")
+original_image_button = Button(root, text="Original Image", command=lambda: on_button_click("original_image"))
+original_image_button.pack(side="left")
+masked_image_button = Button(root, text="Masked Image", command=lambda: on_button_click("masked_image"))
+masked_image_button.pack(side="left")
+masked_binary_image_button = Button(root, text="Masked Binary Image", command=lambda: on_button_click("masked_binary_image"))
+masked_binary_image_button.pack(side="left")
+
+# Start Tkinter main loop in a separate thread
+root.after(0, root.mainloop)
+
 camera = PiCamera()
 setup_camera()
 rawCapture = PiRGBArray(camera, size=camera.resolution)
@@ -150,21 +186,24 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
     #original_image = cv2.imread('mask clean11.jpg' , cv2.IMREAD_GRAYSCALE)
     original_image = frame.array
     original_image = cv2.cvtColor(original_image, cv2.COLOR_BGR2GRAY)
-    if debug_mode:
-        cv2.imshow("Original", original_image)
     update_mask()
-    # Perform object detection qon the frame
-    if is_pellet_present(original_image, pellet_center_mask):
-        time.sleep(1)
-        print("Pellet")
-        rawCapture.truncate(0)
-        original_image = frame.array
-        original_image = cv2.cvtColor(original_image, cv2.COLOR_BGR2GRAY)
-        histogram_and_threshold(original_image, pellet_center_mask)
-        while pause_mode:
-            pass
-    else:
-        print("No")    
+    if current_view == "Trackbars":
+        cv2.imshow("Trackbars", np.zeros((1, 1), dtype=np.uint8))  # Dummy window to keep trackbars active
+    elif current_view == "original_image":
+        cv2.imshow("original_image", original_image)
+    elif current_view == "masked_binary_image":
+        if is_pellet_present(original_image, pellet_center_mask):
+            time.sleep(1)
+            print("Pellet")
+            rawCapture.truncate(0)
+            original_image = frame.array
+            original_image = cv2.cvtColor(original_image, cv2.COLOR_BGR2GRAY)
+            masked_binary_image = histogram_and_threshold(original_image, pellet_center_mask)
+            cv2.imshow("masked_binary_image", masked_binary_image)
+            while pause_mode:
+                pass
+        else:
+            print("No")
     key = cv2.waitKey(1) & 0xFF
     if key == 27:  # Press 'Esc' to exit
         break
