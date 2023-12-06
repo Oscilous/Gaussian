@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from picamera import PiCamera
 from picamera.array import PiRGBArray
-
+import time
 # Initial values for trackbars
 initial_x, initial_y, initial_diameter = 480, 468, 250
 initial_dev_up, initial_dev_down = 23, 23
@@ -153,6 +153,7 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
     update_mask()
     # Perform object detection qon the frame
     if is_pellet_present(original_image, pellet_center_mask):
+        time.sleep(1)
         cv2.destroyWindow("Binary")
         print("Pellet")
         rawCapture.truncate(0)
