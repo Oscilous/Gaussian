@@ -161,6 +161,8 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
         original_image = frame.array
         original_image = cv2.cvtColor(original_image, cv2.COLOR_BGR2GRAY)
         histogram_and_threshold(original_image, pellet_center_mask)
+        # Give some time for the window to update
+        cv2.waitKey(10)
         while pause_mode:
             pass
     else:
