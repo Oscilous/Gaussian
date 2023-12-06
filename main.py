@@ -188,9 +188,9 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
     original_image = cv2.cvtColor(original_image, cv2.COLOR_BGR2GRAY)
     update_mask()
     if current_view == "Trackbars":
-        cv2.imshow("Trackbars", np.zeros((1, 1), dtype=np.uint8))  # Dummy window to keep trackbars active
+        cv2.imshow("OpenCV Trackbars", np.zeros((1, 1), dtype=np.uint8))  # Dummy window to keep trackbars active
     elif current_view == "original_image":
-        cv2.imshow("original_image", original_image)
+        cv2.imshow("OpenCV Original Image", original_image)
     elif current_view == "masked_binary_image":
         if is_pellet_present(original_image, pellet_center_mask):
             time.sleep(1)
@@ -199,7 +199,7 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
             original_image = frame.array
             original_image = cv2.cvtColor(original_image, cv2.COLOR_BGR2GRAY)
             masked_binary_image = histogram_and_threshold(original_image, pellet_center_mask)
-            cv2.imshow("masked_binary_image", masked_binary_image)
+            cv2.imshow("OpenCV Masked Binary Image", masked_binary_image)
             while pause_mode:
                 pass
         else:
