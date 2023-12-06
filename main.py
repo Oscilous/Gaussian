@@ -173,8 +173,8 @@ masked_image_button.pack(side="left")
 masked_binary_image_button = Button(root, text="Masked Binary Image", command=lambda: on_button_click("masked_binary_image"))
 masked_binary_image_button.pack(side="left")
 
-# Start Tkinter main loop in a separate thread
-root.after(0, root.mainloop)
+# Start Tkinter main loop
+root.mainloop()
 
 camera = PiCamera()
 setup_camera()
@@ -204,6 +204,9 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
                 pass
         else:
             print("No")
+
+    # Update the Tkinter window
+    root.update()
     key = cv2.waitKey(1) & 0xFF
     if key == 27:  # Press 'Esc' to exit
         break
