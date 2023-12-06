@@ -153,11 +153,12 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
     update_mask()
     # Perform object detection qon the frame
     if is_pellet_present(original_image, pellet_center_mask):
+        cv2.destroyWindow("Binary")
         print("Pellet")
         rawCapture.truncate(0)
         histogram_and_threshold(original_image, pellet_center_mask)
         while pause_mode:
-            print("pause")
+            pass
     else:
         print("No")    
     key = cv2.waitKey(1) & 0xFF
