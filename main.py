@@ -157,6 +157,8 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
         cv2.destroyWindow("Binary")
         print("Pellet")
         rawCapture.truncate(0)
+        original_image = frame.array
+        original_image = cv2.cvtColor(original_image, cv2.COLOR_BGR2GRAY)
         histogram_and_threshold(original_image, pellet_center_mask)
         while pause_mode:
             pass
