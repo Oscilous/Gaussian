@@ -139,20 +139,24 @@ def is_pellet_present(image, mask):
 # Function to switch the current view based on button press
 def update_window():
     global current_view, original_image, masked_image, masked_binary_image
-    # List of windows to keep open
-    windows_to_keep = [current_view]
-
-    # Close windows not in the list
-    for window_name in cv2.getWindowNames():
-        if window_name not in windows_to_keep:
-            cv2.destroyWindow(window_name)
-
     if current_view == "original_image":
+        if cv2.getWindowProperty("OpenCV masked_image", cv2.WND_PROP_VISIBLE) > 0:
+            cv2.destroyWindow("OpenCV masked_image")
+        if cv2.getWindowProperty("Counting black", cv2.WND_PROP_VISIBLE) > 0:
+            cv2.destroyWindow("Counting black")
         cv2.imshow("OpenCV Original Image", original_image)
     elif current_view == "masked_image":
+        if cv2.getWindowProperty("OpenCV Original Image", cv2.WND_PROP_VISIBLE) > 0:
+            cv2.destroyWindow("OpenCV Original Image")
+        if cv2.getWindowProperty("Counting black", cv2.WND_PROP_VISIBLE) > 0:
+            cv2.destroyWindow("Counting black")
         cv2.imshow("OpenCV masked_image", masked_image)
     elif current_view == "masked_binary_image":
-        cv2.imshow("Counting black",masked_binary_image)
+        if cv2.getWindowProperty("OpenCV Original Image", cv2.WND_PROP_VISIBLE) > 0:
+            cv2.destroyWindow("OpenCV Original Image")
+        if cv2.getWindowProperty("OpenCV masked_image", cv2.WND_PROP_VISIBLE) > 0:
+            cv2.destroyWindow("OpenCV masked_image")
+        cv2.imshow("Counting black", masked_binary_image)
 
 # Function to handle button clicks
 def on_button_click(view_name):
@@ -163,9 +167,6 @@ def create_GUI():
     global root
     # Create Tkinter window
     root.title("OpenCV Viewer")
-    # Create buttons in the Tkinter window
-    trackbars_button = Button(root, text="Trackbars", command=lambda: on_button_click("Trackbars"))
-    trackbars_button.pack(side="left")
     original_image_button = Button(root, text="Original Image", command=lambda: on_button_click("original_image"))
     original_image_button.pack(side="left")
     masked_image_button = Button(root, text="Masked Image", command=lambda: on_button_click("masked_image"))
@@ -173,7 +174,8 @@ def create_GUI():
     masked_binary_image_button = Button(root, text="Masked Binary Image", command=lambda: on_button_click("masked_binary_image"))
     masked_binary_image_button.pack(side="left")
     # Start Tkinter main loop
-    root.mainloop()
+    root.update()
+    root.update_idletasks()
 
 #Setting up the pi cam
 camera = PiCamera()
@@ -221,6 +223,7 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
 
     # Update the Tkinter window
     root.update()
+    root.update_idletasks()
     key = cv2.waitKey(1) & 0xFF
     if key == 27:  # Press 'Esc' to exit
         break
