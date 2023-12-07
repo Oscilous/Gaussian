@@ -77,12 +77,10 @@ def create_trackbars():
     cv2.createTrackbar("detection_threshold", "Trackbars", 40,100, nothing)
 
 def count_black_pixels(binary_image, mask):
-    global masked_binary_image
     # Apply the mask to the binary image
-    masked_binary_image = cv2.bitwise_and(~binary_image, mask)
-    update_window()
+    impurities_as_white = cv2.bitwise_and(~binary_image, mask)
     # Count the black pixels (pixel values = 0) inside the masked area
-    impurity_pixel_count = np.sum(masked_binary_image == 255)
+    impurity_pixel_count = np.sum(impurities_as_white == 255)
 
     print(f'Impurities: {impurity_pixel_count}')
     impurity_threshold = cv2.getTrackbarPos("Impurity_pixel_amount", "Trackbars")
@@ -90,7 +88,7 @@ def count_black_pixels(binary_image, mask):
         print("BAD")
     else:
         print("GOOD")
-    return masked_binary_image
+    return impurities_as_white
 
 
 def plot_histogram():
@@ -231,6 +229,8 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
         original_image = cv2.cvtColor(original_image, cv2.COLOR_BGR2GRAY)
         #Preform relative mean based thresholding
         masked_binary_image = histogram_and_threshold(original_image, pellet_center_mask)
+        update_window()
+
         while pause_mode:
             #As masked_binary_image was updated we need to rerender
             update_window()
