@@ -121,6 +121,7 @@ def plot_histogram():
     plt.pause(0.01)
 
 def is_pellet_present(image, mask):
+    global masked_image
     masked_image = cv2.bitwise_and(image, mask)
     #Call update, as one of the displayed images have been updated
     update_window()
