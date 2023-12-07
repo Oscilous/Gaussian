@@ -139,6 +139,7 @@ def is_pellet_present(image, mask):
 # Function to switch the current view based on button press
 def update_window():
     global current_view, original_image, masked_image, masked_binary_image
+    print(current_view)
     if current_view == "original_image":
         if cv2.getWindowProperty("OpenCV masked_image", cv2.WND_PROP_VISIBLE) > 0:
             cv2.destroyWindow("OpenCV masked_image")
@@ -206,16 +207,16 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
     update_mask()
     #We check if the pellet is present
     if is_pellet_present(original_image, pellet_center_mask):
+        time.sleep(1)
+        print("Pellet")
+        #Clear the previous image
+        rawCapture.truncate(0)
+        #Recapture, to ensure a fully stable image
+        original_image = frame.array
+        original_image = cv2.cvtColor(original_image, cv2.COLOR_BGR2GRAY)
+        #Preform relative mean based thresholding
+        masked_binary_image = histogram_and_threshold(original_image, pellet_center_mask)
         while pause_mode:
-            time.sleep(1)
-            print("Pellet")
-            #Clear the previous image
-            rawCapture.truncate(0)
-            #Recapture, to ensure a fully stable image
-            original_image = frame.array
-            original_image = cv2.cvtColor(original_image, cv2.COLOR_BGR2GRAY)
-            #Preform relative mean based thresholding
-            masked_binary_image = histogram_and_threshold(original_image, pellet_center_mask)
             #As masked_binary_image was updated we need to rerender
             update_window()
     else:
