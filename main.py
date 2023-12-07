@@ -218,7 +218,7 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
     #Call update_mask, if adjustments were made with trackbars
     update_mask()
     #We check if the pellet is present
-    """
+    
     if is_pellet_present(original_image, pellet_center_mask):
         time.sleep(1)
         print("Pellet")
@@ -232,9 +232,11 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
         while pause_mode:
             #As masked_binary_image was updated we need to rerender
             update_window()
+            root.update()
+            root.update_idletasks()
     else:
         print("No")
-    """
+    
     # Update the Tkinter window
     root.update()
     root.update_idletasks()
