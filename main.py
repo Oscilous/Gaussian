@@ -6,7 +6,7 @@ from picamera.array import PiRGBArray
 import time
 import tkinter as tk
 from tkinter import Button
-import warnings
+import logging
 
 # Initial values for trackbars
 initial_x, initial_y, initial_diameter = 480, 468, 250
@@ -138,38 +138,32 @@ def is_pellet_present(image, mask):
 def update_window():
     global current_view, original_image, masked_image, masked_binary_image
     if current_view == "original_image":
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore", category=UserWarning)  # Ignore GTK-related warnings
-            try:
-                cv2.destroyWindow("masked_image")
-                cv2.destroyWindow("masked_binary_image")
-            except cv2.error as e:
-                # Ignore the error if the window doesn't exist
-                pass
-            cv2.imshow("original_image", original_image)
-            cv2.waitKey(500)
+        try:
+            cv2.destroyWindow("masked_image")
+            cv2.destroyWindow("masked_binary_image")
+        except cv2.error as e:
+            # Ignore the error if the window doesn't exist
+            pass
+        cv2.imshow("original_image", original_image)
+        cv2.waitKey(500)
     elif current_view == "masked_image":
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore", category=UserWarning)  # Ignore GTK-related warnings
-            try:
-                cv2.destroyWindow("original_image")
-                cv2.destroyWindow("masked_binary_image")
-            except cv2.error as e:
-                # Ignore the error if the window doesn't exist
-                pass
-            cv2.imshow("masked_image", masked_image)
-            cv2.waitKey(500)
+        try:
+            cv2.destroyWindow("original_image")
+            cv2.destroyWindow("masked_binary_image")
+        except cv2.error as e:
+            # Ignore the error if the window doesn't exist
+            pass
+        cv2.imshow("masked_image", masked_image)
+        cv2.waitKey(500)
     elif current_view == "masked_binary_image":
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore", category=UserWarning)  # Ignore GTK-related warnings
-            try:
-                cv2.destroyWindow("original_image")
-                cv2.destroyWindow("masked_image")
-            except cv2.error as e:
-                # Ignore the error if the window doesn't exist
-                pass
-            cv2.imshow("masked_binary_image", masked_binary_image)
-            cv2.waitKey(500)
+        try:
+            cv2.destroyWindow("original_image")
+            cv2.destroyWindow("masked_image")
+        except cv2.error as e:
+            # Ignore the error if the window doesn't exist
+            pass
+        cv2.imshow("masked_binary_image", masked_binary_image)
+        cv2.waitKey(500)
 # Function to handle button clicks
 def on_button_click(view_name):
     global current_view
@@ -188,6 +182,11 @@ def create_GUI():
     # Start Tkinter main loop
     root.update()
     root.update_idletasks()
+
+# Set up logging to capture OpenCV warnings
+logger = logging.getLogger('opencv_warnings')
+logger.addHandler(logging.NullHandler())
+cv2.setLogger(logger)
 
 #Setting up the pi cam
 camera = PiCamera()
