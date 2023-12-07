@@ -80,6 +80,7 @@ def count_black_pixels(binary_image, mask):
     global masked_binary_image
     # Apply the mask to the binary image
     masked_binary_image = cv2.bitwise_and(~binary_image, mask)
+    update_window()
     # Count the black pixels (pixel values = 0) inside the masked area
     impurity_pixel_count = np.sum(masked_binary_image == 255)
 
