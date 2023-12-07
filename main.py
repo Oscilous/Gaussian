@@ -6,7 +6,7 @@ from picamera.array import PiRGBArray
 import time
 import tkinter as tk
 from tkinter import Button
-import logging
+import sys
 
 # Initial values for trackbars
 initial_x, initial_y, initial_diameter = 480, 468, 250
@@ -137,6 +137,10 @@ def is_pellet_present(image, mask):
 # Function to switch the current view based on button press
 def update_window():
     global current_view, original_image, masked_image, masked_binary_image
+    original_stderr = sys.stderr  # Save the original stderr
+
+    # Redirect stderr to a dummy file to suppress the warning
+    sys.stderr = open('dummy_file', 'w')
     if current_view == "original_image":
         try:
             cv2.destroyWindow("masked_image")
@@ -164,6 +168,8 @@ def update_window():
             pass
         cv2.imshow("masked_binary_image", masked_binary_image)
         cv2.waitKey(500)
+    # Restore the original stderr
+    sys.stderr = original_stderr
 # Function to handle button clicks
 def on_button_click(view_name):
     global current_view
@@ -182,11 +188,6 @@ def create_GUI():
     # Start Tkinter main loop
     root.update()
     root.update_idletasks()
-
-# Set up logging to capture OpenCV warnings
-logger = logging.getLogger('opencv_warnings')
-logger.addHandler(logging.NullHandler())
-cv2.setLogger(logger)
 
 #Setting up the pi cam
 camera = PiCamera()
