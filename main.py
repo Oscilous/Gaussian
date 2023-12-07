@@ -39,9 +39,6 @@ def update_mask():
     pellet_center_mask = np.zeros(camera.resolution, dtype="uint8")
     # Draw a circle based on the trackbar values
     cv2.circle(pellet_center_mask, Csys, Dia, 255, -1)
-    if debug_mode:
-        # Display the mask
-        cv2.imshow("Pellet center mask", pellet_center_mask)
 
 def histogram_and_threshold(image, mask):
     # Apply the mask to the image
@@ -140,29 +137,29 @@ def is_pellet_present(image, mask):
 def update_window():
     global current_view, original_image, masked_image, masked_binary_image
     #print(current_view)
-    print(cv2.getWindowProperty("OpenCV Original Image", cv2.WND_PROP_VISIBLE))
-    print(cv2.getWindowProperty("Counting black", cv2.WND_PROP_VISIBLE))
-    print(cv2.getWindowProperty("OpenCV masked_image", cv2.WND_PROP_VISIBLE))
+    print(cv2.getWindowProperty("original_image", cv2.WND_PROP_VISIBLE))
+    print(cv2.getWindowProperty("masked_binary_image", cv2.WND_PROP_VISIBLE))
+    print(cv2.getWindowProperty("masked_image", cv2.WND_PROP_VISIBLE))
     if current_view == "original_image":
-        if cv2.getWindowProperty("OpenCV masked_image", cv2.WND_PROP_VISIBLE) > 0:
-            cv2.destroyWindow("OpenCV masked_image")
-        if cv2.getWindowProperty("Counting black", cv2.WND_PROP_VISIBLE) > 0:
-            cv2.destroyWindow("Counting black")
-        cv2.imshow("OpenCV Original Image", original_image)
+        if cv2.getWindowProperty("masked_image", cv2.WND_PROP_VISIBLE) > 0:
+            cv2.destroyWindow("masked_image")
+        if cv2.getWindowProperty("masked_binary_image", cv2.WND_PROP_VISIBLE) > 0:
+            cv2.destroyWindow("masked_binary_image")
+        cv2.imshow("original_image", original_image)
         cv2.waitKey(500)
     elif current_view == "masked_image":
-        if cv2.getWindowProperty("OpenCV Original Image", cv2.WND_PROP_VISIBLE) > 0:
-            cv2.destroyWindow("OpenCV Original Image")
-        if cv2.getWindowProperty("Counting black", cv2.WND_PROP_VISIBLE) > 0:
-            cv2.destroyWindow("Counting black")
-        cv2.imshow("OpenCV masked_image", masked_image)
+        if cv2.getWindowProperty("original_image", cv2.WND_PROP_VISIBLE) > 0:
+            cv2.destroyWindow("original_image")
+        if cv2.getWindowProperty("masked_binary_image", cv2.WND_PROP_VISIBLE) > 0:
+            cv2.destroyWindow("masked_binary_image")
+        cv2.imshow("masked_image", masked_image)
         cv2.waitKey(500)
     elif current_view == "masked_binary_image":
-        if cv2.getWindowProperty("OpenCV Original Image", cv2.WND_PROP_VISIBLE) > 0:
-            cv2.destroyWindow("OpenCV Original Image")
-        if cv2.getWindowProperty("OpenCV masked_image", cv2.WND_PROP_VISIBLE) > 0:
-            cv2.destroyWindow("OpenCV masked_image")
-        cv2.imshow("Counting black", masked_binary_image)
+        if cv2.getWindowProperty("original_image", cv2.WND_PROP_VISIBLE) > 0:
+            cv2.destroyWindow("original_image")
+        if cv2.getWindowProperty("masked_image", cv2.WND_PROP_VISIBLE) > 0:
+            cv2.destroyWindow("masked_image")
+        cv2.imshow("masked_binary_image", masked_binary_image)
         cv2.waitKey(500)
 # Function to handle button clicks
 def on_button_click(view_name):
