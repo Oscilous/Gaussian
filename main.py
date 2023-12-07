@@ -139,26 +139,31 @@ def is_pellet_present(image, mask):
 # Function to switch the current view based on button press
 def update_window():
     global current_view, original_image, masked_image, masked_binary_image
-    print(current_view)
+    #print(current_view)
+    print(cv2.getWindowProperty("OpenCV Original Image", cv2.WND_PROP_VISIBLE))
+    print(cv2.getWindowProperty("Counting black", cv2.WND_PROP_VISIBLE))
+    print(cv2.getWindowProperty("OpenCV masked_image", cv2.WND_PROP_VISIBLE))
     if current_view == "original_image":
         if cv2.getWindowProperty("OpenCV masked_image", cv2.WND_PROP_VISIBLE) > 0:
             cv2.destroyWindow("OpenCV masked_image")
         if cv2.getWindowProperty("Counting black", cv2.WND_PROP_VISIBLE) > 0:
             cv2.destroyWindow("Counting black")
         cv2.imshow("OpenCV Original Image", original_image)
+        cv2.waitKey(500)
     elif current_view == "masked_image":
         if cv2.getWindowProperty("OpenCV Original Image", cv2.WND_PROP_VISIBLE) > 0:
             cv2.destroyWindow("OpenCV Original Image")
         if cv2.getWindowProperty("Counting black", cv2.WND_PROP_VISIBLE) > 0:
             cv2.destroyWindow("Counting black")
         cv2.imshow("OpenCV masked_image", masked_image)
+        cv2.waitKey(500)
     elif current_view == "masked_binary_image":
         if cv2.getWindowProperty("OpenCV Original Image", cv2.WND_PROP_VISIBLE) > 0:
             cv2.destroyWindow("OpenCV Original Image")
         if cv2.getWindowProperty("OpenCV masked_image", cv2.WND_PROP_VISIBLE) > 0:
             cv2.destroyWindow("OpenCV masked_image")
         cv2.imshow("Counting black", masked_binary_image)
-
+        cv2.waitKey(500)
 # Function to handle button clicks
 def on_button_click(view_name):
     global current_view
@@ -206,6 +211,7 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
     #Call update_mask, if adjustments were made with trackbars
     update_mask()
     #We check if the pellet is present
+    """
     if is_pellet_present(original_image, pellet_center_mask):
         time.sleep(1)
         print("Pellet")
@@ -221,7 +227,7 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
             update_window()
     else:
         print("No")
-
+    """
     # Update the Tkinter window
     root.update()
     root.update_idletasks()
