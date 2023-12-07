@@ -7,7 +7,6 @@ from picamera.array import PiRGBArray
 import time
 import tkinter as tk
 from tkinter import Button
-import sys
 
 # Initial values for trackbars
 initial_x, initial_y, initial_diameter = 480, 468, 250
@@ -138,10 +137,7 @@ def is_pellet_present(image, mask):
 # Function to switch the current view based on button press
 def update_window():
     global current_view, original_image, masked_image, masked_binary_image
-    original_stderr = sys.stderr  # Save the original stderr
-
-    # Redirect stderr to a dummy file to suppress the warning
-    sys.stderr = open('dummy_file', 'w')
+    print(current_view)
     if current_view == "original_image":
         try:
             cv2.destroyWindow("masked_image")
@@ -161,6 +157,7 @@ def update_window():
         cv2.imshow("masked_image", masked_image)
         cv2.waitKey(500)
     elif current_view == "masked_binary_image":
+        print("masked_binary_image")
         try:
             cv2.destroyWindow("original_image")
             cv2.destroyWindow("masked_image")
@@ -169,8 +166,6 @@ def update_window():
             pass
         cv2.imshow("masked_binary_image", masked_binary_image)
         cv2.waitKey(500)
-    # Restore the original stderr
-    sys.stderr = original_stderr
 # Function to handle button clicks
 def on_button_click(view_name):
     global current_view
