@@ -136,31 +136,23 @@ def is_pellet_present(image, mask):
 # Function to switch the current view based on button press
 def update_window():
     global current_view, original_image, masked_image, masked_binary_image
-    #print(current_view)
-    print(cv2.getWindowProperty("original_image", cv2.WND_PROP_VISIBLE))
-    print(cv2.getWindowProperty("masked_binary_image", cv2.WND_PROP_VISIBLE))
-    print(cv2.getWindowProperty("masked_image", cv2.WND_PROP_VISIBLE))
+    global current_view, original_image, masked_image, masked_binary_image
+
+    try:
+        cv2.destroyWindow("original_image")
+        cv2.destroyWindow("masked_image")
+        cv2.destroyWindow("masked_binary_image")
+
+    except cv2.error as e:
+        # Ignore the error if the window doesn't exist
+        pass
+
     if current_view == "original_image":
-        if cv2.getWindowProperty("masked_image", cv2.WND_PROP_VISIBLE) > 0:
-            cv2.destroyWindow("masked_image")
-        if cv2.getWindowProperty("masked_binary_image", cv2.WND_PROP_VISIBLE) > 0:
-            cv2.destroyWindow("masked_binary_image")
         cv2.imshow("original_image", original_image)
-        cv2.waitKey(500)
     elif current_view == "masked_image":
-        if cv2.getWindowProperty("original_image", cv2.WND_PROP_VISIBLE) > 0:
-            cv2.destroyWindow("original_image")
-        if cv2.getWindowProperty("masked_binary_image", cv2.WND_PROP_VISIBLE) > 0:
-            cv2.destroyWindow("masked_binary_image")
         cv2.imshow("masked_image", masked_image)
-        cv2.waitKey(500)
     elif current_view == "masked_binary_image":
-        if cv2.getWindowProperty("original_image", cv2.WND_PROP_VISIBLE) > 0:
-            cv2.destroyWindow("original_image")
-        if cv2.getWindowProperty("masked_image", cv2.WND_PROP_VISIBLE) > 0:
-            cv2.destroyWindow("masked_image")
         cv2.imshow("masked_binary_image", masked_binary_image)
-        cv2.waitKey(500)
 # Function to handle button clicks
 def on_button_click(view_name):
     global current_view
