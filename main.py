@@ -43,9 +43,9 @@ def update_mask():
 
 def histogram_and_threshold(image, mask):
     # Apply the mask to the image
-    masked_image = np.ma.array(image, mask=~mask)
+    masked_impurity_image = np.ma.array(image, mask=~mask)
     # Calculate the mean and standard deviation
-    mean_value = np.mean(masked_image.compressed())
+    mean_value = np.mean(masked_impurity_image.compressed())
 
     std_dev_multiplier_upper = cv2.getTrackbarPos("Threshold_upper", "Trackbars")
     std_dev_multiplier_lower = cv2.getTrackbarPos("Threshold_lower", "Trackbars")
@@ -58,7 +58,7 @@ def histogram_and_threshold(image, mask):
         plot_histogram()
     
     # Perform thresholding using mean and brightness deviation
-    binary_image = ((masked_image >= lower_threshold) & (masked_image <= upper_threshold)).astype(np.uint8) * 255
+    binary_image = ((masked_impurity_image >= lower_threshold) & (masked_impurity_image <= upper_threshold)).astype(np.uint8) * 255
 
     count_black_pixels(binary_image, mask)
     
@@ -76,11 +76,10 @@ def create_trackbars():
     cv2.createTrackbar("detection_threshold", "Trackbars", 40,100, nothing)
 
 def count_black_pixels(binary_image, mask):
-    global masked_binary_image
     # Apply the mask to the binary image
-    masked_binary_image = cv2.bitwise_and(~binary_image, mask)
+    impurities_as_white = cv2.bitwise_and(~binary_image, mask)
     # Count the black pixels (pixel values = 0) inside the masked area
-    impurity_pixel_count = np.sum(masked_binary_image == 255)
+    impurity_pixel_count = np.sum(impurities_as_white == 255)
 
     print(f'Impurities: {impurity_pixel_count}')
     impurity_threshold = cv2.getTrackbarPos("Impurity_pixel_amount", "Trackbars")
@@ -88,10 +87,11 @@ def count_black_pixels(binary_image, mask):
         print("BAD")
     else:
         print("GOOD")
+    return impurities_as_white
 
 
 def plot_histogram():
-    global masked_image
+    global masked_impurity_image
     global lower_threshold
     global upper_threshold
     global std_dev_multiplier_lower
@@ -101,7 +101,7 @@ def plot_histogram():
     plt.clf()
 
     # Plot the histogram
-    plt.hist(masked_image.compressed(), bins=256, density=True, alpha=0.6, color='g')
+    plt.hist(masked_impurity_image.compressed(), bins=256, density=True, alpha=0.6, color='g')
 
     # Add vertical lines at thresholding points
     plt.axvline(x=lower_threshold, color='r', linestyle='--', label=f'Lower Threshold ({std_dev_multiplier_lower} std dev)')
@@ -116,7 +116,7 @@ def plot_histogram():
     plt.legend()
 
     # Pause for a short time to allow the plot window to update
-    plt.pause(0.01)
+    plt.pause(1)
 
 def is_pellet_present(image, mask):
     global masked_image
@@ -137,6 +137,7 @@ def is_pellet_present(image, mask):
 # Function to switch the current view based on button press
 def update_window():
     global current_view, original_image, masked_image, masked_binary_image
+    print(current_view)
     if current_view == "original_image":
         try:
             cv2.destroyWindow("masked_image")
@@ -156,6 +157,7 @@ def update_window():
         cv2.imshow("masked_image", masked_image)
         cv2.waitKey(500)
     elif current_view == "masked_binary_image":
+        print("masked_binary_image")
         try:
             cv2.destroyWindow("original_image")
             cv2.destroyWindow("masked_image")
@@ -182,6 +184,26 @@ def create_GUI():
     # Start Tkinter main loop
     root.update()
     root.update_idletasks()
+
+def loop_histogram(image, mask):
+    # Apply the mask to the image
+    masked_impurity_image = np.ma.array(image, mask=~mask)
+    # Calculate the mean and standard deviation
+    mean_value = np.mean(masked_impurity_image.compressed())
+
+    std_dev_multiplier_upper = cv2.getTrackbarPos("Threshold_upper", "Trackbars")
+    std_dev_multiplier_lower = cv2.getTrackbarPos("Threshold_lower", "Trackbars")
+
+    # Calculate the threshold range
+    lower_threshold = mean_value - std_dev_multiplier_lower
+    upper_threshold = mean_value + std_dev_multiplier_upper
+    
+    plot_histogram()
+    
+    # Perform thresholding using mean and brightness deviation
+    binary_image = ((masked_impurity_image >= lower_threshold) & (masked_impurity_image <= upper_threshold)).astype(np.uint8) * 255
+
+    count_black_pixels(binary_image, mask)
 
 #Setting up the pi cam
 camera = PiCamera()
@@ -221,10 +243,12 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
         original_image = frame.array
         original_image = cv2.cvtColor(original_image, cv2.COLOR_BGR2GRAY)
         #Preform relative mean based thresholding
-        histogram_and_threshold(original_image, pellet_center_mask)
+        masked_binary_image = histogram_and_threshold(original_image, pellet_center_mask)
         update_window()
+
         while pause_mode:
             #As masked_binary_image was updated we need to rerender
+            loop_histogram(original_image, pellet_center_mask)
             update_window()
             root.update()
             root.update_idletasks()
