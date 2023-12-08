@@ -11,11 +11,11 @@ pwm.start(0) #init af servo motor
 time.sleep(1)
 try:
     while True:
-        pwm.ChangeDutyCycle(0)
+        pwm.ChangeDutyCycle(1)
         time.sleep(3)
-        pwm.ChangeDutyCycle(6.8)
+        pwm.ChangeDutyCycle(1.5)
         time.sleep(3)
-        pwm.ChangeDutyCycle(11.2)
+        pwm.ChangeDutyCycle(2)
         time.sleep(3)
 
 except KeyboardInterrupt:
