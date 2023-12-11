@@ -129,6 +129,7 @@ def is_pellet_present(image, mask):
     area_pixel_count = np.sum(mask == 255)
     detection_threshold = cv2.getTrackbarPos("detection_threshold", "Trackbars")
     percentage_light = int(impurity_pixel_count / area_pixel_count * 100)
+    print(percentage_light)
     if percentage_light > detection_threshold:
         return False
     else:
