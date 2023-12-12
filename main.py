@@ -105,7 +105,8 @@ def histogram_and_threshold(image, mask):
     # Perform thresholding using mean and brightness deviation
     binary_image = ((masked_image >= lower_threshold) & (masked_image <= upper_threshold)).astype(np.uint8) * 255
 
-    count_black_pixels(binary_image, mask)
+    is_pellet_good = count_black_pixels(binary_image, mask)
+    return is_pellet_good
     
 def create_trackbars():
     # Set up the window and trackbars
@@ -130,9 +131,9 @@ def count_black_pixels(binary_image, mask):
     print(f'Impurities: {impurity_pixel_count}')
     impurity_threshold = cv2.getTrackbarPos("Impurity_pixel_amount", "Trackbars")
     if impurity_pixel_count > impurity_threshold:
-        print("BAD")
+        return False
     else:
-        print("GOOD")
+        return True
 
 
 def plot_histogram():
@@ -266,14 +267,20 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
         original_image = frame.array
         original_image = cv2.cvtColor(original_image, cv2.COLOR_BGR2GRAY)
         #Preform relative mean based thresholding
-        histogram_and_threshold(original_image, pellet_center_mask)
+        is_good_pellet = histogram_and_threshold(original_image, pellet_center_mask)
         update_window()
         forward_90()
         time.sleep(1)
-        GPIO.output(solunoid, GPIO.HIGH)
+        if is_good_pellet:
+            GPIO.output(solunoid, GPIO.HIGH)
+        else:
+            GPIO.output(solunoid, GPIO.LOW)
         forward_90()
         time.sleep(1)
-        GPIO.output(solunoid, GPIO.LOW)
+        if is_good_pellet:
+            GPIO.output(solunoid, GPIO.LOW)
+        else:
+            GPIO.output(solunoid, GPIO.LOW)
         back_180()
         auto_home()
     else:
