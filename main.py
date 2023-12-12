@@ -119,7 +119,7 @@ def create_trackbars():
     cv2.createTrackbar("Threshold_upper", "Trackbars", initial_dev_up, 40, nothing)
     cv2.createTrackbar("Threshold_lower", "Trackbars", initial_dev_down, 40, nothing)
     cv2.createTrackbar("Impurity_pixel_amount", "Trackbars", 1000,50000, nothing)
-    cv2.createTrackbar("detection_threshold", "Trackbars", 40,100, nothing)
+    cv2.createTrackbar("detection_threshold", "Trackbars", 60,100, nothing)
 
 def count_black_pixels(binary_image, mask):
     global masked_binary_image
