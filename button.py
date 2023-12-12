@@ -10,12 +10,12 @@ GPIO.setup(solunoid, GPIO.OUT)
 try:
     while True:
         button_state = GPIO.input(button)
-        #if button_state == GPIO.HIGH:
-        GPIO.output(solunoid, GPIO.HIGH)
-        time.sleep(5)
-        #else:
-        GPIO.output(solunoid, GPIO.LOW)
-        time.sleep(5)
+        if button_state == GPIO.HIGH:
+            print("HIGH")
+            GPIO.output(solunoid, GPIO.HIGH)
+        else:
+            print("LOW")
+            GPIO.output(solunoid, GPIO.LOW)
 except KeyboardInterrupt:
     print("Exiting program")
 

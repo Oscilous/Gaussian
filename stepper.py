@@ -1,6 +1,7 @@
 import RPi.GPIO as GPIO
 import time
 
+GPIO.cleanup()
 speed = 0.005
 # Set GPIO pin numbers
 solunoid = 22
@@ -24,7 +25,7 @@ def home():
         GPIO.output(STEP_PIN, GPIO.LOW)
         time.sleep(0.02)
     GPIO.output(DIR_PIN, GPIO.HIGH)  # Away from endstop
-    for i in range (0, 8):     
+    for i in range (0, 7):     
         GPIO.output(STEP_PIN, GPIO.HIGH)
         time.sleep(speed)
         GPIO.output(STEP_PIN, GPIO.LOW)
@@ -49,19 +50,15 @@ try:
     home()
     i = 0
     while True:
-        
         time.sleep(1)
         dispense_pellet()
         time.sleep(1)
-        if i == 1:
-            GPIO.output(solunoid, GPIO.HIGH)
+        GPIO.output(solunoid, GPIO.HIGH)
         dispense_pellet()
         time.sleep(1)
-        if i == 1:
-            GPIO.output(solunoid, GPIO.LOW)
-            i = 0
+        GPIO.output(solunoid, GPIO.LOW)
         return_entrance()
-        i = i + 1
+        home()
         
         
 except KeyboardInterrupt:
