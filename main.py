@@ -131,8 +131,10 @@ def count_black_pixels(binary_image, mask):
     print(f'Impurities: {impurity_pixel_count}')
     impurity_threshold = cv2.getTrackbarPos("Impurity_pixel_amount", "Trackbars")
     if impurity_pixel_count > impurity_threshold:
+        print("BAD")
         return False
     else:
+        print("GOOD")
         return True
 
 
@@ -272,9 +274,9 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
         forward_90()
         time.sleep(1)
         if is_good_pellet:
-            GPIO.output(solunoid, GPIO.HIGH)
-        else:
             GPIO.output(solunoid, GPIO.LOW)
+        else:
+            GPIO.output(solunoid, GPIO.HIGH)
         forward_90()
         time.sleep(1)
         if is_good_pellet:
