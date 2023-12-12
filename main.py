@@ -244,7 +244,7 @@ create_GUI()
 original_image = np.zeros(camera.resolution, dtype="uint8")
 masked_image = np.zeros(camera.resolution, dtype="uint8")
 masked_binary_image = np.zeros(camera.resolution, dtype="uint8")
-
+auto_home()
 # Main loop
 for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):    #This would be the first thing in the big loop
     #original_image = cv2.imread('mask clean11.jpg' , cv2.IMREAD_GRAYSCALE)
@@ -268,11 +268,14 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
         #Preform relative mean based thresholding
         histogram_and_threshold(original_image, pellet_center_mask)
         update_window()
-        while pause_mode:
-            #As masked_binary_image was updated we need to rerender
-            update_window()
-            root.update()
-            root.update_idletasks()
+        forward_90()
+        time.sleep(1)
+        GPIO.output(solunoid, GPIO.HIGH)
+        forward_90()
+        time.sleep(1)
+        GPIO.output(solunoid, GPIO.LOW)
+        back_180()
+        auto_home()
     else:
         print("No")
     
