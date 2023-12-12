@@ -17,7 +17,7 @@ GPIO.setup(solunoid, GPIO.OUT)
 GPIO.output(solunoid, GPIO.LOW)
 GPIO.setup(end_switch, GPIO.IN, GPIO.PUD_UP)
 
-def home():
+def auto_home():
     GPIO.output(DIR_PIN, GPIO.LOW)  # To end stop
     while GPIO.input(end_switch) == GPIO.LOW:     
         GPIO.output(STEP_PIN, GPIO.HIGH)
@@ -31,14 +31,14 @@ def home():
         GPIO.output(STEP_PIN, GPIO.LOW)
         time.sleep(speed)
         
-def dispense_pellet():
+def forward_90():
     GPIO.output(DIR_PIN, GPIO.HIGH)  # Away from endstop
     for i in range (0, 50):
         GPIO.output(STEP_PIN, GPIO.HIGH)
         time.sleep(speed)
         GPIO.output(STEP_PIN, GPIO.LOW)
         time.sleep(speed)
-def return_entrance():
+def back_180():
     GPIO.output(DIR_PIN, GPIO.LOW)  # To  endstop
     for i in range (0, 100):
         GPIO.output(STEP_PIN, GPIO.HIGH)
@@ -47,18 +47,18 @@ def return_entrance():
         time.sleep(speed)
         
 try:
-    home()
+    auto_home()
     i = 0
     while True:
         time.sleep(1)
-        dispense_pellet()
+        forward_90()
         time.sleep(1)
         GPIO.output(solunoid, GPIO.HIGH)
-        dispense_pellet()
+        forward_90()
         time.sleep(1)
         GPIO.output(solunoid, GPIO.LOW)
-        return_entrance()
-        home()
+        back_180()
+        auto_home()
         
         
 except KeyboardInterrupt:
