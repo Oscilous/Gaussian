@@ -214,7 +214,6 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
     #We check if the pellet is present
     
     if is_pellet_present(original_image, pellet_center_mask):
-        time.sleep(1)
         print("Pellet")
         #Clear the previous image
         rawCapture.truncate(0)
