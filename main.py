@@ -99,17 +99,17 @@ class MyMainWindow(QMainWindow):
         pixmap = QPixmap.fromImage(q_image)
         self.image_label.setPixmap(pixmap)
     def update_image(self):
-        global Csys, Dia, pellet_center_mask, camera, threshold_upper_slider, threshold_lower_slider, impurity_pixel_amount_slider, detection_threshold_slider
+        global Csys, Dia, pellet_center_mask, camera, threshold_upper, threshold_lower, impurity_pixel_amount, detection_threshold
         # Update the image based on the current slider values
         circle_x = self.circle_x_slider.value()
         circle_y = self.circle_y_slider.value()
         Csys = (circle_x, circle_y)
         Dia = self.diameter_slider.value()
 
-        threshold_upper_slider = self.threshold_upper_slider
-        threshold_lower_slider = self.threshold_lower_slider
-        impurity_pixel_amount_slider = self.impurity_pixel_amount_slider
-        detection_threshold_slider = self.detection_threshold_slider
+        threshold_upper = self.threshold_upper_slider
+        threshold_lower = self.threshold_lower_slider
+        impurity_pixel_amount = self.impurity_pixel_amount_slider
+        detection_threshold = self.detection_threshold_slider
         # Create a black canvas the size of the camera feed
         pellet_center_mask = np.zeros(camera.resolution, dtype="uint8")
         # Draw a circle based on the trackbar values
