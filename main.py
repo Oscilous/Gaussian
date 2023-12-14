@@ -243,9 +243,9 @@ def is_pellet_present(image, mask):
     #Call update, as one of the displayed images have been updated
     # Apply thresholding to create a binary image
     _, binary = cv2.threshold(masked_image, 210, 255, cv2.THRESH_BINARY)
-    impurity_pixel_count = np.sum(binary == 255)
-    area_pixel_count = np.sum(mask == 255)
-    percentage_light = int(impurity_pixel_count / area_pixel_count * 100)
+    white_pixel_amount_camera = np.sum(binary == 255)
+    white_pixel_amount_mask = np.sum(mask == 255)
+    percentage_light = int(white_pixel_amount_camera / white_pixel_amount_mask * 100)
     print(percentage_light)
     if percentage_light > detection_threshold:
         return False
@@ -255,6 +255,7 @@ def is_pellet_present(image, mask):
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     window = MyMainWindow()
+    window.update_image()
     #Setting up the pi cam
     camera = PiCamera()
     setup_camera()
