@@ -75,12 +75,13 @@ class MyMainWindow(QMainWindow):
         self.updateOpenCVImage()
 
     def updateOpenCVImage(self):
+        global original_image, masked_image, masked_binary_image
         if self.current_view == "original_image":
-            updated_image = self.original_image
+            updated_image = original_image
         elif self.current_view == "masked_image":
-            updated_image = self.masked_image
+            updated_image = masked_image
         elif self.current_view == "masked_binary_image":
-            updated_image = self.masked_binary_image
+            updated_image = masked_binary_image
 
         # Convert the OpenCV image to a QImage
         h, w = updated_image.shape
