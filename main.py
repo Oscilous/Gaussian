@@ -30,6 +30,15 @@ GPIO.setup(end_switch, GPIO.IN, GPIO.PUD_UP)
 # Initial values for trackbars
 initial_x, initial_y, initial_diameter = 480, 468, 250
 initial_dev_up, initial_dev_down = 23, 23
+initial_detection_threshold = 60
+initial_impurity_pixel_amount = 50
+circle_x = initial_x
+circle_y = initial_y
+Dia = initial_diameter
+threshold_lower = initial_dev_down
+threshold_upper = initial_dev_up
+detection_threshold = initial_detection_threshold
+impurity_threshold = initial_impurity_threshold
 debug_mode = False
 enable_plots = False
 pause_mode = True
@@ -54,8 +63,8 @@ class MyMainWindow(QMainWindow):
         self.circle_y_slider = self.create_slider("Circle Y", layout, initial_diameter, 500)
         self.threshold_upper_slider = self.create_slider("Threshold Upper to 255", layout, initial_dev_up, 40)
         self.threshold_lower_slider = self.create_slider("Threshold Lower to 0", layout, initial_dev_down, 40)
-        self.impurity_pixel_amount_slider = self.create_slider("Impurity Pixel Amount", layout, 50, 10000)
-        self.detection_threshold_slider = self.create_slider("Pellet detection Threshold", layout, 60, 100)
+        self.impurity_pixel_amount_slider = self.create_slider("Impurity threshold", layout, initial_impurity_threshold, 10000)
+        self.detection_threshold_slider = self.create_slider("Pellet detection Threshold", layout, initial_detection_threshold, 100)
         
         self.setWindowTitle("Qt Window")
         self.setGeometry(100, 100, 800, 600)
@@ -99,7 +108,7 @@ class MyMainWindow(QMainWindow):
         pixmap = QPixmap.fromImage(q_image)
         self.image_label.setPixmap(pixmap)
     def update_image(self):
-        global Csys, Dia, pellet_center_mask, camera, threshold_upper, threshold_lower, impurity_pixel_amount, detection_threshold
+        global Csys, Dia, pellet_center_mask, camera, threshold_upper, threshold_lower, impurity_threshold, detection_threshold
         # Update the image based on the current slider values
         circle_x = self.circle_x_slider.value()
         circle_y = self.circle_y_slider.value()
@@ -108,7 +117,7 @@ class MyMainWindow(QMainWindow):
 
         threshold_upper = self.threshold_upper_slider
         threshold_lower = self.threshold_lower_slider
-        impurity_pixel_amount = self.impurity_pixel_amount_slider
+        impurity_threshold = self.impurity_threshold_slider
         detection_threshold = self.detection_threshold_slider
         # Create a black canvas the size of the camera feed
         pellet_center_mask = np.zeros(camera.resolution, dtype="uint8")
@@ -185,19 +194,6 @@ def histogram_and_threshold(image, mask):
     is_pellet_good = count_black_pixels(binary_image, mask)
     return is_pellet_good
     
-def create_trackbars():
-    # Set up the window and trackbars
-    cv2.namedWindow("Trackbars")
-
-    # Create trackbars with default values
-    cv2.createTrackbar("Circle_X", "Trackbars", initial_x, 960, nothing)
-    cv2.createTrackbar("Circle_Y", "Trackbars", initial_y, 960, nothing)
-    cv2.createTrackbar("Circle_Diameter", "Trackbars", initial_diameter, 500, nothing)
-    cv2.createTrackbar("Threshold_upper", "Trackbars", initial_dev_up, 40, nothing)
-    cv2.createTrackbar("Threshold_lower", "Trackbars", initial_dev_down, 40, nothing)
-    cv2.createTrackbar("Impurity_pixel_amount", "Trackbars", 1000,50000, nothing)
-    cv2.createTrackbar("detection_threshold", "Trackbars", 60,100, nothing)
-
 def count_black_pixels(binary_image, mask):
     global masked_binary_image
     # Apply the mask to the binary image
@@ -206,7 +202,6 @@ def count_black_pixels(binary_image, mask):
     impurity_pixel_count = np.sum(masked_binary_image == 255)
 
     print(f'Impurities: {impurity_pixel_count}')
-    impurity_threshold = impurity_pixel_amount
     if impurity_pixel_count > impurity_threshold:
         print("BAD")
         return False
@@ -243,14 +238,13 @@ def plot_histogram():
     plt.pause(0.01)
 
 def is_pellet_present(image, mask):
-    global masked_image
+    global masked_image, detection_threshold
     masked_image = cv2.bitwise_and(image, mask)
     #Call update, as one of the displayed images have been updated
     # Apply thresholding to create a binary image
     _, binary = cv2.threshold(masked_image, 240, 255, cv2.THRESH_BINARY)
     impurity_pixel_count = np.sum(binary == 255)
     area_pixel_count = np.sum(mask == 255)
-    detection_threshold = detection_threshold
     percentage_light = int(impurity_pixel_count / area_pixel_count * 100)
     print(percentage_light)
     if percentage_light > detection_threshold:
@@ -267,9 +261,6 @@ if __name__ == "__main__":
     rawCapture = PiRGBArray(camera, size=camera.resolution)
     # Create the Trackbars, so the mask can be created
     current_view = "original_image"
-    # Create trackbars for adjusting mask
-    create_trackbars()
-    #Creating GUI
     #Creating blank canvas of images that will be rendered
     original_image = np.zeros(camera.resolution, dtype="uint8")
     masked_image = np.zeros(camera.resolution, dtype="uint8")
