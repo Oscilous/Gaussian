@@ -83,7 +83,6 @@ class MyMainWindow(QMainWindow):
         # QLabel for displaying the image on the right side
         self.image_label = QLabel(self)
         main_layout.addWidget(self.image_label)
-        self.updateOpenCVImage()
 
         self.setWindowTitle("GUI")
 
