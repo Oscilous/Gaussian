@@ -278,8 +278,6 @@ if __name__ == "__main__":
         #Make sure it is greyscale so we can use thresholding
         original_image = cv2.cvtColor(original_image, cv2.COLOR_BGR2GRAY)
         #As we've updated the original_image, it needs to be rerendered
-        #Call update_mask, if adjustments were made with trackbars
-        update_mask()
         #We check if the pellet is present
         
         if is_pellet_present(original_image, pellet_center_mask):
