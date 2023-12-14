@@ -83,7 +83,10 @@ class MyMainWindow(QMainWindow):
         # QLabel for displaying the image on the right side
         self.image_label = QLabel(self)
         main_layout.addWidget(self.image_label)
+        self.updateOpenCVImage()
+
         self.setWindowTitle("GUI")
+
         # Timer for updating the image
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.update_image)
@@ -122,6 +125,7 @@ class MyMainWindow(QMainWindow):
         # Convert the QImage to a QPixmap and set it to the QLabel
         pixmap = QPixmap.fromImage(q_image)
         self.image_label.setPixmap(pixmap)
+
     def update_image(self):
         global Csys, Dia, pellet_center_mask, camera, threshold_upper, threshold_lower, impurity_threshold, detection_threshold
         # Update the image based on the current slider values
