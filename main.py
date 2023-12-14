@@ -7,7 +7,7 @@ from picamera import PiCamera
 from picamera.array import PiRGBArray
 import time
 import RPi.GPIO as GPIO
-from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QGridLayout, QPushButton, QLabel, QSlider, QVBoxLayout
+from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QHBoxLayout, QVBoxLayout, QPushButton, QLabel, QSlider, QDesktopWidget
 from PyQt5.QtGui import QImage, QPixmap
 from PyQt5.QtCore import QTimer, Qt
 
@@ -30,7 +30,7 @@ GPIO.setup(end_switch, GPIO.IN, GPIO.PUD_UP)
 # Initial values for trackbars
 initial_x, initial_y, initial_diameter = 480, 468, 250
 initial_dev_up, initial_dev_down = 23, 23
-initial_detection_threshold = 40
+initial_detection_threshold = 5
 initial_impurity_threshold = 50
 circle_x = initial_x
 circle_y = initial_y
@@ -49,32 +49,47 @@ class MyMainWindow(QMainWindow):
         self.initUI()
 
     def initUI(self):
+        # Get the screen size and set the window to fill the screen
+        screen = QDesktopWidget().screenGeometry()
+        self.setGeometry(0, 0, screen.width(), screen.height())
+
         central_widget = QWidget(self)
         self.setCentralWidget(central_widget)
-        layout = QVBoxLayout(central_widget)
+        # Main horizontal layout
+        main_layout = QHBoxLayout(central_widget)
 
-        # Add QLabel for displaying the image
-        self.image_label = QLabel(self)
-        layout.addWidget(self.image_label)
+        # Vertical layout for buttons and sliders
+        left_layout = QVBoxLayout()
+        main_layout.addLayout(left_layout)
+
+        # Add buttons to the top left
+        button1 = QPushButton("Button 1", self)
+        button2 = QPushButton("Button 2", self)
+        # Add more buttons as needed
+        left_layout.addWidget(button1)
+        left_layout.addWidget(button2)
 
         # Add sliders (replacing OpenCV trackbars)
-        self.circle_x_slider = self.create_slider("Circle X", layout, initial_x, 960)
-        self.circle_y_slider = self.create_slider("Circle Y", layout, initial_y, 960)
-        self.diameter_slider = self.create_slider("Circle Y", layout, initial_diameter, 500)
-        self.threshold_upper_slider = self.create_slider("Threshold Upper to 255", layout, initial_dev_up, 40)
-        self.threshold_lower_slider = self.create_slider("Threshold Lower to 0", layout, initial_dev_down, 40)
-        self.impurity_threshold_slider = self.create_slider("Impurity threshold", layout, initial_impurity_threshold, 10000)
-        self.detection_threshold_slider = self.create_slider("Pellet detection Threshold", layout, initial_detection_threshold, 100)
+        self.circle_x_slider = self.create_slider("Circle X", left_layout, initial_x, 960)
+        self.circle_y_slider = self.create_slider("Circle Y", left_layout, initial_y, 960)
+        self.diameter_slider = self.create_slider("Circle Y", left_layout, initial_diameter, 500)
+        self.threshold_upper_slider = self.create_slider("Threshold Upper to 255", left_layout, initial_dev_up, 40)
+        self.threshold_lower_slider = self.create_slider("Threshold Lower to 0", left_layout, initial_dev_down, 40)
+        self.impurity_threshold_slider = self.create_slider("Impurity threshold", left_layout, initial_impurity_threshold, 10000)
+        self.detection_threshold_slider = self.create_slider("Pellet detection Threshold", left_layout, initial_detection_threshold, 100)
         
-        self.setWindowTitle("Qt Window")
-        self.setGeometry(100, 100, 800, 600)
 
+
+        # QLabel for displaying the image on the right side
+        self.image_label = QLabel(self)
+        main_layout.addWidget(self.image_label)
+        self.setWindowTitle("GUI")
         # Timer for updating the image
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.update_image)
         self.timer.start(100)  # Adjust the interval as needed
 
-        self.show()
+        self.showMaximized()
 
     def create_slider(self, title, layout, default, max):
         slider = QSlider(Qt.Horizontal)
