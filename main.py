@@ -31,7 +31,7 @@ GPIO.setup(end_switch, GPIO.IN, GPIO.PUD_UP)
 initial_x, initial_y, initial_diameter = 480, 468, 250
 initial_dev_up, initial_dev_down = 23, 23
 initial_detection_threshold = 60
-initial_impurity_pixel_amount = 50
+initial_impurity_threshold = 50
 circle_x = initial_x
 circle_y = initial_y
 Dia = initial_diameter
@@ -63,7 +63,7 @@ class MyMainWindow(QMainWindow):
         self.circle_y_slider = self.create_slider("Circle Y", layout, initial_diameter, 500)
         self.threshold_upper_slider = self.create_slider("Threshold Upper to 255", layout, initial_dev_up, 40)
         self.threshold_lower_slider = self.create_slider("Threshold Lower to 0", layout, initial_dev_down, 40)
-        self.impurity_pixel_amount_slider = self.create_slider("Impurity threshold", layout, initial_impurity_threshold, 10000)
+        self.impurity_threshold_slider = self.create_slider("Impurity threshold", layout, initial_impurity_threshold, 10000)
         self.detection_threshold_slider = self.create_slider("Pellet detection Threshold", layout, initial_detection_threshold, 100)
         
         self.setWindowTitle("Qt Window")
@@ -195,7 +195,7 @@ def histogram_and_threshold(image, mask):
     return is_pellet_good
     
 def count_black_pixels(binary_image, mask):
-    global masked_binary_image
+    global masked_binary_image, impurity_threshold
     # Apply the mask to the binary image
     masked_binary_image = cv2.bitwise_and(~binary_image, mask)
     # Count the black pixels (pixel values = 0) inside the masked area
