@@ -169,8 +169,8 @@ def histogram_and_threshold(image, mask):
     # Calculate the mean and standard deviation
     mean_value = np.mean(masked_image.compressed())
 
-    std_dev_multiplier_upper = cv2.getTrackbarPos("Threshold_upper", "Trackbars")
-    std_dev_multiplier_lower = cv2.getTrackbarPos("Threshold_lower", "Trackbars")
+    std_dev_multiplier_upper = threshold_upper
+    std_dev_multiplier_lower = threshold_upper
 
     # Calculate the threshold range
     lower_threshold = mean_value - std_dev_multiplier_lower
@@ -206,7 +206,7 @@ def count_black_pixels(binary_image, mask):
     impurity_pixel_count = np.sum(masked_binary_image == 255)
 
     print(f'Impurities: {impurity_pixel_count}')
-    impurity_threshold = cv2.getTrackbarPos("Impurity_pixel_amount", "Trackbars")
+    impurity_threshold = impurity_pixel_amount
     if impurity_pixel_count > impurity_threshold:
         print("BAD")
         return False
@@ -250,7 +250,7 @@ def is_pellet_present(image, mask):
     _, binary = cv2.threshold(masked_image, 240, 255, cv2.THRESH_BINARY)
     impurity_pixel_count = np.sum(binary == 255)
     area_pixel_count = np.sum(mask == 255)
-    detection_threshold = cv2.getTrackbarPos("detection_threshold", "Trackbars")
+    detection_threshold = detection_threshold
     percentage_light = int(impurity_pixel_count / area_pixel_count * 100)
     print(percentage_light)
     if percentage_light > detection_threshold:
