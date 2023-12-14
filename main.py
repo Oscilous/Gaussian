@@ -230,7 +230,6 @@ def is_pellet_present(image, mask):
     global masked_image
     masked_image = cv2.bitwise_and(image, mask)
     #Call update, as one of the displayed images have been updated
-    update_window()
     # Apply thresholding to create a binary image
     _, binary = cv2.threshold(masked_image, 240, 255, cv2.THRESH_BINARY)
     impurity_pixel_count = np.sum(binary == 255)
@@ -281,7 +280,6 @@ if __name__ == "__main__":
             original_image = cv2.cvtColor(original_image, cv2.COLOR_BGR2GRAY)
             #Preform relative mean based thresholding
             is_good_pellet = histogram_and_threshold(original_image, pellet_center_mask)
-            update_window()
             forward_90()
             time.sleep(1)
             if is_good_pellet:
