@@ -30,7 +30,7 @@ GPIO.setup(end_switch, GPIO.IN, GPIO.PUD_UP)
 # Initial values for trackbars
 initial_x, initial_y, initial_diameter = 480, 468, 250
 initial_dev_up, initial_dev_down = 23, 23
-initial_detection_threshold = 60
+initial_detection_threshold = 40
 initial_impurity_threshold = 50
 circle_x = initial_x
 circle_y = initial_y
@@ -242,7 +242,7 @@ def is_pellet_present(image, mask):
     masked_image = cv2.bitwise_and(image, mask)
     #Call update, as one of the displayed images have been updated
     # Apply thresholding to create a binary image
-    _, binary = cv2.threshold(masked_image, 240, 255, cv2.THRESH_BINARY)
+    _, binary = cv2.threshold(masked_image, 210, 255, cv2.THRESH_BINARY)
     impurity_pixel_count = np.sum(binary == 255)
     area_pixel_count = np.sum(mask == 255)
     percentage_light = int(impurity_pixel_count / area_pixel_count * 100)
