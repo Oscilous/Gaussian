@@ -1,16 +1,15 @@
 #python main.py 2> /dev/null
+import sys
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 from picamera import PiCamera
 from picamera.array import PiRGBArray
 import time
-import tkinter as tk
-from tkinter import Button
 import RPi.GPIO as GPIO
-from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QGridLayout, QPushButton
+from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QGridLayout, QPushButton, QLabel
 from PyQt5.QtGui import QImage, QPixmap
-from PyQt5.QtCore import Qt, QTimer
+from PyQt5.QtCore import QTimer
 
 GPIO.cleanup()
 speed = 0.005
