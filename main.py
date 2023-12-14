@@ -39,49 +39,58 @@ class MyMainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
+        self.current_view = "original_image"
+        self.original_image = np.zeros((960, 960), dtype="uint8")
+        self.masked_image = np.zeros((960, 960), dtype="uint8")
+        self.masked_binary_image = np.zeros((960, 960), dtype="uint8")
         self.initUI()
 
     def initUI(self):
         central_widget = QWidget(self)
         self.setCentralWidget(central_widget)
-
-        # Create layout for the central widget
         layout = QGridLayout(central_widget)
 
-        # Add a Qt button
-        button = QPushButton("Click me", self)
-        button.clicked.connect(self.onButtonClick)
-        layout.addWidget(button, 0, 0)
+        # Buttons for switching views
+        self.original_image_button = QPushButton("Original Image", self)
+        self.original_image_button.clicked.connect(lambda: self.on_button_click("original_image"))
+        layout.addWidget(self.original_image_button, 0, 0)
 
-        # Embed the OpenCV imshow window
-        self.embedOpenCVImshow(layout, 1, 0, 1, 2)
+        self.masked_image_button = QPushButton("Masked Image", self)
+        self.masked_image_button.clicked.connect(lambda: self.on_button_click("masked_image"))
+        layout.addWidget(self.masked_image_button, 1, 0)
+
+        self.masked_binary_image_button = QPushButton("Masked Binary Image", self)
+        self.masked_binary_image_button.clicked.connect(lambda: self.on_button_click("masked_binary_image"))
+        layout.addWidget(self.masked_binary_image_button, 2, 0)
+
+        # QLabel for displaying images
+        self.image_label = QLabel(self)
+        layout.addWidget(self.image_label, 3, 0, 1, 3)
 
         self.setWindowTitle("Qt Window")
         self.setGeometry(100, 100, 800, 600)
-
-        # Create a timer to periodically update the OpenCV image
-        self.timer = QTimer(self)
-        self.timer.timeout.connect(self.updateOpenCVImage)
-        self.timer.start(100)  # Adjust the time interval as needed
         self.show()
 
-    def embedOpenCVImshow(self, layout, row, col, rowspan, colspan):
-        # Your existing OpenCV code goes here
-        # For example:
-        # cv2.imshow("OpenCV Window", your_image)
-        # ...
+    def on_button_click(self, view_name):
+        self.current_view = view_name
+        self.updateOpenCVImage()
 
     def updateOpenCVImage(self):
-        # Update your OpenCV image based on button presses in Qt
-        # For example:
-        # if button_pressed_condition:
-        #     cv2.imshow("OpenCV Window", updated_image)
-        # else:
-        #     cv2.imshow("OpenCV Window", default_image)
-        # ...
+        if self.current_view == "original_image":
+            updated_image = self.original_image
+        elif self.current_view == "masked_image":
+            updated_image = self.masked_image
+        elif self.current_view == "masked_binary_image":
+            updated_image = self.masked_binary_image
 
-    def onButtonClick(self):
-        print("Button clicked!")
+        # Convert the OpenCV image to a QImage
+        h, w = updated_image.shape
+        bytes_per_line = w
+        q_image = QImage(updated_image.data, w, h, bytes_per_line, QImage.Format_Grayscale8)
+
+        # Convert the QImage to a QPixmap and set it to the QLabel
+        pixmap = QPixmap.fromImage(q_image)
+        self.image_label.setPixmap(pixmap)
 
 def auto_home():
     GPIO.output(DIR_PIN, GPIO.LOW)  # To end stop
@@ -284,70 +293,75 @@ def create_GUI():
     root.update()
     root.update_idletasks()
 
-#Setting up the pi cam
-camera = PiCamera()
-setup_camera()
-rawCapture = PiRGBArray(camera, size=camera.resolution)
-# Create the Trackbars, so the mask can be created
-current_view = "original_image"
-# Create trackbars for adjusting mask
-create_trackbars()
-#Creating GUI
-root = tk.Tk()
-create_GUI()
-#Creating blank canvas of images that will be rendered
-original_image = np.zeros(camera.resolution, dtype="uint8")
-masked_image = np.zeros(camera.resolution, dtype="uint8")
-masked_binary_image = np.zeros(camera.resolution, dtype="uint8")
-auto_home()
-# Main loop
-for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):    #This would be the first thing in the big loop
-    #original_image = cv2.imread('mask clean11.jpg' , cv2.IMREAD_GRAYSCALE)
-    #Read the image from the raspberry pi
-    original_image = frame.array
-    #Make sure it is greyscale so we can use thresholding
-    original_image = cv2.cvtColor(original_image, cv2.COLOR_BGR2GRAY)
-    #As we've updated the original_image, it needs to be rerendered
-    update_window()
-    #Call update_mask, if adjustments were made with trackbars
-    update_mask()
-    #We check if the pellet is present
-    
-    if is_pellet_present(original_image, pellet_center_mask):
-        print("Pellet")
-        #Clear the previous image
-        rawCapture.truncate(0)
-        #Recapture, to ensure a fully stable image
+if __name__ == "__main__":
+    app = QApplication(sys.argv)
+    window = MyMainWindow()
+    #Setting up the pi cam
+    camera = PiCamera()
+    setup_camera()
+    rawCapture = PiRGBArray(camera, size=camera.resolution)
+    # Create the Trackbars, so the mask can be created
+    current_view = "original_image"
+    # Create trackbars for adjusting mask
+    create_trackbars()
+    #Creating GUI
+    root = tk.Tk()
+    create_GUI()
+    #Creating blank canvas of images that will be rendered
+    original_image = np.zeros(camera.resolution, dtype="uint8")
+    masked_image = np.zeros(camera.resolution, dtype="uint8")
+    masked_binary_image = np.zeros(camera.resolution, dtype="uint8")
+    auto_home()
+    # Main loop
+    for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):    #This would be the first thing in the big loop
+        #original_image = cv2.imread('mask clean11.jpg' , cv2.IMREAD_GRAYSCALE)
+        #Read the image from the raspberry pi
         original_image = frame.array
+        #Make sure it is greyscale so we can use thresholding
         original_image = cv2.cvtColor(original_image, cv2.COLOR_BGR2GRAY)
-        #Preform relative mean based thresholding
-        is_good_pellet = histogram_and_threshold(original_image, pellet_center_mask)
+        #As we've updated the original_image, it needs to be rerendered
         update_window()
-        forward_90()
-        time.sleep(1)
-        if is_good_pellet:
-            GPIO.output(solunoid, GPIO.LOW)
+        #Call update_mask, if adjustments were made with trackbars
+        update_mask()
+        #We check if the pellet is present
+        
+        if is_pellet_present(original_image, pellet_center_mask):
+            print("Pellet")
+            #Clear the previous image
+            rawCapture.truncate(0)
+            #Recapture, to ensure a fully stable image
+            original_image = frame.array
+            original_image = cv2.cvtColor(original_image, cv2.COLOR_BGR2GRAY)
+            #Preform relative mean based thresholding
+            is_good_pellet = histogram_and_threshold(original_image, pellet_center_mask)
+            update_window()
+            forward_90()
+            time.sleep(1)
+            if is_good_pellet:
+                GPIO.output(solunoid, GPIO.LOW)
+            else:
+                GPIO.output(solunoid, GPIO.HIGH)
+            forward_90()
+            time.sleep(1)
+            if is_good_pellet:
+                GPIO.output(solunoid, GPIO.LOW)
+            else:
+                GPIO.output(solunoid, GPIO.LOW)
+            back_180()
+            auto_home()
         else:
-            GPIO.output(solunoid, GPIO.HIGH)
-        forward_90()
-        time.sleep(1)
-        if is_good_pellet:
-            GPIO.output(solunoid, GPIO.LOW)
-        else:
-            GPIO.output(solunoid, GPIO.LOW)
-        back_180()
-        auto_home()
-    else:
-        print("No")
-    
-    # Update the Tkinter window
-    root.update()
-    root.update_idletasks()
-    key = cv2.waitKey(1) & 0xFF
-    if key == 27:  # Press 'Esc' to exit
-        break
-    # Clear the stream in preparation for the next frame
-    rawCapture.truncate(0)
+            print("No")
+        
+        # Update the Tkinter window
+        root.update()
+        root.update_idletasks()
+        key = cv2.waitKey(1) & 0xFF
+        if key == 27:  # Press 'Esc' to exit
+            break
+        # Clear the stream in preparation for the next frame
+        rawCapture.truncate(0)
 
-# Release resources
-cv2.destroyAllWindows()
+    # Release resources
+    sys.exit(app.exec_())
+    cv2.destroyAllWindows()
+
