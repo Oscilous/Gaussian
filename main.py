@@ -243,55 +243,6 @@ def is_pellet_present(image, mask):
     else:
         return True
     
-# Function to switch the current view based on button press
-def update_window():
-    global current_view, original_image, masked_image, masked_binary_image
-    if current_view == "original_image":
-        try:
-            cv2.destroyWindow("masked_image")
-            cv2.destroyWindow("masked_binary_image")
-        except cv2.error as e:
-            # Ignore the error if the window doesn't exist
-            pass
-        cv2.imshow("original_image", original_image)
-        cv2.waitKey(500)
-    elif current_view == "masked_image":
-        try:
-            cv2.destroyWindow("original_image")
-            cv2.destroyWindow("masked_binary_image")
-        except cv2.error as e:
-            # Ignore the error if the window doesn't exist
-            pass
-        cv2.imshow("masked_image", masked_image)
-        cv2.waitKey(500)
-    elif current_view == "masked_binary_image":
-        try:
-            cv2.destroyWindow("original_image")
-            cv2.destroyWindow("masked_image")
-        except cv2.error as e:
-            # Ignore the error if the window doesn't exist
-            pass
-        cv2.imshow("masked_binary_image", masked_binary_image)
-        cv2.waitKey(500)
-# Function to handle button clicks
-def on_button_click(view_name):
-    global current_view
-    current_view = view_name
-
-def create_GUI():
-    global root
-    # Create Tkinter window
-    root.title("OpenCV Viewer")
-    original_image_button = Button(root, text="Original Image", command=lambda: on_button_click("original_image"))
-    original_image_button.pack(side="left")
-    masked_image_button = Button(root, text="Masked Image", command=lambda: on_button_click("masked_image"))
-    masked_image_button.pack(side="left")
-    masked_binary_image_button = Button(root, text="Masked Binary Image", command=lambda: on_button_click("masked_binary_image"))
-    masked_binary_image_button.pack(side="left")
-    # Start Tkinter main loop
-    root.update()
-    root.update_idletasks()
-
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     window = MyMainWindow()
@@ -304,8 +255,6 @@ if __name__ == "__main__":
     # Create trackbars for adjusting mask
     create_trackbars()
     #Creating GUI
-    root = tk.Tk()
-    create_GUI()
     #Creating blank canvas of images that will be rendered
     original_image = np.zeros(camera.resolution, dtype="uint8")
     masked_image = np.zeros(camera.resolution, dtype="uint8")
@@ -319,7 +268,6 @@ if __name__ == "__main__":
         #Make sure it is greyscale so we can use thresholding
         original_image = cv2.cvtColor(original_image, cv2.COLOR_BGR2GRAY)
         #As we've updated the original_image, it needs to be rerendered
-        update_window()
         #Call update_mask, if adjustments were made with trackbars
         update_mask()
         #We check if the pellet is present
@@ -351,9 +299,6 @@ if __name__ == "__main__":
         else:
             print("No")
         
-        # Update the Tkinter window
-        root.update()
-        root.update_idletasks()
         key = cv2.waitKey(1) & 0xFF
         if key == 27:  # Press 'Esc' to exit
             break
