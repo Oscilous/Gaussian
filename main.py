@@ -8,6 +8,9 @@ import time
 import tkinter as tk
 from tkinter import Button
 import RPi.GPIO as GPIO
+from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QGridLayout, QPushButton
+from PyQt5.QtGui import QImage, QPixmap
+from PyQt5.QtCore import Qt, QTimer
 
 GPIO.cleanup()
 speed = 0.005
@@ -24,6 +27,61 @@ GPIO.setup(STEP_PIN, GPIO.OUT)
 GPIO.setup(solunoid, GPIO.OUT)
 GPIO.output(solunoid, GPIO.LOW)
 GPIO.setup(end_switch, GPIO.IN, GPIO.PUD_UP)
+
+# Initial values for trackbars
+initial_x, initial_y, initial_diameter = 480, 468, 250
+initial_dev_up, initial_dev_down = 23, 23
+debug_mode = False
+enable_plots = False
+pause_mode = True
+
+class MyMainWindow(QMainWindow):
+    def __init__(self):
+        super().__init__()
+
+        self.initUI()
+
+    def initUI(self):
+        central_widget = QWidget(self)
+        self.setCentralWidget(central_widget)
+
+        # Create layout for the central widget
+        layout = QGridLayout(central_widget)
+
+        # Add a Qt button
+        button = QPushButton("Click me", self)
+        button.clicked.connect(self.onButtonClick)
+        layout.addWidget(button, 0, 0)
+
+        # Embed the OpenCV imshow window
+        self.embedOpenCVImshow(layout, 1, 0, 1, 2)
+
+        self.setWindowTitle("Qt Window")
+        self.setGeometry(100, 100, 800, 600)
+
+        # Create a timer to periodically update the OpenCV image
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.updateOpenCVImage)
+        self.timer.start(100)  # Adjust the time interval as needed
+        self.show()
+
+    def embedOpenCVImshow(self, layout, row, col, rowspan, colspan):
+        # Your existing OpenCV code goes here
+        # For example:
+        # cv2.imshow("OpenCV Window", your_image)
+        # ...
+
+    def updateOpenCVImage(self):
+        # Update your OpenCV image based on button presses in Qt
+        # For example:
+        # if button_pressed_condition:
+        #     cv2.imshow("OpenCV Window", updated_image)
+        # else:
+        #     cv2.imshow("OpenCV Window", default_image)
+        # ...
+
+    def onButtonClick(self):
+        print("Button clicked!")
 
 def auto_home():
     GPIO.output(DIR_PIN, GPIO.LOW)  # To end stop
@@ -46,6 +104,7 @@ def forward_90():
         time.sleep(speed)
         GPIO.output(STEP_PIN, GPIO.LOW)
         time.sleep(speed)
+
 def back_180():
     GPIO.output(DIR_PIN, GPIO.LOW)  # To  endstop
     for i in range (0, 100):
@@ -53,12 +112,6 @@ def back_180():
         time.sleep(speed)
         GPIO.output(STEP_PIN, GPIO.LOW)
         time.sleep(speed)
-# Initial values for trackbars
-initial_x, initial_y, initial_diameter = 480, 468, 250
-initial_dev_up, initial_dev_down = 23, 23
-debug_mode = False
-enable_plots = False
-pause_mode = True
 
 def nothing(val):
     pass
@@ -136,7 +189,6 @@ def count_black_pixels(binary_image, mask):
     else:
         print("GOOD")
         return True
-
 
 def plot_histogram():
     global masked_image
