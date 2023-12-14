@@ -255,7 +255,6 @@ def is_pellet_present(image, mask):
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     window = MyMainWindow()
-    window.update_image()
     #Setting up the pi cam
     camera = PiCamera()
     setup_camera()
@@ -267,6 +266,8 @@ if __name__ == "__main__":
     masked_image = np.zeros(camera.resolution, dtype="uint8")
     masked_binary_image = np.zeros(camera.resolution, dtype="uint8")
     pellet_center_mask = np.zeros(camera.resolution, dtype="uint8")
+    window.update_image()
+
     auto_home()
     # Main loop
     for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):    #This would be the first thing in the big loop
