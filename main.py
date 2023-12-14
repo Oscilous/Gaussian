@@ -7,9 +7,9 @@ from picamera import PiCamera
 from picamera.array import PiRGBArray
 import time
 import RPi.GPIO as GPIO
-from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QGridLayout, QPushButton, QLabel
+from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QGridLayout, QPushButton, QLabel, QSlider, QVBoxLayout
 from PyQt5.QtGui import QImage, QPixmap
-from PyQt5.QtCore import QTimer
+from PyQt5.QtCore import QTimer, Qt
 
 GPIO.cleanup()
 speed = 0.005
@@ -37,38 +37,45 @@ pause_mode = True
 class MyMainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-
-        self.current_view = "original_image"
-        self.original_image = np.zeros((960, 960), dtype="uint8")
-        self.masked_image = np.zeros((960, 960), dtype="uint8")
-        self.masked_binary_image = np.zeros((960, 960), dtype="uint8")
         self.initUI()
 
     def initUI(self):
         central_widget = QWidget(self)
         self.setCentralWidget(central_widget)
-        layout = QGridLayout(central_widget)
+        layout = QVBoxLayout(central_widget)
 
-        # Buttons for switching views
-        self.original_image_button = QPushButton("Original Image", self)
-        self.original_image_button.clicked.connect(lambda: self.on_button_click("original_image"))
-        layout.addWidget(self.original_image_button, 0, 0)
-
-        self.masked_image_button = QPushButton("Masked Image", self)
-        self.masked_image_button.clicked.connect(lambda: self.on_button_click("masked_image"))
-        layout.addWidget(self.masked_image_button, 1, 0)
-
-        self.masked_binary_image_button = QPushButton("Masked Binary Image", self)
-        self.masked_binary_image_button.clicked.connect(lambda: self.on_button_click("masked_binary_image"))
-        layout.addWidget(self.masked_binary_image_button, 2, 0)
-
-        # QLabel for displaying images
+        # Add QLabel for displaying the image
         self.image_label = QLabel(self)
-        layout.addWidget(self.image_label, 3, 0, 1, 3)
+        layout.addWidget(self.image_label)
 
+        # Add sliders (replacing OpenCV trackbars)
+        self.circle_x_slider = self.create_slider("Circle X", layout, initial_x, 960)
+        self.circle_y_slider = self.create_slider("Circle Y", layout, initial_y, 960)
+        self.circle_y_slider = self.create_slider("Circle Y", layout, initial_diameter, 500)
+        self.threshold_upper_slider = self.create_slider("Threshold Upper to 255", layout, initial_dev_up, 40)
+        self.threshold_lower_slider = self.create_slider("Threshold Lower to 0", layout, initial_dev_down, 40)
+        self.impurity_pixel_amount_slider = self.create_slider("Impurity Pixel Amount", layout, 50, 10000)
+        self.detection_threshold_slider = self.create_slider("Pellet detection Threshold", layout, 60, 100)
+        
         self.setWindowTitle("Qt Window")
         self.setGeometry(100, 100, 800, 600)
+
+        # Timer for updating the image
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.update_image)
+        self.timer.start(100)  # Adjust the interval as needed
+
         self.show()
+
+    def create_slider(self, title, layout, default, max):
+        slider = QSlider(Qt.Horizontal)
+        slider.setMinimum(0)
+        slider.setMaximum(max)  # Set appropriate max value
+        slider.setValue(default)  # Set default value
+        slider.setTickInterval(1)
+        slider.setTickPosition(QSlider.TicksBelow)
+        layout.addWidget(slider)
+        return slider
 
     def on_button_click(self, view_name):
         self.current_view = view_name
@@ -77,11 +84,11 @@ class MyMainWindow(QMainWindow):
     def updateOpenCVImage(self):
         global original_image, masked_image, masked_binary_image
         if self.current_view == "original_image":
-            updated_image = original_image
+            updated_image = self.original_image
         elif self.current_view == "masked_image":
-            updated_image = masked_image
+            updated_image = self.masked_image
         elif self.current_view == "masked_binary_image":
-            updated_image = masked_binary_image
+            updated_image = self.masked_binary_image
 
         # Convert the OpenCV image to a QImage
         h, w = updated_image.shape
@@ -91,6 +98,21 @@ class MyMainWindow(QMainWindow):
         # Convert the QImage to a QPixmap and set it to the QLabel
         pixmap = QPixmap.fromImage(q_image)
         self.image_label.setPixmap(pixmap)
+    def update_image(self):
+        global Csys, Dia, pellet_center_mask, camera
+        # Update the image based on the current slider values
+        circle_x = self.circle_x_slider.value()
+        circle_y = self.circle_y_slider.value()
+        Csys = (circle_x, circle_y)
+        Dia = self.diameter_slider.value()
+        # Create a black canvas the size of the camera feed
+        pellet_center_mask = np.zeros(camera.resolution, dtype="uint8")
+        # Draw a circle based on the trackbar values
+        cv2.circle(pellet_center_mask, Csys, Dia, 255, -1)# Fetch other slider values...
+
+        self.original_image = original_image
+        self.masked_image = masked_image
+        self.masked_binary_image = masked_binary_image
 
 def auto_home():
     GPIO.output(DIR_PIN, GPIO.LOW)  # To end stop
@@ -135,18 +157,6 @@ def setup_camera():
     camera.exposure_mode = 'backlight'
     camera.awb_mode = 'fluorescent'
     camera.resolution = (960, 960)
-
-def update_mask():
-    global Csys, Dia, pellet_center_mask, camera
-    # Update circle parameters
-    Csys = (cv2.getTrackbarPos("Circle_X", "Trackbars"),
-            cv2.getTrackbarPos("Circle_Y", "Trackbars"))
-    Dia = cv2.getTrackbarPos("Circle_Diameter", "Trackbars")
-
-    # Create a black canvas the size of the camera feed
-    pellet_center_mask = np.zeros(camera.resolution, dtype="uint8")
-    # Draw a circle based on the trackbar values
-    cv2.circle(pellet_center_mask, Csys, Dia, 255, -1)
 
 def histogram_and_threshold(image, mask):
     # Apply the mask to the image
