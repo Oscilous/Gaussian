@@ -269,6 +269,7 @@ if __name__ == "__main__":
     original_image = np.zeros(camera.resolution, dtype="uint8")
     masked_image = np.zeros(camera.resolution, dtype="uint8")
     masked_binary_image = np.zeros(camera.resolution, dtype="uint8")
+    pellet_center_mask = np.zeros(camera.resolution, dtype="uint8")
     auto_home()
     # Main loop
     for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):    #This would be the first thing in the big loop
