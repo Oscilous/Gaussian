@@ -60,7 +60,7 @@ class MyMainWindow(QMainWindow):
         # Add sliders (replacing OpenCV trackbars)
         self.circle_x_slider = self.create_slider("Circle X", layout, initial_x, 960)
         self.circle_y_slider = self.create_slider("Circle Y", layout, initial_y, 960)
-        self.circle_y_slider = self.create_slider("Circle Y", layout, initial_diameter, 500)
+        self.diameter_slider = self.create_slider("Circle Y", layout, initial_diameter, 500)
         self.threshold_upper_slider = self.create_slider("Threshold Upper to 255", layout, initial_dev_up, 40)
         self.threshold_lower_slider = self.create_slider("Threshold Lower to 0", layout, initial_dev_down, 40)
         self.impurity_threshold_slider = self.create_slider("Impurity threshold", layout, initial_impurity_threshold, 10000)
