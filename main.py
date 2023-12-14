@@ -115,10 +115,10 @@ class MyMainWindow(QMainWindow):
         Csys = (circle_x, circle_y)
         Dia = self.diameter_slider.value()
 
-        threshold_upper = self.threshold_upper_slider
-        threshold_lower = self.threshold_lower_slider
-        impurity_threshold = self.impurity_threshold_slider
-        detection_threshold = self.detection_threshold_slider
+        threshold_upper = self.threshold_upper_slider.value()
+        threshold_lower = self.threshold_lower_slider.value()
+        impurity_threshold = self.impurity_threshold_slider.value()
+        detection_threshold = self.detection_threshold_slider.value()
         # Create a black canvas the size of the camera feed
         pellet_center_mask = np.zeros(camera.resolution, dtype="uint8")
         # Draw a circle based on the trackbar values
