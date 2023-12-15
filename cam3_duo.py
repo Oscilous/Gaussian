@@ -8,9 +8,7 @@ IMG_DIMS = (960, 960)
 first_camera = Picamera2(0)
 config = first_camera.create_preview_configuration()
 config['main']['size'] = IMG_DIMS
-config['main']['format'] = "YUV420"
 first_camera.align_configuration(config)
-print(config)
 first_camera.configure(config)
 first_camera.start()
 
@@ -24,15 +22,11 @@ first_camera.set_controls({"AeEnable": "False"})
 #first_camera.awb_mode = 'fluorescent'
 first_camera.set_controls({"AwbMode": "Fluorescent"})
 
-while True:
-    img = first_camera.capture_array()
-    img_preproc = img[:IMG_DIMS[1], :IMG_DIMS[0]]
-    cv2.imshow("1", img_preproc)
-
 second_camera = Picamera2(1)
 second_camera.configure(second_camera.create_preview_configuration())
 second_camera.start_preview(Preview.QT)
 
+first_camera.start()
 second_camera.start()
 time.sleep(100)
 first_camera.stop_preview()
