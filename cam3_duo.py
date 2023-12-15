@@ -1,5 +1,5 @@
 import time
-from picamera2 import Picamera2, Preview
+from picamera2 import Picamera2, Preview, controls
 
 first_camera = Picamera2(0)
 first_camera.configure(first_camera.create_preview_configuration())
