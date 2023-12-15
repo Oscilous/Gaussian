@@ -5,14 +5,13 @@ from libcamera import controls
 IMG_DIMS = (960, 960)
 
 first_camera = Picamera2(0)
-first_camera.configure(first_camera.create_preview_configuration(main={"size": (960, 960)}))
-
 config = first_camera.create_preview_configuration()
 config['main']['size'] = IMG_DIMS
 config['main']['format'] = "YUV420"
 first_camera.align_configuration(config)
 print(config)
 first_camera.configure(config)
+first_camera.start()
 
 #first_camera.set_controls({"AfMode": controls.AfModeEnum.Manual, "LensPosition": 10.0})
 #camera.shutter_speed = 10000
@@ -31,7 +30,6 @@ second_camera = Picamera2(1)
 second_camera.configure(second_camera.create_preview_configuration())
 second_camera.start_preview(Preview.QT)
 
-first_camera.start()
 second_camera.start()
 time.sleep(100)
 first_camera.stop_preview()
