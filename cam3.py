@@ -1,38 +1,44 @@
-from picamera import Picamera2, Preview
-from libcamera import controls
-from time import sleep
+from picamera import PiCamera
+from picamera.array import PiRGBArray
+import cv2
 
-def setup_camera():
-    global camera
+def setup_camera(camera):
     camera.framerate = 10
-    camera.brightness = 47 #48 til clen mask5
-    camera.contrast = 1 #1 giver bedst detection
+    camera.brightness = 47  # 48 til clen mask5
+    camera.contrast = 1  # 1 giver bedst detection
     camera.shutter_speed = 10000
     camera.exposure_mode = 'off'
-    camera.exposure_mode = 'backlight'
+    camera.meter_mode = 'backlight'  # picamera uses 'meter_mode' instead of 'exposure_mode'
     camera.awb_mode = 'fluorescent'
     camera.resolution = (960, 960)
-    camera.set_controls({"AfMode": controls.AfModeEnum.Manual, "LensPosition": 10.0})
 
-picam0 = Picamera(0)
-picam1 = Picamera(1)
+picam0 = PiCamera(camera_num=0)
+picam1 = PiCamera(camera_num=1)
 setup_camera(picam0)
 setup_camera(picam1)
 
+# Create PiRGBArray objects for capturing frames
+rawCapture0 = PiRGBArray(picam0)
+rawCapture1 = PiRGBArray(picam1)
+
 try:
-    picam0.start_preview(Preview.QTGL)
-    picam1.start_preview(Preview.QTGL)
-    picam0.start()
-    picam1.start()
-    with picam0.array.PiRGBArray(camera) as output:
-        with picam1.array.PiRGBArray(camera) as output1:
+    for frame in picam0.capture_continuous(rawCapture0, format="bgr", use_video_port=True):
+        original_image = frame.array
+        cv2.imshow("camera 0", original_image)
+        rawCapture0.truncate(0)  # Clear the stream to prepare for the next frame
+        
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
 
-        # You can capture the image and access the data in 'output' as needed
-        camera.capture(output, format='rgb')
-        image_data = output.array
+    for frame in picam1.capture_continuous(rawCapture1, format="bgr", use_video_port=True):
+        original_image_1 = frame.array
+        cv2.imshow("camera 1", original_image_1)
+        rawCapture1.truncate(0)  # Clear the stream to prepare for the next frame
+        
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
 
-except KeyboardInterrupt:    
-    picam0.stop()
-    picam1.stop()
-    picam0.stop_preview()
-    picam1.stop_preview()
+except KeyboardInterrupt:
+    picam0.close()
+    picam1.close()
+    cv2.destroyAllWindows()
