@@ -1,28 +1,35 @@
-from picamera2 import Picamera2, Preview
+from picamera import Picamera2, Preview
 from libcamera import controls
 from time import sleep
 
-def configure_cam(camera):
-    camera.resolution = (960, 960)
+def setup_camera():
+    global camera
     camera.framerate = 10
-    camera.brightness = 47  # 48 til clen mask5
-    camera.contrast = 1  # 1 giver bedst detection
+    camera.brightness = 47 #48 til clen mask5
+    camera.contrast = 1 #1 giver bedst detection
     camera.shutter_speed = 10000
     camera.exposure_mode = 'off'
-    camera.meter_mode = 'backlight'  # picamera2 uses 'meter_mode' instead of 'exposure_mode'
+    camera.exposure_mode = 'backlight'
     camera.awb_mode = 'fluorescent'
+    camera.resolution = (960, 960)
     camera.set_controls({"AfMode": controls.AfModeEnum.Manual, "LensPosition": 10.0})
 
-picam0 = Picamera2(0)
-picam1 = Picamera2(1)
-configure_cam(picam0)
-configure_cam(picam1)
+picam0 = Picamera(0)
+picam1 = Picamera(1)
+setup_camera(picam0)
+setup_camera(picam1)
 
 try:
     picam0.start_preview(Preview.QTGL)
     picam1.start_preview(Preview.QTGL)
     picam0.start()
     picam1.start()
+    with picam0.array.PiRGBArray(camera) as output:
+        with picam1.array.PiRGBArray(camera) as output1:
+
+        # You can capture the image and access the data in 'output' as needed
+        camera.capture(output, format='rgb')
+        image_data = output.array
 
 except KeyboardInterrupt:    
     picam0.stop()
