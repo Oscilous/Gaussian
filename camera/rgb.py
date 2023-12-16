@@ -6,14 +6,12 @@ IMG_DIMS = (3280, 2464)
 
 picam2 = Picamera2()
 picam2.preview_configuration.main.size = IMG_DIMS
-picam2.preview_configuration.main.format = "RGB888"
+picam2.preview_configuration.main.format = "YUV420"
 picam2.preview_configuration.align()
 picam2.configure("preview")
 
 picam2.set_controls({"AeConstraintMode": controls.AeConstraintModeEnum.Shadows})
-#first_camera.exposure_mode = 'off'
 picam2.set_controls({"AeEnable": 1})
-#first_camera.awb_mode = 'fluorescent'
 picam2.set_controls({"AwbMode": controls.AwbModeEnum.Fluorescent})
 
 picam2.start()
