@@ -145,7 +145,7 @@ def count_black_pixels(binary_image, mask):
     else:
         print("GOOD")
 
-picture = "ex5000"
+picture = "raw"
 # Create the Trackbars, so the mask can be created
 create_trackbars()
 # Main loop

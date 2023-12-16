@@ -1,71 +1,56 @@
-import RPi.GPIO as GPIO
+from gpiozero import OutputDevice, DigitalInputDevice
 import time
+from signal import pause
 
-GPIO.cleanup()
+# Pin setup
+solenoid_pin = 19
+dir_pin = 4
+step_pin = 2
+end_switch_pin = 22
 speed = 0.005
-# Set GPIO pin numbers
-solunoid = 19
-DIR_PIN = 4  # Replace with your chosen GPIO pin number for direction
-STEP_PIN = 2 # Replace with your chosen GPIO pin number for step
-end_switch = 22
-GPIO.cleanup()
-# Setup GPIO
-GPIO.setmode(GPIO.BCM)
-GPIO.setup(DIR_PIN, GPIO.OUT)
-GPIO.setup(STEP_PIN, GPIO.OUT)
-GPIO.setup(solunoid, GPIO.OUT)
-GPIO.output(solunoid, GPIO.LOW)
-GPIO.setup(end_switch, GPIO.IN, GPIO.PUD_UP)
+
+# Initialize devices
+solenoid = OutputDevice(solenoid_pin, initial_value=False)
+direction = OutputDevice(dir_pin)
+step = OutputDevice(step_pin)
+end_switch = DigitalInputDevice(end_switch_pin, pull_up=True)
+
+def step_motor(steps, direction_flag):
+    direction.value = direction_flag
+    for _ in range(steps):
+        step.on()
+        time.sleep(speed)
+        step.off()
+        time.sleep(speed)
 
 def auto_home():
-    GPIO.output(DIR_PIN, GPIO.LOW)  # To end stop
-    while GPIO.input(end_switch) == GPIO.LOW:     
-        GPIO.output(STEP_PIN, GPIO.HIGH)
+    direction.off()  # Towards end stop
+    while end_switch.value:
+        step.on()
         time.sleep(0.02)
-        GPIO.output(STEP_PIN, GPIO.LOW)
+        step.off()
         time.sleep(0.02)
-    GPIO.output(DIR_PIN, GPIO.HIGH)  # Away from endstop
-    for i in range (0, 7):     
-        GPIO.output(STEP_PIN, GPIO.HIGH)
-        time.sleep(speed)
-        GPIO.output(STEP_PIN, GPIO.LOW)
-        time.sleep(speed)
-        
+    direction.on()  # Away from end stop
+    step_motor(7, True)
+
 def forward_90():
-    GPIO.output(DIR_PIN, GPIO.HIGH)  # Away from endstop
-    for i in range (0, 50):
-        GPIO.output(STEP_PIN, GPIO.HIGH)
-        time.sleep(speed)
-        GPIO.output(STEP_PIN, GPIO.LOW)
-        time.sleep(speed)
+    step_motor(50, True)
+
 def back_180():
-    GPIO.output(DIR_PIN, GPIO.LOW)  # To  endstop
-    for i in range (0, 100):
-        GPIO.output(STEP_PIN, GPIO.HIGH)
-        time.sleep(speed)
-        GPIO.output(STEP_PIN, GPIO.LOW)
-        time.sleep(speed)
-        
+    step_motor(100, False)
+
 try:
     auto_home()
-    i = 0
     while True:
         time.sleep(1)
         forward_90()
         time.sleep(1)
-        GPIO.output(solunoid, GPIO.HIGH)
+        solenoid.on()
         forward_90()
         time.sleep(1)
-        GPIO.output(solunoid, GPIO.LOW)
+        solenoid.off()
         back_180()
         auto_home()
-        
-        
+
 except KeyboardInterrupt:
     print("Exiting program")
-
-finally:
-    pass
-    #DO NOT CLEAN UP, if cleaned stepper will float
-    # Cleanup GPIO
-    #GPIO.cleanup()
