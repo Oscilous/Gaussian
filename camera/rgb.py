@@ -12,8 +12,8 @@ picam2.configure("preview")
 picam2.start()
 
 try:
-    controls = picam2.set_controls()
-    print(controls)
+    metadata = picam2.capture_metadata()
+    print(metadata)
     while True:
         im = picam2.capture_array()
         cv2.imshow("Camera", im)
