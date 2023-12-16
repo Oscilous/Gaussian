@@ -242,7 +242,7 @@ auto_home()
 while True:
     original_image = capture_image()
     #Make sure it is greyscale so we can use thresholding
-    original_image = cv2.cvtColor(original_image, cv2.COLOR_BGR2GRAY)
+    #original_image = cv2.cvtColor(original_image, cv2.COLOR_BGR2GRAY)
     #As we've updated the original_image, it needs to be rerendered
     update_window()
     #Call update_mask, if adjustments were made with trackbars
