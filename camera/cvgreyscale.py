@@ -17,9 +17,9 @@ try:
         img_preproc = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
 
         # Ensure the dimensions of img_preproc match IMG_DIMS
-        img_preproc = cv2.resize(img_preproc, (IMG_DIMS[1], IMG_DIMS[0]))
+        img_preproc = cv2.resize(img_preproc, (IMG_DIMS[0], IMG_DIMS[1]))
 
-        mask = np.zeros((IMG_DIMS[0], IMG_DIMS[1]), dtype="uint8")  # Adjusted mask shape
+        mask = np.zeros((IMG_DIMS[1], IMG_DIMS[0]), dtype="uint8")  # Adjusted mask shape
         cv2.circle(mask, (1500, 1000), 1000, 255, -1)
         masked_image = cv2.bitwise_and(img_preproc, mask)
 
