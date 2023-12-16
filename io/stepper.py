@@ -4,10 +4,10 @@ import time
 GPIO.cleanup()
 speed = 0.005
 # Set GPIO pin numbers
-solunoid = 22
-DIR_PIN = 23  # Replace with your chosen GPIO pin number for direction
-STEP_PIN = 24 # Replace with your chosen GPIO pin number for step
-end_switch = 25
+solunoid = 19
+DIR_PIN = 4  # Replace with your chosen GPIO pin number for direction
+STEP_PIN = 2 # Replace with your chosen GPIO pin number for step
+end_switch = 22
 GPIO.cleanup()
 # Setup GPIO
 GPIO.setmode(GPIO.BCM)

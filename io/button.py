@@ -3,8 +3,8 @@ import RPi.GPIO as GPIO
 GPIO.setmode(GPIO.BCM)
 GPIO.setwarnings(False)
 
-button = 25
-solunoid = 22
+button = 22
+solunoid = 19
 GPIO.setup(button, GPIO.IN, GPIO.PUD_UP)
 GPIO.setup(solunoid, GPIO.OUT)
 try:
