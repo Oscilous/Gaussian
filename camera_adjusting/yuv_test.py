@@ -11,8 +11,8 @@ picam2.preview_configuration.align()
 picam2.configure("preview")
 
 #picam2.set_controls({"AeConstraintMode": controls.AeConstraintModeEnum.Highlight})
-#picam2.set_controls({"AeEnable": 1})
-picam2.set_controls({"AwbMode": controls.AwbModeEnum.Fluorescent})
+picam2.set_controls({"AeEnable": 1})
+#picam2.set_controls({"AwbMode": controls.AwbModeEnum.Fluorescent})
 
 picam2.start()
 
@@ -23,7 +23,7 @@ try:
     img_preproc = im[:IMG_DIMS[1], :IMG_DIMS[0]]
     img_preproc = cv2.resize(img_preproc, (IMG_DIMS[0], IMG_DIMS[1]))
     # Save the image using OpenCV
-    cv2.imwrite("fluresent.jpg", img_preproc)
+    cv2.imwrite("aeenable.jpg", img_preproc)
 
 finally:
     # Release resources
