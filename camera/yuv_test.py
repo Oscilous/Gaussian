@@ -21,7 +21,9 @@ try:
     print(metadata)
     while True:
         im = picam2.capture_array()
-        cv2.imshow("Camera", im)
+        img_preproc = im[:IMG_DIMS[1], :IMG_DIMS[0]]
+        img_preproc = cv2.resize(img_preproc, (IMG_DIMS[0], IMG_DIMS[1]))
+        cv2.imshow("Camera", img_preproc)
 
         # Save an image when a key is pressed (e.g., 's')
         key = cv2.waitKey(1)
