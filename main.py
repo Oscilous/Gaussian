@@ -94,9 +94,9 @@ def create_trackbars():
     cv2.namedWindow("Trackbars")
 
     # Create trackbars with default values
-    cv2.createTrackbar("Circle_X", "Trackbars", initial_x, 960, nothing)
-    cv2.createTrackbar("Circle_Y", "Trackbars", initial_y, 960, nothing)
-    cv2.createTrackbar("Circle_Diameter", "Trackbars", initial_diameter, 500, nothing)
+    cv2.createTrackbar("Circle_X", "Trackbars", initial_x, 5000, nothing)
+    cv2.createTrackbar("Circle_Y", "Trackbars", initial_y, 5000, nothing)
+    cv2.createTrackbar("Circle_Diameter", "Trackbars", initial_diameter, 2000, nothing)
     cv2.createTrackbar("Threshold_upper", "Trackbars", initial_dev_up, 40, nothing)
     cv2.createTrackbar("Threshold_lower", "Trackbars", initial_dev_down, 40, nothing)
     cv2.createTrackbar("Impurity_pixel_amount", "Trackbars", 1000,50000, nothing)
