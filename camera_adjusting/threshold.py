@@ -3,15 +3,18 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.stats import norm
 import time
+from PIL import Image
+import io
 
 resolution = (3280, 2464)
 
-pellet_center_mask = np.zeros(resolution, dtype="uint8")
+pellet_center_mask = np.zeros((resolution[1], resolution[0]), dtype="uint8")
 # Initial values for trackbars
-initial_x, initial_y, initial_diameter = 480, 468, 250
+initial_x, initial_y, initial_diameter = 1550, 1400, 800
 initial_dev_up, initial_dev_down = 23, 23
 threshold_value = 1.5
-debug = 0
+debug = 1
+buf = io.BytesIO()
 def nothing(val):
     pass
 
@@ -23,15 +26,13 @@ def update_mask():
     Dia = cv2.getTrackbarPos("Circle_Diameter", "Trackbars")
 
     # Create a black canvas the size of the camera feed
-    pellet_center_mask = np.zeros(resolution, dtype="uint8")
+    pellet_center_mask = np.zeros((resolution[1], resolution[0]), dtype="uint8")
 
     # Draw a circle based on the trackbar values
     cv2.circle(pellet_center_mask, Csys, Dia, 255, -1)
-    if debug == 1:
-        # Display the mask
-        cv2.imshow("Pellet center mask", pellet_center_mask)
 
 def histogram_and_threshold(image, mask):
+    global buf
     # Apply the mask to the image
     masked_image = np.ma.array(image, mask=~mask)
     # Convert the masked image to a regular NumPy array for visualization
@@ -47,14 +48,15 @@ def histogram_and_threshold(image, mask):
     lower_threshold = mean_value - std_dev_multiplier_lower
     upper_threshold = mean_value + std_dev_multiplier_upper
     
-    # Clear the previous plot
+        # Your existing code for creating the plot
     plt.clf()
 
     # Plot the histogram
-    plt.hist(masked_image.compressed(), bins=256, density=True, alpha=0.6, color='g')
+    plt.hist(masked_image.compressed(), bins=256, range=(0, 255), density=True, alpha=0.6, color='g')
 
     # Plot the fitted normal distribution
-    xmin, xmax = plt.xlim()
+    xmin, xmax = 0, 255
+    plt.xlim(xmin, xmax)
     x = np.linspace(xmin, xmax, 100)
     p = norm.pdf(x, mean_value, std_dev_value)
     plt.plot(x, p, 'k', linewidth=2)
@@ -71,6 +73,13 @@ def histogram_and_threshold(image, mask):
     # Add legend
     plt.legend()
 
+    # Save the plot as "plot.jpg"
+    #plt.savefig(f'{picture}_plot.jpg', bbox_inches='tight')
+
+    plt.savefig(buf, format='png')
+    buf.seek(0)
+    graph_image_pil = Image.open(buf)
+
     # Pause for a short time to allow the plot window to update
     plt.pause(0.01)
     
@@ -79,9 +88,34 @@ def histogram_and_threshold(image, mask):
 
     # Display the original and thresholded images
     if debug == 1:
-        cv2.imshow('Original Image', image)
         cv2.imshow('Masked image', masked_image_display)
     cv2.imshow('Thresholded Image', binary_image)
+    #cv2.imwrite(f"{picture}_processed.jpg", binary_image)
+    original_image = cv2.imread(f'{picture}.jpg')
+    original_height, original_width = original_image.shape[:2]
+    binary_height, binary_width = binary_image.shape[:2]
+    
+    # For a PIL Image, use the width and height attributes
+    graph_width, graph_height = graph_image_pil.width, graph_image_pil.height
+
+    # Calculate the total width and maximum height
+    total_width = original_width + binary_width + graph_width
+    max_height = max(original_height, binary_height, graph_height)
+    # Convert NumPy arrays to PIL Images
+    original_image_pil = Image.fromarray(original_image)
+    binary_image_pil = Image.fromarray(binary_image)
+
+    # Create a new blank image for the composite
+    composite_image = Image.new('RGB', (total_width, max_height))
+
+    # Paste the images into the composite image
+    x_offset = 0
+    for im in [original_image_pil, binary_image_pil, graph_image_pil]:
+        composite_image.paste(im, (x_offset, 0))
+        x_offset += im.width
+
+    # Save the composite image
+    composite_image.save(f'{picture}_output.jpg')
     count_black_pixels(binary_image, mask)
     
 
@@ -111,24 +145,21 @@ def count_black_pixels(binary_image, mask):
     else:
         print("GOOD")
 
-
+picture = "shadows"
 # Create the Trackbars, so the mask can be created
 create_trackbars()
 # Main loop
-while True:
-    original_image = cv2.imread('yuv_raw.PNG' , cv2.IMREAD_GRAYSCALE)
-    adjusted_image = cv2.imread('yuv_adjusted.PNG' , cv2.IMREAD_GRAYSCALE)
-    cv2.imshow("original_image", original_image)
-    cv2.imshow("adjusted_image", adjusted_image)
+try:
+    # Load the image
+    original_image = cv2.imread(f'{picture}.jpg', cv2.IMREAD_GRAYSCALE)
 
+    # Check if the image is loaded properly
+    if original_image is None:
+        print("Error loading image. Check the file path and integrity.")
+        
     #original_image = cv2.cvtColor(original_image, cv2.COLOR_BGR2GRAY)
     update_mask()
-    #histogram_and_threshold(original_image, pellet_center_mask)
-    
-    key = cv2.waitKey(1) & 0xFF
-    if key == 27:  # Press 'Esc' to exit
-        break
-    # Clear the stream in preparation for the next frame
-
-# Release resources
-cv2.destroyAllWindows()
+    histogram_and_threshold(original_image, pellet_center_mask)
+finally:
+    # Release resources
+    cv2.destroyAllWindows()
