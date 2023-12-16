@@ -10,8 +10,8 @@ picam2.preview_configuration.main.format = "YUV420"
 picam2.preview_configuration.align()
 picam2.configure("preview")
 
-picam2.set_controls({"AeConstraintMode": controls.AeConstraintModeEnum.Highlight})
-#picam2.set_controls({"AeEnable": 1})
+#picam2.set_controls({"AeConstraintMode": controls.AeConstraintModeEnum.Highlight})
+picam2.set_controls({"AeEnable": 1})
 #picam2.set_controls({"AwbMode": controls.AwbModeEnum.Fluorescent})
 
 picam2.start()
