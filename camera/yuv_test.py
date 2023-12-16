@@ -10,29 +10,20 @@ picam2.preview_configuration.main.format = "YUV420"
 picam2.preview_configuration.align()
 picam2.configure("preview")
 
-picam2.set_controls({"AeConstraintMode": controls.AeConstraintModeEnum.Shadows})
-picam2.set_controls({"AeEnable": 1})
-picam2.set_controls({"AwbMode": controls.AwbModeEnum.Fluorescent})
+#picam2.set_controls({"AeConstraintMode": controls.AeConstraintModeEnum.Shadows})
+#picam2.set_controls({"AeEnable": 1})
+#picam2.set_controls({"AwbMode": controls.AwbModeEnum.Fluorescent})
 
 picam2.start()
 
 try:
     metadata = picam2.capture_metadata()
     print(metadata)
-    while True:
-        im = picam2.capture_array()
-        img_preproc = im[:IMG_DIMS[1], :IMG_DIMS[0]]
-        img_preproc = cv2.resize(img_preproc, (IMG_DIMS[0], IMG_DIMS[1]))
-        # Save the image using OpenCV
-        cv2.imwrite("raw.jpg", im)
-        cv2.imshow("Camera", img_preproc)
-
-        # Save an image when a key is pressed (e.g., 's')
-        key = cv2.waitKey(1)
-
-        # Exit the loop when 'q' is pressed
-        if key == ord('q'):
-            break
+    im = picam2.capture_array()
+    img_preproc = im[:IMG_DIMS[1], :IMG_DIMS[0]]
+    img_preproc = cv2.resize(img_preproc, (IMG_DIMS[0], IMG_DIMS[1]))
+    # Save the image using OpenCV
+    cv2.imwrite("raw.jpg", im)
 
 finally:
     # Release resources
