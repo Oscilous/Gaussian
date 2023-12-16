@@ -13,7 +13,7 @@ picam2.start()
 try:
     while True:
         im = picam2.capture_array()
-        img_preproc = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        img_preproc = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
         cv2.imshow("Camera", img_preproc)
 
         # Save an image when a key is pressed (e.g., 's')
