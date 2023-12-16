@@ -1,8 +1,10 @@
 import cv2
 from picamera2 import Picamera2
 
+IMG_DIMS = (3280, 2464)
+
 picam2 = Picamera2()
-picam2.preview_configuration.main.size = (3280, 2464)
+picam2.preview_configuration.main.size = IMG_DIMS
 picam2.preview_configuration.main.format = "YUV420"
 picam2.preview_configuration.align()
 picam2.configure("preview")
