@@ -23,6 +23,8 @@ try:
         im = picam2.capture_array()
         img_preproc = im[:IMG_DIMS[1], :IMG_DIMS[0]]
         img_preproc = cv2.resize(img_preproc, (IMG_DIMS[0], IMG_DIMS[1]))
+        # Save the image using OpenCV
+        cv2.imwrite("raw.jpg", im)
         cv2.imshow("Camera", img_preproc)
 
         # Save an image when a key is pressed (e.g., 's')
