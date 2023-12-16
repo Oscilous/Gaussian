@@ -9,11 +9,7 @@ picam2.preview_configuration.main.size = IMG_DIMS
 picam2.preview_configuration.main.format = "YUV420"
 picam2.preview_configuration.align()
 picam2.configure("preview")
-
-#picam2.set_controls({"AeConstraintMode": controls.AeConstraintModeEnum.Highlight})
-picam2.set_controls({"AeEnable": 1})
-#picam2.set_controls({"AwbMode": controls.AwbModeEnum.Fluorescent})
-
+picam2.set_controls({"ExposureTime": 5000})
 picam2.start()
 
 try:
@@ -23,7 +19,7 @@ try:
     img_preproc = im[:IMG_DIMS[1], :IMG_DIMS[0]]
     img_preproc = cv2.resize(img_preproc, (IMG_DIMS[0], IMG_DIMS[1]))
     # Save the image using OpenCV
-    cv2.imwrite("aeenable.jpg", img_preproc)
+    cv2.imwrite("ex5000.jpg", img_preproc)
 
 finally:
     # Release resources
