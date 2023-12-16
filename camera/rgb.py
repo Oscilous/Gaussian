@@ -10,11 +10,11 @@ picam2.preview_configuration.main.format = "RGB888"
 picam2.preview_configuration.align()
 picam2.configure("preview")
 
-picam2.set_controls({"AeConstraintMode": controls.AeConstraintModeEnum.ConstraintShadows})
+picam2.set_controls({"AeConstraintMode": controls.AeConstraintModeEnum.Shadows})
 #first_camera.exposure_mode = 'off'
 picam2.set_controls({"AeEnable": 1})
 #first_camera.awb_mode = 'fluorescent'
-picam2.set_controls({"AwbMode": controls.AwbModeEnum.AwbFluorescent})
+picam2.set_controls({"AwbMode": controls.AwbModeEnum.Fluorescent})
 
 picam2.start()
 
