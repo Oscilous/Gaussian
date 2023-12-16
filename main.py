@@ -2,77 +2,58 @@
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
-from picamera import PiCamera
-from picamera.array import PiRGBArray
+from picamera2 import Picamera2
+from libcamera import controls 
 import time
 import tkinter as tk
 from tkinter import Button
-import RPi.GPIO as GPIO
+from gpiozero import OutputDevice, DigitalInputDevice
 
-GPIO.cleanup()
-speed = 0.005
-# Set GPIO pin numbers
-solunoid = 22
-DIR_PIN = 23  # Replace with your chosen GPIO pin number for direction
-STEP_PIN = 24 # Replace with your chosen GPIO pin number for step
-end_switch = 25
-GPIO.cleanup()
-# Setup GPIO
-GPIO.setmode(GPIO.BCM)
-GPIO.setup(DIR_PIN, GPIO.OUT)
-GPIO.setup(STEP_PIN, GPIO.OUT)
-GPIO.setup(solunoid, GPIO.OUT)
-GPIO.output(solunoid, GPIO.LOW)
-GPIO.setup(end_switch, GPIO.IN, GPIO.PUD_UP)
+solenoid_pin = 19
+dir_pin = 4
+step_pin = 2
+end_switch_pin = 22
+speed = 0.0075
 
-def auto_home():
-    GPIO.output(DIR_PIN, GPIO.LOW)  # To end stop
-    while GPIO.input(end_switch) == GPIO.LOW:     
-        GPIO.output(STEP_PIN, GPIO.HIGH)
-        time.sleep(0.02)
-        GPIO.output(STEP_PIN, GPIO.LOW)
-        time.sleep(0.02)
-    GPIO.output(DIR_PIN, GPIO.HIGH)  # Away from endstop
-    for i in range (0, 7):     
-        GPIO.output(STEP_PIN, GPIO.HIGH)
-        time.sleep(speed)
-        GPIO.output(STEP_PIN, GPIO.LOW)
-        time.sleep(speed)
-        
-def forward_90():
-    GPIO.output(DIR_PIN, GPIO.HIGH)  # Away from endstop
-    for i in range (0, 50):
-        GPIO.output(STEP_PIN, GPIO.HIGH)
-        time.sleep(speed)
-        GPIO.output(STEP_PIN, GPIO.LOW)
-        time.sleep(speed)
-def back_180():
-    GPIO.output(DIR_PIN, GPIO.LOW)  # To  endstop
-    for i in range (0, 100):
-        GPIO.output(STEP_PIN, GPIO.HIGH)
-        time.sleep(speed)
-        GPIO.output(STEP_PIN, GPIO.LOW)
-        time.sleep(speed)
+solenoid = OutputDevice(solenoid_pin, initial_value=False)
+direction = OutputDevice(dir_pin)
+step = OutputDevice(step_pin)
+end_switch = DigitalInputDevice(end_switch_pin, pull_up=True)
+
 # Initial values for trackbars
-initial_x, initial_y, initial_diameter = 480, 468, 250
+IMG_DIMS = (3280, 2464)
+initial_x, initial_y, initial_diameter = 1550, 1400, 800
 initial_dev_up, initial_dev_down = 23, 23
 debug_mode = False
 enable_plots = False
 pause_mode = True
 
+def step_motor(steps, direction_flag):
+    direction.value = direction_flag
+    for _ in range(steps):
+        step.on()
+        time.sleep(speed)
+        step.off()
+        time.sleep(speed)
+
+def auto_home():
+    direction.off()  # Towards end stop
+    while end_switch.value:
+        step.on()
+        time.sleep(0.02)
+        step.off()
+        time.sleep(0.02)
+    direction.on()  # Away from end stop
+    step_motor(7, True)
+        
+def forward_90():
+    step_motor(50, True)
+
+def back_180():
+    step_motor(100, False)
+
 def nothing(val):
     pass
-
-def setup_camera():
-    global camera
-    camera.framerate = 10
-    camera.brightness = 47 #48 til clen mask5
-    camera.contrast = 1 #1 giver bedst detection
-    camera.shutter_speed = 10000
-    camera.exposure_mode = 'off'
-    camera.exposure_mode = 'backlight'
-    camera.awb_mode = 'fluorescent'
-    camera.resolution = (960, 960)
 
 def update_mask():
     global Csys, Dia, pellet_center_mask, camera
@@ -82,7 +63,7 @@ def update_mask():
     Dia = cv2.getTrackbarPos("Circle_Diameter", "Trackbars")
 
     # Create a black canvas the size of the camera feed
-    pellet_center_mask = np.zeros(camera.resolution, dtype="uint8")
+    pellet_center_mask = np.zeros((IMG_DIMS[1], IMG_DIMS[0]), dtype="uint8")
     # Draw a circle based on the trackbar values
     cv2.circle(pellet_center_mask, Csys, Dia, 255, -1)
 
@@ -136,7 +117,6 @@ def count_black_pixels(binary_image, mask):
     else:
         print("GOOD")
         return True
-
 
 def plot_histogram():
     global masked_image
@@ -232,10 +212,20 @@ def create_GUI():
     root.update()
     root.update_idletasks()
 
+def capture_image():
+    im = picam2.capture_array()
+    img_preproc = im[:IMG_DIMS[1], :IMG_DIMS[0]]
+    img_preproc = cv2.resize(img_preproc, (IMG_DIMS[0], IMG_DIMS[1]))
+    return img_preproc
+
 #Setting up the pi cam
-camera = PiCamera()
-setup_camera()
-rawCapture = PiRGBArray(camera, size=camera.resolution)
+picam2 = Picamera2(1)
+picam2.preview_configuration.main.size = IMG_DIMS
+picam2.preview_configuration.main.format = "YUV420"
+picam2.preview_configuration.align()
+picam2.configure("preview")
+picam2.start()
+
 # Create the Trackbars, so the mask can be created
 current_view = "original_image"
 # Create trackbars for adjusting mask
@@ -244,15 +234,13 @@ create_trackbars()
 root = tk.Tk()
 create_GUI()
 #Creating blank canvas of images that will be rendered
-original_image = np.zeros(camera.resolution, dtype="uint8")
-masked_image = np.zeros(camera.resolution, dtype="uint8")
-masked_binary_image = np.zeros(camera.resolution, dtype="uint8")
+original_image = np.zeros((IMG_DIMS[1], IMG_DIMS[0]), dtype="uint8")
+masked_image = np.zeros((IMG_DIMS[1], IMG_DIMS[0]), dtype="uint8")
+masked_binary_image = np.zeros((IMG_DIMS[1], IMG_DIMS[0]), dtype="uint8")
 auto_home()
 # Main loop
-for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):    #This would be the first thing in the big loop
-    #original_image = cv2.imread('mask clean11.jpg' , cv2.IMREAD_GRAYSCALE)
-    #Read the image from the raspberry pi
-    original_image = frame.array
+while True:
+    original_image = capture_image()
     #Make sure it is greyscale so we can use thresholding
     original_image = cv2.cvtColor(original_image, cv2.COLOR_BGR2GRAY)
     #As we've updated the original_image, it needs to be rerendered
@@ -264,25 +252,27 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
     if is_pellet_present(original_image, pellet_center_mask):
         print("Pellet")
         #Clear the previous image
-        rawCapture.truncate(0)
         #Recapture, to ensure a fully stable image
-        original_image = frame.array
-        original_image = cv2.cvtColor(original_image, cv2.COLOR_BGR2GRAY)
+        original_image = capture_image()
         #Preform relative mean based thresholding
         is_good_pellet = histogram_and_threshold(original_image, pellet_center_mask)
         update_window()
         forward_90()
         time.sleep(1)
+        """
         if is_good_pellet:
             GPIO.output(solunoid, GPIO.LOW)
         else:
             GPIO.output(solunoid, GPIO.HIGH)
+        """
         forward_90()
         time.sleep(1)
+        """
         if is_good_pellet:
             GPIO.output(solunoid, GPIO.LOW)
         else:
             GPIO.output(solunoid, GPIO.LOW)
+        """
         back_180()
         auto_home()
     else:
@@ -295,7 +285,6 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
     if key == 27:  # Press 'Esc' to exit
         break
     # Clear the stream in preparation for the next frame
-    rawCapture.truncate(0)
 
 # Release resources
 cv2.destroyAllWindows()

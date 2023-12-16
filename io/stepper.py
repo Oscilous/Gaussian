@@ -7,7 +7,7 @@ solenoid_pin = 19
 dir_pin = 4
 step_pin = 2
 end_switch_pin = 22
-speed = 0.005
+speed = 0.0075
 
 # Initialize devices
 solenoid = OutputDevice(solenoid_pin, initial_value=False)
