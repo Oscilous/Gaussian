@@ -4,7 +4,7 @@ from picamera2 import Picamera2
 
 IMG_DIMS = (3280, 2464)
 
-picam2 = Picamera2()
+picam2 = Picamera2(1)
 picam2.preview_configuration.main.size = IMG_DIMS
 picam2.preview_configuration.main.format = "YUV420"
 picam2.preview_configuration.align()
