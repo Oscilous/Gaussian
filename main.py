@@ -189,29 +189,32 @@ def is_pellet_present(image, mask):
     
 # Function to switch the current view based on button press
 def update_window():
-    global current_view, original_image, masked_image, masked_binary_image
+    global current_view, original_image, second_original_image, masked_image, masked_binary_image
     if current_view == "original_image":
         try:
-            cv2.destroyWindow("masked_image")
+            cv2.destroyWindow("first_camera")
             cv2.destroyWindow("masked_binary_image")
         except cv2.error as e:
             # Ignore the error if the window doesn't exist
             pass
-        cv2.imshow("original_image", original_image)
+        composite_image = np.hstack((original_image, second_original_image))
+        cv2.imshow("original_image", composite_image)
         cv2.waitKey(500)
-    elif current_view == "masked_image":
+    elif current_view == "first_camera":
         try:
             cv2.destroyWindow("original_image")
             cv2.destroyWindow("masked_binary_image")
         except cv2.error as e:
             # Ignore the error if the window doesn't exist
             pass
-        cv2.imshow("masked_image", masked_image)
+        composite_image = np.hstack((masked_image, masked_binary_image))
+        cv2.imshow("first_camera", composite_image)
+        cv2.im
         cv2.waitKey(500)
     elif current_view == "masked_binary_image":
         try:
             cv2.destroyWindow("original_image")
-            cv2.destroyWindow("masked_image")
+            cv2.destroyWindow("first_camera")
         except cv2.error as e:
             # Ignore the error if the window doesn't exist
             pass
@@ -228,7 +231,7 @@ def create_GUI():
     root.title("OpenCV Viewer")
     original_image_button = Button(root, text="Original Image", command=lambda: on_button_click("original_image"))
     original_image_button.pack(side="left")
-    masked_image_button = Button(root, text="Masked Image", command=lambda: on_button_click("masked_image"))
+    masked_image_button = Button(root, text="First Camera", command=lambda: on_button_click("first_camera"))
     masked_image_button.pack(side="left")
     masked_binary_image_button = Button(root, text="Masked Binary Image", command=lambda: on_button_click("masked_binary_image"))
     masked_binary_image_button.pack(side="left")
@@ -245,6 +248,14 @@ picam2.configure("preview")
 picam2.set_controls({"ExposureTime": 12000})
 picam2.start()
 
+second_camera = Picamera2(0)
+second_camera.preview_configuration.main.size = IMG_DIMS
+second_camera.preview_configuration.main.format = "YUV420"
+second_camera.preview_configuration.align()
+second_camera.configure("preview")
+second_camera.set_controls({"ExposureTime": 12000})
+second_camera.start()
+
 # Create the Trackbars, so the mask can be created
 current_view = "original_image"
 # Create trackbars for adjusting mask
@@ -254,6 +265,7 @@ root = tk.Tk()
 create_GUI()
 #Creating blank canvas of images that will be rendered
 original_image = np.zeros((IMG_DIMS[1], IMG_DIMS[0]), dtype="uint8")
+second_original_image = np.zeros((IMG_DIMS[1], IMG_DIMS[0]), dtype="uint8")
 masked_image = np.zeros((IMG_DIMS[1], IMG_DIMS[0]), dtype="uint8")
 masked_binary_image = np.zeros((IMG_DIMS[1], IMG_DIMS[0]), dtype="uint8")
 auto_home()
@@ -283,8 +295,9 @@ while True:
         update_window()
         forward_90()
         time.sleep(0.25)
-
-        time.sleep(1)
+        second_original_image = second_camera.capture_array()
+        second_original_image = second_original_image[:IMG_DIMS[1], :IMG_DIMS[0]]
+        second_original_image = cv2.resize(second_original_image, (IMG_DIMS[0], IMG_DIMS[1]))
         """
         if is_good_pellet:
             GPIO.output(solunoid, GPIO.LOW)
