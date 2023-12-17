@@ -36,10 +36,11 @@ initial_x, initial_y, initial_diameter = 808,612,380
 initial_dev_up, initial_dev_down = 31,40
 initial_threshold = 2000
 initial_detection = 0
-lower_threshold = 0
-upper_threshold = 0
-std_dev_multiplier_lower = 0
-mean_value = 0
+
+second_initial_x, second_initial_y, second_initial_diameter = 808,612,380
+second_initial_dev_up, second_initial_dev_down = 31,40
+second_initial_threshold = 2000
+
 debug_mode = False
 enable_plots = True
 pause_mode = True
@@ -95,12 +96,19 @@ def update_mask():
     # Draw a circle based on the trackbar values
     cv2.circle(pellet_center_mask, Csys, Dia, 255, -1)
 
-def histogram_and_threshold(image, mask):
-    global lower_threshold
-    global upper_threshold
-    global std_dev_multiplier_lower
-    global std_dev_multiplier_upper
-    global mean_value
+def second_update_mask():
+    global second_Csys, second_Dia, second_pellet_center_mask
+    # Update circle parameters
+    second_Csys = (cv2.getTrackbarPos("second_Circle_X", "Trackbars"),
+            cv2.getTrackbarPos("second_Circle_Y", "Trackbars"))
+    second_Dia = cv2.getTrackbarPos("second_Circle_Diameter", "Trackbars")
+
+    # Create a black canvas the size of the camera feed
+    second_pellet_center_mask = np.zeros((IMG_DIMS[1], IMG_DIMS[0]), dtype="uint8")
+    # Draw a circle based on the trackbar values
+    cv2.circle(second_pellet_center_mask, second_Csys, second_Dia, 255, -1)
+
+def histogram_and_threshold(image, mask, camera):
     # Apply the mask to the image
     masked_image = np.ma.array(image, mask=~mask)
     # Calculate the mean and standard deviation
@@ -114,12 +122,12 @@ def histogram_and_threshold(image, mask):
     upper_threshold = mean_value + std_dev_multiplier_upper
     
     if enable_plots:
-        plot_histogram(masked_image)
+        plot_histogram(masked_image, lower_threshold, upper_threshold, std_dev_multiplier_lower, std_dev_multiplier_upper, mean_value)
     
     # Perform thresholding using mean and brightness deviation
     binary_image = ((masked_image >= lower_threshold) & (masked_image <= upper_threshold)).astype(np.uint8) * 255
 
-    is_pellet_good = count_black_pixels(binary_image, mask)
+    is_pellet_good = count_black_pixels(binary_image, mask, camera)
     return is_pellet_good
     
 def create_trackbars():
@@ -134,14 +142,26 @@ def create_trackbars():
     cv2.createTrackbar("Threshold_lower", "Trackbars", initial_dev_down, 60, nothing)
     cv2.createTrackbar("Impurity_pixel_amount", "Trackbars", initial_threshold,10000, nothing)
     cv2.createTrackbar("detection_threshold", "Trackbars", initial_detection ,100, nothing)
+    # Create trackbars with default values
+    cv2.createTrackbar("second_Circle_X", "Trackbars", second_initial_x, 5000, nothing)
+    cv2.createTrackbar("second_Circle_Y", "Trackbars", second_initial_y, 5000, nothing)
+    cv2.createTrackbar("second_Circle_Diameter", "Trackbars", second_initial_diameter, 2000, nothing)
+    cv2.createTrackbar("second_Threshold_upper", "Trackbars", second_initial_dev_up, 60, nothing)
+    cv2.createTrackbar("second_Threshold_lower", "Trackbars", second_initial_dev_down, 60, nothing)
+    cv2.createTrackbar("second_Impurity_pixel_amount", "Trackbars", second_initial_threshold,10000, nothing)
 
-def count_black_pixels(binary_image, mask):
+
+def count_black_pixels(binary_image, mask, camera):
     global masked_binary_image
-    # Apply the mask to the binary image
-    masked_binary_image = cv2.bitwise_and(~binary_image, mask)
-    # Count the black pixels (pixel values = 0) inside the masked area
-    impurity_pixel_count = np.sum(masked_binary_image == 255)
-
+    global second_masked_binary_image
+    if camera == 1:
+        # Apply the mask to the binary image
+        masked_binary_image = cv2.bitwise_and(~binary_image, mask)
+        # Count the black pixels (pixel values = 0) inside the masked area
+        impurity_pixel_count = np.sum(masked_binary_image == 255)
+    elif camera == 2:
+        second_masked_binary_image = cv2.bitwise_and(~binary_image, mask)
+        impurity_pixel_count = np.sum(second_masked_binary_image == 255)
     print(f'Impurities: {impurity_pixel_count}')
     impurity_threshold = cv2.getTrackbarPos("Impurity_pixel_amount", "Trackbars")
     if impurity_pixel_count > impurity_threshold:
@@ -151,12 +171,7 @@ def count_black_pixels(binary_image, mask):
         print("GOOD")
         return True
 
-def plot_histogram(masked_image):
-    global lower_threshold
-    global upper_threshold
-    global std_dev_multiplier_lower
-    global std_dev_multiplier_upper
-    global mean_value
+def plot_histogram(masked_image, lower_threshold, upper_threshold, std_dev_multiplier_lower, std_dev_multiplier_upper, mean_value):
     # Clear the previous plot
     plt.clf()
     flattened_data = masked_image.ravel()
@@ -228,7 +243,8 @@ def update_window():
         except cv2.error as e:
             # Ignore the error if the window doesn't exist
             pass
-        cv2.imshow("masked_binary_image", masked_binary_image)
+        composite_image = np.hstack((second_masked_image, second_masked_binary_image))
+        cv2.imshow("second_camera", composite_image)
         cv2.waitKey(500)
 # Function to handle button clicks
 def on_button_click(view_name):
@@ -278,6 +294,10 @@ original_image = np.zeros((IMG_DIMS[1], IMG_DIMS[0]), dtype="uint8")
 second_original_image = np.zeros((IMG_DIMS[1], IMG_DIMS[0]), dtype="uint8")
 masked_image = np.zeros((IMG_DIMS[1], IMG_DIMS[0]), dtype="uint8")
 masked_binary_image = np.zeros((IMG_DIMS[1], IMG_DIMS[0]), dtype="uint8")
+
+second_masked_image = np.zeros((IMG_DIMS[1], IMG_DIMS[0]), dtype="uint8")
+second_masked_binary_image = np.zeros((IMG_DIMS[1], IMG_DIMS[0]), dtype="uint8")
+
 auto_home()
 # Main loop
 while True:
@@ -301,7 +321,7 @@ while True:
         original_image = original_image[:IMG_DIMS[1], :IMG_DIMS[0]]
         original_image = cv2.resize(original_image, (IMG_DIMS[0], IMG_DIMS[1]))
         #Preform relative mean based thresholding
-        is_good_pellet = histogram_and_threshold(original_image, pellet_center_mask)
+        is_good_pellet = histogram_and_threshold(original_image, pellet_center_mask, 1)
         update_window()
         forward_90()
         time.sleep(0.25)
@@ -309,12 +329,12 @@ while True:
             while True:
                 update_window()
                 #Call update_mask, if adjustments were made with trackbars
-                update_mask()
+                second_update_mask()
                 second_original_image = second_camera.capture_array()
                 second_original_image = second_original_image[:IMG_DIMS[1], :IMG_DIMS[0]]
                 second_original_image = cv2.resize(second_original_image, (IMG_DIMS[0], IMG_DIMS[1]))
                 #Preform relative mean based thresholding
-                is_good_pellet = histogram_and_threshold(second_original_image, pellet_center_mask)
+                is_good_pellet = histogram_and_threshold(second_original_image, second_pellet_center_mask, 2)
                 root.update()
                 root.update_idletasks()
         """
