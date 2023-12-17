@@ -343,8 +343,11 @@ while True:
         original_image = picam2.capture_array()
         original_image = original_image[:IMG_DIMS[1], :IMG_DIMS[0]]
         original_image = cv2.resize(original_image, (IMG_DIMS[0], IMG_DIMS[1]))
+        update_mask()
+        update_window()
         #Preform relative mean based thresholding
         is_good_pellet = histogram_and_threshold(original_image, pellet_center_mask, 1)
+        update_mask()
         update_window()
         if is_good_pellet:
             solenoid.off()
@@ -356,8 +359,14 @@ while True:
             second_original_image = second_camera.capture_array()
             second_original_image = second_original_image[:IMG_DIMS[1], :IMG_DIMS[0]]
             second_original_image = cv2.resize(second_original_image, (IMG_DIMS[0], IMG_DIMS[1]))
+            update_window()
+            #Call update_mask, if adjustments were made with trackbars
+            second_update_mask()
             #Preform relative mean based thresholding
             is_good_pellet = histogram_and_threshold(second_original_image, second_pellet_center_mask, 2)
+            update_window()
+            #Call update_mask, if adjustments were made with trackbars
+            second_update_mask()
             if is_good_pellet:
                 solenoid.off()
             else:
