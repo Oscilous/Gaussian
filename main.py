@@ -314,7 +314,7 @@ while True:
                 second_original_image = second_original_image[:IMG_DIMS[1], :IMG_DIMS[0]]
                 second_original_image = cv2.resize(second_original_image, (IMG_DIMS[0], IMG_DIMS[1]))
                 #Preform relative mean based thresholding
-                is_good_pellet = histogram_and_threshold(original_image, pellet_center_mask)
+                is_good_pellet = histogram_and_threshold(second_original_image, pellet_center_mask)
                 root.update()
                 root.update_idletasks()
         """
