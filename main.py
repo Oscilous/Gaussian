@@ -42,9 +42,9 @@ second_initial_dev_up, second_initial_dev_down = 26,25
 second_initial_threshold = 2000
 
 debug_mode = False
-enable_plots = True
+enable_plots = False
 pause_mode = True
-edit_mode = True
+edit_mode = False
 def step_motor(steps, direction_flag):
     direction.value = direction_flag
     for _ in range(steps):
@@ -113,6 +113,7 @@ def histogram_and_threshold(image, mask, camera):
     if camera == 1:
         # Apply the mask to the image
         masked_image = np.ma.array(image, mask=~mask)
+        update_window()
         # Calculate the mean and standard deviation
         mean_value = np.mean(masked_image.compressed())
         std_dev_multiplier_upper = cv2.getTrackbarPos("Threshold_upper", "Trackbars")
@@ -120,6 +121,7 @@ def histogram_and_threshold(image, mask, camera):
         work_image = masked_image
     elif camera == 2:
         second_masked_image = np.ma.array(image, mask=~mask)
+        second_update_mask()
         # Calculate the mean and standard deviation
         mean_value = np.mean(second_masked_image.compressed())
         std_dev_multiplier_upper = cv2.getTrackbarPos("second_Threshold_upper", "Trackbars")
@@ -338,39 +340,27 @@ while True:
         #Preform relative mean based thresholding
         is_good_pellet = histogram_and_threshold(original_image, pellet_center_mask, 1)
         update_window()
-        forward_90()
-        time.sleep(0.25)
-        if edit_mode:
-            while True:
-                update_window()
-                #Call update_mask, if adjustments were made with trackbars
-                second_update_mask()
-                second_original_image = second_camera.capture_array()
-                second_original_image = second_original_image[:IMG_DIMS[1], :IMG_DIMS[0]]
-                second_original_image = cv2.resize(second_original_image, (IMG_DIMS[0], IMG_DIMS[1]))
-                #Preform relative mean based thresholding
-                is_good_pellet = histogram_and_threshold(second_original_image, second_pellet_center_mask, 2)
-                root.update()
-                root.update_idletasks()
-        """
-        second_original_image = second_camera.capture_array()
-        second_original_image = second_original_image[:IMG_DIMS[1], :IMG_DIMS[0]]
-        second_original_image = cv2.resize(second_original_image, (IMG_DIMS[0], IMG_DIMS[1]))
-        """
-        """
         if is_good_pellet:
-            GPIO.output(solunoid, GPIO.LOW)
+            solenoid.off()
+            forward_90()
+            time.sleep(0.25)
+            update_window()
+            #Call update_mask, if adjustments were made with trackbars
+            second_update_mask()
+            second_original_image = second_camera.capture_array()
+            second_original_image = second_original_image[:IMG_DIMS[1], :IMG_DIMS[0]]
+            second_original_image = cv2.resize(second_original_image, (IMG_DIMS[0], IMG_DIMS[1]))
+            #Preform relative mean based thresholding
+            is_good_pellet = histogram_and_threshold(second_original_image, second_pellet_center_mask, 2)
+            if is_good_pellet:
+                solenoid.off()
+            else:
+                solenoid.on()
         else:
-            GPIO.output(solunoid, GPIO.HIGH)
-        """
+            solenoid.on()
+            forward_90()
         forward_90()
         time.sleep(1)
-        """
-        if is_good_pellet:
-            GPIO.output(solunoid, GPIO.LOW)
-        else:
-            GPIO.output(solunoid, GPIO.LOW)
-        """
         fast_auto_home()
         auto_home()
     else:
