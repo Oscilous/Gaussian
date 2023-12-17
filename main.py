@@ -36,6 +36,8 @@ initial_x, initial_y, initial_diameter = 808,612,380
 initial_dev_up, initial_dev_down = 31,40
 initial_threshold = 2000
 initial_detection = 0
+lower_threshold = 0
+upper_threshold = 0
 debug_mode = False
 enable_plots = True
 pause_mode = True
@@ -252,7 +254,7 @@ second_camera.preview_configuration.main.size = IMG_DIMS
 second_camera.preview_configuration.main.format = "YUV420"
 second_camera.preview_configuration.align()
 second_camera.configure("preview")
-second_camera.set_controls({"ExposureTime": 1000})
+second_camera.set_controls({"ExposureTime": 500})
 second_camera.start()
 
 # Create the Trackbars, so the mask can be created
