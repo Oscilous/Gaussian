@@ -3,6 +3,9 @@ import time
 from signal import pause
 
 # Pin setup
+ms1_pin = 3
+ms2_pin = 17
+ms3_pin = 27
 solenoid_pin = 19
 dir_pin = 4
 step_pin = 2
@@ -14,6 +17,10 @@ solenoid = OutputDevice(solenoid_pin, initial_value=False)
 direction = OutputDevice(dir_pin)
 step = OutputDevice(step_pin)
 end_switch = DigitalInputDevice(end_switch_pin, pull_up=True)
+
+ms1 = OutputDevice(ms1_pin, initial_value=False)
+ms2 = OutputDevice(ms2_pin, initial_value=False)
+ms3 = OutputDevice(ms3_pin, initial_value=False)
 
 def step_motor(steps, direction_flag):
     direction.value = direction_flag
@@ -31,15 +38,16 @@ def auto_home():
         step.off()
         time.sleep(0.02)
     direction.on()  # Away from end stop
-    step_motor(7, True)
+    step_motor(9, True)
 
 def forward_90():
-    step_motor(50, True)
+    step_motor(101, True)
 
 def back_180():
-    step_motor(100, False)
+    step_motor(200, False)
 
 try:
+    ms1.on()
     auto_home()
     while True:
         time.sleep(1)

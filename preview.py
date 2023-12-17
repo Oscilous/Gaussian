@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 from picamera2 import Picamera2
 from libcamera import controls 
-IMG_DIMS = (3280, 2464)
+IMG_DIMS = (1640,1232)
 
 picam2 = Picamera2()
 picam2.preview_configuration.main.size = IMG_DIMS
@@ -12,6 +12,8 @@ picam2.configure("preview")
 picam2.start()
 
 try:
+    #controls = picam2.set_controls()
+    #print(controls)
     while True:
         im = picam2.capture_array()
         img_preproc = im[:IMG_DIMS[1], :IMG_DIMS[0]]

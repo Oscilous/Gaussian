@@ -2,9 +2,9 @@ import cv2
 import numpy as np
 from picamera2 import Picamera2
 
-IMG_DIMS = (3280, 2464)
+IMG_DIMS = (1640, 1232)
 
-picam2 = Picamera2(1)
+picam2 = Picamera2(0)
 picam2.preview_configuration.main.size = IMG_DIMS
 picam2.preview_configuration.main.format = "YUV420"
 picam2.preview_configuration.align()
