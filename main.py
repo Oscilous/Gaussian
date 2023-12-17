@@ -233,7 +233,7 @@ def update_window():
             # Ignore the error if the window doesn't exist
             pass
         composite_image = np.hstack((original_image, second_original_image))
-        composite_image = cv2.resize(composite_image, (composite_image.shape[0] / 2, composite_image.shape[1] / 2))
+        composite_image = cv2.resize(composite_image, (composite_image.shape.0 / 2, composite_image.shape.1 / 2))
         cv2.imshow("original_image", composite_image)
         cv2.waitKey(500)
     elif current_view == "first_camera":
@@ -244,7 +244,7 @@ def update_window():
             # Ignore the error if the window doesn't exist
             pass
         composite_image = np.hstack((masked_image, masked_binary_image))
-        composite_image = cv2.resize(composite_image, (composite_image.shape[0] / 2, composite_image.shape[1] / 2))
+        composite_image = cv2.resize(composite_image, (composite_image.shape.0 / 2, composite_image.shape.1 / 2))
         cv2.imshow("first_camera", composite_image)
         cv2.waitKey(500)
     elif current_view == "second_camera":
@@ -255,7 +255,7 @@ def update_window():
             # Ignore the error if the window doesn't exist
             pass
         composite_image = np.hstack((second_masked_image, second_masked_binary_image))
-        composite_image = cv2.resize(composite_image, (composite_image.shape[0] / 2, composite_image.shape[1] / 2))
+        composite_image = cv2.resize(composite_image, (composite_image.shape.0 / 2, composite_image.shape.1 / 2))
         cv2.imshow("second_camera", composite_image)
         cv2.waitKey(500)
 # Function to handle button clicks
