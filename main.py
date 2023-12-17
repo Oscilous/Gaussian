@@ -109,23 +109,31 @@ def second_update_mask():
     cv2.circle(second_pellet_center_mask, second_Csys, second_Dia, 255, -1)
 
 def histogram_and_threshold(image, mask, camera):
-    # Apply the mask to the image
-    masked_image = np.ma.array(image, mask=~mask)
-    # Calculate the mean and standard deviation
-    mean_value = np.mean(masked_image.compressed())
-
-    std_dev_multiplier_upper = cv2.getTrackbarPos("Threshold_upper", "Trackbars")
-    std_dev_multiplier_lower = cv2.getTrackbarPos("Threshold_lower", "Trackbars")
+    if camera == 1:
+        # Apply the mask to the image
+        masked_image = np.ma.array(image, mask=~mask)
+        # Calculate the mean and standard deviation
+        mean_value = np.mean(masked_image.compressed())
+        std_dev_multiplier_upper = cv2.getTrackbarPos("Threshold_upper", "Trackbars")
+        std_dev_multiplier_lower = cv2.getTrackbarPos("Threshold_lower", "Trackbars")
+        work_image = masked_image
+    elif camera == 2:
+        second_masked_image == np.ma.array(image, mask=~mask)
+        # Calculate the mean and standard deviation
+        mean_value = np.mean(second_masked_image.compressed())
+        std_dev_multiplier_upper = cv2.getTrackbarPos("second_Threshold_upper", "Trackbars")
+        std_dev_multiplier_lower = cv2.getTrackbarPos("second_Threshold_lower", "Trackbars")
+        work_image = second_masked_image
 
     # Calculate the threshold range
     lower_threshold = mean_value - std_dev_multiplier_lower
     upper_threshold = mean_value + std_dev_multiplier_upper
     
     if enable_plots:
-        plot_histogram(masked_image, lower_threshold, upper_threshold, std_dev_multiplier_lower, std_dev_multiplier_upper, mean_value)
+        plot_histogram(work_image, lower_threshold, upper_threshold, std_dev_multiplier_lower, std_dev_multiplier_upper, mean_value)
     
     # Perform thresholding using mean and brightness deviation
-    binary_image = ((masked_image >= lower_threshold) & (masked_image <= upper_threshold)).astype(np.uint8) * 255
+    binary_image = ((work_image >= lower_threshold) & (work_image <= upper_threshold)).astype(np.uint8) * 255
 
     is_pellet_good = count_black_pixels(binary_image, mask, camera)
     return is_pellet_good
@@ -259,7 +267,7 @@ def create_GUI():
     original_image_button.pack(side="left")
     masked_image_button = Button(root, text="First Camera", command=lambda: on_button_click("first_camera"))
     masked_image_button.pack(side="left")
-    masked_binary_image_button = Button(root, text="Masked Binary Image", command=lambda: on_button_click("masked_binary_image"))
+    masked_binary_image_button = Button(root, text="Second Camera", command=lambda: on_button_click("second_camera"))
     masked_binary_image_button.pack(side="left")
     # Start Tkinter main loop
     root.update()
