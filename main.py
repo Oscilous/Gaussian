@@ -32,12 +32,12 @@ ms3 = OutputDevice(ms3_pin, initial_value=False)
 
 # Initial values for trackbars
 IMG_DIMS = (1640, 1232)
-initial_x, initial_y, initial_diameter = 775, 700, 400
-initial_dev_up, initial_dev_down = 23, 23
+initial_x, initial_y, initial_diameter = 808,612,380
+initial_dev_up, initial_dev_down = 31,40
 initial_threshold = 2000
 initial_detection = 0
 debug_mode = False
-enable_plots = False
+enable_plots = True
 pause_mode = True
 
 def step_motor(steps, direction_flag):
@@ -121,9 +121,9 @@ def create_trackbars():
     cv2.createTrackbar("Circle_X", "Trackbars", initial_x, 5000, nothing)
     cv2.createTrackbar("Circle_Y", "Trackbars", initial_y, 5000, nothing)
     cv2.createTrackbar("Circle_Diameter", "Trackbars", initial_diameter, 2000, nothing)
-    cv2.createTrackbar("Threshold_upper", "Trackbars", initial_dev_up, 40, nothing)
-    cv2.createTrackbar("Threshold_lower", "Trackbars", initial_dev_down, 40, nothing)
-    cv2.createTrackbar("Impurity_pixel_amount", "Trackbars", initial_threshold,50000, nothing)
+    cv2.createTrackbar("Threshold_upper", "Trackbars", initial_dev_up, 60, nothing)
+    cv2.createTrackbar("Threshold_lower", "Trackbars", initial_dev_down, 60, nothing)
+    cv2.createTrackbar("Impurity_pixel_amount", "Trackbars", initial_threshold,10000, nothing)
     cv2.createTrackbar("detection_threshold", "Trackbars", initial_detection ,100, nothing)
 
 def count_black_pixels(binary_image, mask):
@@ -153,7 +153,7 @@ def plot_histogram():
     plt.clf()
 
     # Plot the histogram
-    plt.hist(masked_image.compressed(), bins=256, density=True, alpha=0.6, color='g')
+    plt.hist(masked_image.ravel(), bins=256, density=True, alpha=0.6, color='g')
 
     # Add vertical lines at thresholding points
     plt.axvline(x=lower_threshold, color='r', linestyle='--', label=f'Lower Threshold ({std_dev_multiplier_lower} std dev)')
