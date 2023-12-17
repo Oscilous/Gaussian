@@ -43,8 +43,15 @@ def auto_home():
 def forward_90():
     step_motor(101, True)
 
-def back_180():
-    step_motor(200, False)
+def fast_auto_home():
+    direction.off()  # Towards end stop
+    while end_switch.value:
+        step.on()
+        time.sleep(0.02)
+        step.off()
+        time.sleep(0.02)
+    direction.on()  # Away from end stop
+    step_motor(9, True)
 
 try:
     ms1.on()
@@ -57,7 +64,7 @@ try:
         forward_90()
         time.sleep(1)
         solenoid.off()
-        back_180()
+        fast_auto_home()
         auto_home()
 
 except KeyboardInterrupt:
