@@ -109,6 +109,7 @@ def second_update_mask():
     cv2.circle(second_pellet_center_mask, second_Csys, second_Dia, 255, -1)
 
 def histogram_and_threshold(image, mask, camera):
+    global masked_image, second_masked_image
     if camera == 1:
         # Apply the mask to the image
         masked_image = np.ma.array(image, mask=~mask)
