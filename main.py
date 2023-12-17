@@ -224,7 +224,7 @@ def is_pellet_present(image, mask):
     
 # Function to switch the current view based on button press
 def update_window():
-    global current_view, original_image, second_original_image, masked_image, masked_binary_image
+    global current_view, original_image, second_original_image, masked_image, masked_binary_image, second_masked_image, second_masked_binary_image
     if current_view == "original_image":
         try:
             cv2.destroyWindow("first_camera")
