@@ -9,20 +9,30 @@ import tkinter as tk
 from tkinter import Button
 from gpiozero import OutputDevice, DigitalInputDevice
 
+# Pin setup
+ms1_pin = 3
+ms2_pin = 17
+ms3_pin = 27
 solenoid_pin = 19
 dir_pin = 4
 step_pin = 2
 end_switch_pin = 22
 speed = 0.0075
 
+# Initialize devices
 solenoid = OutputDevice(solenoid_pin, initial_value=False)
 direction = OutputDevice(dir_pin)
 step = OutputDevice(step_pin)
 end_switch = DigitalInputDevice(end_switch_pin, pull_up=True)
 
+#Init and set to half-step
+ms1 = OutputDevice(ms1_pin, initial_value=True)
+ms2 = OutputDevice(ms2_pin, initial_value=False)
+ms3 = OutputDevice(ms3_pin, initial_value=False)
+
 # Initial values for trackbars
-IMG_DIMS = (3280, 2464)
-initial_x, initial_y, initial_diameter = 1550, 1400, 800
+IMG_DIMS = (1640, 1232)
+initial_x, initial_y, initial_diameter = 775, 700, 400
 initial_dev_up, initial_dev_down = 23, 23
 debug_mode = False
 enable_plots = False
@@ -44,13 +54,13 @@ def auto_home():
         step.off()
         time.sleep(0.02)
     direction.on()  # Away from end stop
-    step_motor(7, True)
-        
+    step_motor(9, True)
+
 def forward_90():
-    step_motor(50, True)
+    step_motor(101, True)
 
 def back_180():
-    step_motor(100, False)
+    step_motor(200, False)
 
 def nothing(val):
     pass
