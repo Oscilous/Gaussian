@@ -32,8 +32,10 @@ ms3 = OutputDevice(ms3_pin, initial_value=False)
 
 # Initial values for trackbars
 IMG_DIMS = (1640, 1232)
-initial_x, initial_y, initial_diameter = 775, 700, 300
+initial_x, initial_y, initial_diameter = 775, 700, 400
 initial_dev_up, initial_dev_down = 23, 23
+initial_threshold = 2000
+initial_detection = 0
 debug_mode = False
 enable_plots = False
 pause_mode = True
@@ -109,8 +111,8 @@ def create_trackbars():
     cv2.createTrackbar("Circle_Diameter", "Trackbars", initial_diameter, 2000, nothing)
     cv2.createTrackbar("Threshold_upper", "Trackbars", initial_dev_up, 40, nothing)
     cv2.createTrackbar("Threshold_lower", "Trackbars", initial_dev_down, 40, nothing)
-    cv2.createTrackbar("Impurity_pixel_amount", "Trackbars", 1000,50000, nothing)
-    cv2.createTrackbar("detection_threshold", "Trackbars", 60,100, nothing)
+    cv2.createTrackbar("Impurity_pixel_amount", "Trackbars", initial_threshold,50000, nothing)
+    cv2.createTrackbar("detection_threshold", "Trackbars", initial_detection ,100, nothing)
 
 def count_black_pixels(binary_image, mask):
     global masked_binary_image
@@ -168,7 +170,7 @@ def is_pellet_present(image, mask):
     detection_threshold = cv2.getTrackbarPos("detection_threshold", "Trackbars")
     percentage_light = int(impurity_pixel_count / area_pixel_count * 100)
     print(percentage_light)
-    if percentage_light > detection_threshold:
+    if percentage_light >  detection_threshold:
         return False
     else:
         return True
@@ -234,6 +236,7 @@ picam2.preview_configuration.main.size = IMG_DIMS
 picam2.preview_configuration.main.format = "YUV420"
 picam2.preview_configuration.align()
 picam2.configure("preview")
+picam2.set_controls({"ExposureTime": 12000})
 picam2.start()
 
 # Create the Trackbars, so the mask can be created
@@ -260,6 +263,7 @@ while True:
     #We check if the pellet is present
     
     if is_pellet_present(original_image, pellet_center_mask):
+        time.sleep(0.5)
         print("Pellet")
         #Clear the previous image
         #Recapture, to ensure a fully stable image
