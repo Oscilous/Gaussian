@@ -118,7 +118,7 @@ def histogram_and_threshold(image, mask, camera):
         std_dev_multiplier_lower = cv2.getTrackbarPos("Threshold_lower", "Trackbars")
         work_image = masked_image
     elif camera == 2:
-        second_masked_image == np.ma.array(image, mask=~mask)
+        second_masked_image = np.ma.array(image, mask=~mask)
         # Calculate the mean and standard deviation
         mean_value = np.mean(second_masked_image.compressed())
         std_dev_multiplier_upper = cv2.getTrackbarPos("second_Threshold_upper", "Trackbars")
