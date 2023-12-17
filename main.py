@@ -58,6 +58,18 @@ def auto_home():
     direction.on()  # Away from end stop
     step_motor(9, True)
 
+def fast_auto_home():
+    steps = 0
+    direction.off()  # Towards end stop
+    while end_switch.value:
+        step.on()
+        time.sleep(speed)
+        step.off()
+        time.sleep(speed)
+        steps = steps + 1
+    direction.on()  # Away from end stop
+    step_motor(9, True)
+
 def forward_90():
     step_motor(101, True)
 
@@ -253,7 +265,7 @@ masked_binary_image = np.zeros((IMG_DIMS[1], IMG_DIMS[0]), dtype="uint8")
 auto_home()
 # Main loop
 while True:
-    original_image = capture_image()
+    original_image = picam2.capture_image()
     #Make sure it is greyscale so we can use thresholding
     #original_image = cv2.cvtColor(original_image, cv2.COLOR_BGR2GRAY)
     #As we've updated the original_image, it needs to be rerendered
@@ -263,15 +275,17 @@ while True:
     #We check if the pellet is present
     
     if is_pellet_present(original_image, pellet_center_mask):
-        time.sleep(0.5)
+        time.sleep(0.1)
         print("Pellet")
         #Clear the previous image
         #Recapture, to ensure a fully stable image
-        original_image = capture_image()
+        original_image = picam2.capture_image()
         #Preform relative mean based thresholding
         is_good_pellet = histogram_and_threshold(original_image, pellet_center_mask)
         update_window()
         forward_90()
+        time.sleep(0.1)
+
         time.sleep(1)
         """
         if is_good_pellet:
@@ -287,7 +301,7 @@ while True:
         else:
             GPIO.output(solunoid, GPIO.LOW)
         """
-        back_180()
+        fast_auto_home()
         auto_home()
     else:
         print("No")
