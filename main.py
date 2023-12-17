@@ -81,6 +81,12 @@ def forward_90():
 def back_180():
     step_motor(200, False)
 
+def shimmy():
+    step_motor(1, True)
+    time.sleep(0.1)
+    step_motor(1, False)
+    time.sleep(0.1)
+
 def nothing(val):
     pass
 
@@ -360,6 +366,7 @@ while True:
             solenoid.on()
             forward_90()
         forward_90()
+        shimmy()
         time.sleep(1)
         fast_auto_home()
         auto_home()
