@@ -291,18 +291,6 @@ while True:
     #Call update_mask, if adjustments were made with trackbars
     update_mask()
     #We check if the pellet is present
-    if edit_mode:
-        while True:
-            update_window()
-            #Call update_mask, if adjustments were made with trackbars
-            update_mask()
-            original_image = picam2.capture_array()
-            original_image = original_image[:IMG_DIMS[1], :IMG_DIMS[0]]
-            original_image = cv2.resize(original_image, (IMG_DIMS[0], IMG_DIMS[1]))
-            #Preform relative mean based thresholding
-            is_good_pellet = histogram_and_threshold(original_image, pellet_center_mask)
-            root.update()
-            root.update_idletasks()
 
     if is_pellet_present(original_image, pellet_center_mask):
         time.sleep(0.1)
@@ -317,9 +305,23 @@ while True:
         update_window()
         forward_90()
         time.sleep(0.25)
+        if edit_mode:
+            while True:
+                update_window()
+                #Call update_mask, if adjustments were made with trackbars
+                update_mask()
+                second_original_image = second_camera.capture_array()
+                second_original_image = second_original_image[:IMG_DIMS[1], :IMG_DIMS[0]]
+                second_original_image = cv2.resize(second_original_image, (IMG_DIMS[0], IMG_DIMS[1]))
+                #Preform relative mean based thresholding
+                is_good_pellet = histogram_and_threshold(original_image, pellet_center_mask)
+                root.update()
+                root.update_idletasks()
+        """
         second_original_image = second_camera.capture_array()
         second_original_image = second_original_image[:IMG_DIMS[1], :IMG_DIMS[0]]
         second_original_image = cv2.resize(second_original_image, (IMG_DIMS[0], IMG_DIMS[1]))
+        """
         """
         if is_good_pellet:
             GPIO.output(solunoid, GPIO.LOW)
