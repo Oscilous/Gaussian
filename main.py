@@ -244,7 +244,7 @@ def update_window():
         composite_image = np.hstack((masked_image, masked_binary_image))
         cv2.imshow("first_camera", composite_image)
         cv2.waitKey(500)
-    elif current_view == "masked_binary_image":
+    elif current_view == "second_camera":
         try:
             cv2.destroyWindow("original_image")
             cv2.destroyWindow("first_camera")
@@ -267,8 +267,8 @@ def create_GUI():
     original_image_button.pack(side="left")
     masked_image_button = Button(root, text="First Camera", command=lambda: on_button_click("first_camera"))
     masked_image_button.pack(side="left")
-    masked_binary_image_button = Button(root, text="Second Camera", command=lambda: on_button_click("second_camera"))
-    masked_binary_image_button.pack(side="left")
+    second_camera_button = Button(root, text="Second Camera", command=lambda: on_button_click("second_camera"))
+    second_camera_button.pack(side="left")
     # Start Tkinter main loop
     root.update()
     root.update_idletasks()
