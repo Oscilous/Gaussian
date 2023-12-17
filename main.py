@@ -37,8 +37,8 @@ initial_dev_up, initial_dev_down = 31,40
 initial_threshold = 2000
 initial_detection = 0
 
-second_initial_x, second_initial_y, second_initial_diameter = 808,612,380
-second_initial_dev_up, second_initial_dev_down = 31,40
+second_initial_x, second_initial_y, second_initial_diameter = 1005,685,460
+second_initial_dev_up, second_initial_dev_down = 26,27
 second_initial_threshold = 2000
 
 debug_mode = False
@@ -76,7 +76,7 @@ def fast_auto_home():
     step_motor(9, True)
 
 def forward_90():
-    step_motor(101, True)
+    step_motor(100, True)
 
 def back_180():
     step_motor(200, False)
