@@ -236,12 +236,6 @@ def create_GUI():
     root.update()
     root.update_idletasks()
 
-def capture_image():
-    im = picam2.capture_array()
-    img_preproc = im[:IMG_DIMS[1], :IMG_DIMS[0]]
-    img_preproc = cv2.resize(img_preproc, (IMG_DIMS[0], IMG_DIMS[1]))
-    return img_preproc
-
 #Setting up the pi cam
 picam2 = Picamera2(1)
 picam2.preview_configuration.main.size = IMG_DIMS
@@ -265,7 +259,9 @@ masked_binary_image = np.zeros((IMG_DIMS[1], IMG_DIMS[0]), dtype="uint8")
 auto_home()
 # Main loop
 while True:
-    original_image = picam2.capture_image()
+    original_image = picam2.capture_array()
+    original_image = original_image[:IMG_DIMS[1], :IMG_DIMS[0]]
+    original_image = cv2.resize(original_image, (IMG_DIMS[0], IMG_DIMS[1]))
     #Make sure it is greyscale so we can use thresholding
     #original_image = cv2.cvtColor(original_image, cv2.COLOR_BGR2GRAY)
     #As we've updated the original_image, it needs to be rerendered
@@ -279,7 +275,9 @@ while True:
         print("Pellet")
         #Clear the previous image
         #Recapture, to ensure a fully stable image
-        original_image = picam2.capture_image()
+        original_image = picam2.capture_array()
+        original_image = original_image[:IMG_DIMS[1], :IMG_DIMS[0]]
+        original_image = cv2.resize(original_image, (IMG_DIMS[0], IMG_DIMS[1]))
         #Preform relative mean based thresholding
         is_good_pellet = histogram_and_threshold(original_image, pellet_center_mask)
         update_window()
