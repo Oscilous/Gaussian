@@ -43,7 +43,7 @@ mean_value = 0
 debug_mode = False
 enable_plots = True
 pause_mode = True
-
+edit_mode = True
 def step_motor(steps, direction_flag):
     direction.value = direction_flag
     for _ in range(steps):
@@ -114,7 +114,7 @@ def histogram_and_threshold(image, mask):
     upper_threshold = mean_value + std_dev_multiplier_upper
     
     if enable_plots:
-        plot_histogram()
+        plot_histogram(masked_image)
     
     # Perform thresholding using mean and brightness deviation
     binary_image = ((masked_image >= lower_threshold) & (masked_image <= upper_threshold)).astype(np.uint8) * 255
@@ -151,8 +151,7 @@ def count_black_pixels(binary_image, mask):
         print("GOOD")
         return True
 
-def plot_histogram():
-    global masked_image
+def plot_histogram(masked_image):
     global lower_threshold
     global upper_threshold
     global std_dev_multiplier_lower
@@ -160,9 +159,12 @@ def plot_histogram():
     global mean_value
     # Clear the previous plot
     plt.clf()
+    flattened_data = masked_image.ravel()
 
+    # Filter out the zeros
+    data_without_zeros = flattened_data[flattened_data != 0]
     # Plot the histogram
-    plt.hist(masked_image.ravel(), bins=256, density=True, alpha=0.6, color='g')
+    plt.hist(data_without_zeros, bins=256, density=True, alpha=0.6, color='g')
 
     # Add vertical lines at thresholding points
     plt.axvline(x=lower_threshold, color='r', linestyle='--', label=f'Lower Threshold ({std_dev_multiplier_lower} std dev)')
@@ -177,7 +179,7 @@ def plot_histogram():
     plt.legend()
 
     # Pause for a short time to allow the plot window to update
-    plt.pause(0.01)
+    plt.pause(0.1)
 
 def is_pellet_present(image, mask):
     global masked_image
@@ -289,7 +291,6 @@ while True:
     #Call update_mask, if adjustments were made with trackbars
     update_mask()
     #We check if the pellet is present
-    edit_mode = True
     if edit_mode:
         while True:
             update_window()
