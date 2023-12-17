@@ -6,11 +6,11 @@ import time
 from PIL import Image
 import io
 
-resolution = (3280, 2464)
+resolution = (1640, 1232)
 
 pellet_center_mask = np.zeros((resolution[1], resolution[0]), dtype="uint8")
 # Initial values for trackbars
-initial_x, initial_y, initial_diameter = 1550, 1400, 800
+initial_x, initial_y, initial_diameter = 775, 700, 400
 initial_dev_up, initial_dev_down = 23, 23
 threshold_value = 1.5
 debug = 1
@@ -145,7 +145,7 @@ def count_black_pixels(binary_image, mask):
     else:
         print("GOOD")
 
-picture = "raw"
+picture = "pellet"
 # Create the Trackbars, so the mask can be created
 create_trackbars()
 # Main loop
