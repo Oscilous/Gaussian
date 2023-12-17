@@ -209,7 +209,6 @@ def update_window():
             pass
         composite_image = np.hstack((masked_image, masked_binary_image))
         cv2.imshow("first_camera", composite_image)
-        cv2.im
         cv2.waitKey(500)
     elif current_view == "masked_binary_image":
         try:
