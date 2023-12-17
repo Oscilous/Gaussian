@@ -7,9 +7,9 @@ IMG_DIMS = (1640,1232)
 picam2 = Picamera2(1)
 picam2.preview_configuration.main.size = IMG_DIMS
 picam2.preview_configuration.main.format = "YUV420"
-print(picam2.preview_configuration.main)
 picam2.preview_configuration.align()
 picam2.configure("preview")
+picam2.set_controls({"ExposureTime": 12000})
 picam2.start()
 
 try:
