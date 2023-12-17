@@ -38,6 +38,8 @@ initial_threshold = 2000
 initial_detection = 0
 lower_threshold = 0
 upper_threshold = 0
+std_dev_multiplier_lower = 0
+mean_value = 0
 debug_mode = False
 enable_plots = True
 pause_mode = True
@@ -94,6 +96,11 @@ def update_mask():
     cv2.circle(pellet_center_mask, Csys, Dia, 255, -1)
 
 def histogram_and_threshold(image, mask):
+    global lower_threshold
+    global upper_threshold
+    global std_dev_multiplier_lower
+    global std_dev_multiplier_upper
+    global mean_value
     # Apply the mask to the image
     masked_image = np.ma.array(image, mask=~mask)
     # Calculate the mean and standard deviation
