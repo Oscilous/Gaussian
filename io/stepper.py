@@ -10,13 +10,15 @@ solenoid_pin = 19
 dir_pin = 4
 step_pin = 2
 end_switch_pin = 22
-speed = 0.0075
+crash_pin = 26
+speed = 0.005
 
 # Initialize devices
 solenoid = OutputDevice(solenoid_pin, initial_value=False)
 direction = OutputDevice(dir_pin)
 step = OutputDevice(step_pin)
 end_switch = DigitalInputDevice(end_switch_pin, pull_up=True)
+crash = OutputDevice(crash_pin, initial_value = False)
 
 ms1 = OutputDevice(ms1_pin, initial_value=False)
 ms2 = OutputDevice(ms2_pin, initial_value=False)
@@ -44,19 +46,27 @@ def forward_90():
     step_motor(101, True)
 
 def fast_auto_home():
+    steps = 0
+    crash = False
     direction.off()  # Towards end stop
     while end_switch.value:
         step.on()
-        time.sleep(0.02)
+        time.sleep(speed)
         step.off()
-        time.sleep(0.02)
+        time.sleep(speed)
+        steps = steps + 1
+        if steps > 230:
+            crash = True
+            pass
+    if crash:
+        pass
     direction.on()  # Away from end stop
     step_motor(9, True)
 
 try:
     ms1.on()
     auto_home()
-    while True:
+    while !crash:
         time.sleep(1)
         forward_90()
         time.sleep(1)
@@ -66,6 +76,7 @@ try:
         solenoid.off()
         fast_auto_home()
         auto_home()
+    
 
 except KeyboardInterrupt:
     print("Exiting program")
