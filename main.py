@@ -302,6 +302,7 @@ def update_window():
         # Put the text on the center of the image
         cv2.putText(composite_image, str(first_camera_status), (x_centered, y_centered_first), font, 2, (255, 255, 255), 2, cv2.LINE_AA)
         cv2.putText(composite_image, str(second_camera_status), (x_centered, y_centered_second), font, 2, (255, 255, 255), 2, cv2.LINE_AA)
+        cv2.imshow("original_image", composite_image)
         cv2.waitKey(100)
     elif current_view == "first_camera":
         try:
