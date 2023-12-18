@@ -291,9 +291,11 @@ def update_window():
         text_x_first = composite_image.shape[1] - text_size_first[0] - 10  # Right align, 10 pixels margin
         text_y_first = composite_image.shape[0] // 2 + text_size_first[1] // 2  + 5 # Midpoint of the image height
 
-        # Adjust position if text is out of bounds
-        if text_x_first < 0:
-            text_x_first = 10  # Move text to the right if it's too wide
+        # Adjust Y position if text is out of bounds (too high or too low)
+        if text_y_first - text_size_first[1] < 0:
+            text_y_first = text_size_first[1]
+        elif text_y_first > composite_image.shape[0]:
+            text_y_first = composite_image.shape[0] - 10
 
         cv2.putText(composite_image, str(first_camera_status), (text_x_first, text_y_first), font, 5, (255, 255, 255), 2, cv2.LINE_AA)
 
@@ -303,8 +305,8 @@ def update_window():
         text_y_second = composite_image.shape[0] - 10  # 10 pixels margin from the bottom
 
         # Adjust position if text is out of bounds
-        if text_y_second < text_size_second[1]:
-            text_y_second = composite_image.shape[0] - text_size_second[1] - 10
+        if text_y_second - text_size_second[1] < 0:
+            text_y_second = text_size_second[1] + 10
 
         cv2.putText(composite_image, str(second_camera_status), (text_x_second, text_y_second), font, 5, (255, 255, 255), 2, cv2.LINE_AA)
 
