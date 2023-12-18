@@ -49,7 +49,7 @@ edit_mode = False
 first_camera_status = "Empty"
 second_camera_status = "Waiting"
 
-font = cv2.FONT_HERSHEY_DUPLEX
+font = cv2.FONT_HERSHEY_PLAIN
 
 def save_variables():
     data = {
@@ -272,9 +272,6 @@ def is_pellet_present(image, mask):
     else:
         return True
     
-def get_status_color(status):
-    return (0, 255, 0) if status == "good" else (0, 0, 255)
-
 # Function to switch the current view based on button press
 def update_window():
     global current_view, original_image, second_original_image, masked_image, masked_binary_image, second_masked_image, second_masked_binary_image
@@ -290,38 +287,20 @@ def update_window():
         composite_image = np.vstack((top_composite_image, bot_composite_image))
         height, width = composite_image.shape[:2]
         composite_image = cv2.resize(composite_image, (width // 2, height // 2))
-        # Set the color based on first_camera_status
-        if first_camera_status == 'Bad':
-            color_first = (0, 0, 255)  # Red for 'bad'
-        elif first_camera_status == 'Good':
-            color_first = (0, 255, 0)  # Green for 'good'
-        else:
-            color_first = (255, 255, 255)  # White for any other status
-
-        if second_camera_status == 'Bad':
-            color_second = (0, 0, 255)  # Red for 'bad'
-        elif second_camera_status == 'Good':
-            color_second = (0, 255, 0)  # Green for 'good'
-        else:
-            color_second = (255, 255, 255)  # White for any other status
-
-
-        # Calculate position and size for the first text
+        cv2.imshow("original_image", composite_image)
+        # For the first text at the right side on the vertical midline
         text_size_first = cv2.getTextSize(str(first_camera_status), font, 5, 2)[0]
-        text_x_first = composite_image.shape[1] - text_size_first[0] - 10
-        text_y_first = composite_image.shape[0] // 2 + text_size_first[1] // 2
+        text_x_first = composite_image.shape[1] - text_size_first[0] - 10  # 10 pixels margin from the right
+        text_y_first = composite_image.shape[0] // 2 + text_size_first[1] // 2  # Midpoint of the image height
 
-        # Put the first text on the image
-        cv2.putText(composite_image, str(first_camera_status), (text_x_first, text_y_first), font, 5, color_first, 2, cv2.LINE_AA)
+        cv2.putText(composite_image, str(first_camera_status), (text_x_first, text_y_first), font, 5, (255, 255, 255), 2, cv2.LINE_AA)
 
-        # Calculate position and size for the second text (assuming color is white)
+        # For the second text at the left bottom corner
         text_size_second = cv2.getTextSize(str(second_camera_status), font, 5, 2)[0]
-        text_x_second = composite_image.shape[1] - text_size_second[0] - 10
-        text_y_second = composite_image.shape[0] - 10
+        text_x_second = composite_image.shape[1] - text_size_first[0] -  10  # 10 pixels margin from the right
+        text_y_second = composite_image.shape[0] - 10  # 10 pixels margin from the bottom
 
-        # Put the second text on the image
-        cv2.putText(composite_image, str(second_camera_status), (text_x_second, text_y_second), font, 5, color_second, 2, cv2.LINE_AA)
-
+        cv2.putText(composite_image, str(second_camera_status), (text_x_second, text_y_second), font, 5, (255, 255, 255), 2, cv2.LINE_AA)
         cv2.imshow("original_image", composite_image)
         cv2.waitKey(100)
     elif current_view == "first_camera":
