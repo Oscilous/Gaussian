@@ -289,7 +289,7 @@ def update_window():
         composite_image = cv2.resize(composite_image, (width // 2, height // 2))
         text_size_first = cv2.getTextSize(str(first_camera_status), font, 5, 2)[0]
         text_x_first = composite_image.shape[1] - text_size_first[0] - 10  # Right align, 10 pixels margin
-        text_y_first = composite_image.shape[0] // 2 + text_size_first[1] // 2  # Midpoint of the image height
+        text_y_first = composite_image.shape[0] // 2 + text_size_first[1] // 2  + 5 # Midpoint of the image height
 
         # Adjust position if text is out of bounds
         if text_x_first < 0:
@@ -299,7 +299,7 @@ def update_window():
 
         # For the second text at the left bottom corner
         text_size_second = cv2.getTextSize(str(second_camera_status), font, 5, 2)[0]
-        text_x_second = 10  # Left align, 10 pixels margin from the left
+        text_x_second = composite_image.shape[1] - text_size_first[0] - 10  # Left align, 10 pixels margin from the left
         text_y_second = composite_image.shape[0] - 10  # 10 pixels margin from the bottom
 
         # Adjust position if text is out of bounds
