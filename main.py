@@ -258,7 +258,7 @@ def update_window():
         width = int(histogram_image.shape[1] * height / histogram_image.shape[0])
         histogram_image_resized = cv2.resize(histogram_image, (width, height))
         composite_image = cv2.cvtColor(composite_image, cv2.COLOR_GRAY2BGR)
-        composite_image = np.hstack((composite_image, histogram_image))
+        composite_image = np.hstack((composite_image, histogram_image_resized))
         cv2.imshow("first_camera", composite_image)
         cv2.waitKey(500)
     elif current_view == "second_camera":
@@ -275,7 +275,7 @@ def update_window():
         composite_image = cv2.cvtColor(composite_image, cv2.COLOR_GRAY2BGR)
         width = int(histogram_image.shape[1] * height / histogram_image.shape[0])
         histogram_image_resized = cv2.resize(histogram_image, (width, height))
-        composite_image = np.hstack((composite_image, histogram_image))
+        composite_image = np.hstack((composite_image, histogram_image_resized))
         cv2.imshow("second_camera", composite_image)
         cv2.waitKey(500)
 # Function to handle button clicks
