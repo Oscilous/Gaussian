@@ -8,7 +8,7 @@ import time
 import tkinter as tk
 from tkinter import Button
 from gpiozero import OutputDevice, DigitalInputDevice
-
+import json
 # Pin setup
 ms1_pin = 3
 ms2_pin = 17
@@ -46,6 +46,47 @@ debug_mode = False
 enable_plots = False
 pause_mode = True
 edit_mode = False
+
+def save_variables():
+    data = {
+        'initial_x': initial_x, 'initial_y': initial_y, 'initial_diameter': initial_diameter,
+        'initial_dev_up': initial_dev_up, 'initial_dev_down': initial_dev_down,
+        'initial_threshold': initial_threshold, 'initial_detection': initial_detection,
+        'second_initial_x': second_initial_x, 'second_initial_y': second_initial_y,
+        'second_initial_diameter': second_initial_diameter,
+        'second_initial_dev_up': second_initial_dev_up, 'second_initial_dev_down': second_initial_dev_down,
+        'second_initial_threshold': second_initial_threshold
+    }
+    with open('variables.json', 'w') as file:
+        json.dump(data, file)
+
+def load_variables():
+    global initial_x, initial_y, initial_diameter
+    global initial_dev_up, initial_dev_down, initial_threshold, initial_detection
+    global second_initial_x, second_initial_y, second_initial_diameter
+    global second_initial_dev_up, second_initial_dev_down, second_initial_threshold
+
+    try:
+        with open('variables.json', 'r') as file:
+            data = json.load(file)
+
+        # Assigning values from JSON to the global variables
+        initial_x = data['initial_x']
+        initial_y = data['initial_y']
+        initial_diameter = data['initial_diameter']
+        initial_dev_up = data['initial_dev_up']
+        initial_dev_down = data['initial_dev_down']
+        initial_threshold = data['initial_threshold']
+        initial_detection = data['initial_detection']
+        second_initial_x = data['second_initial_x']
+        second_initial_y = data['second_initial_y']
+        second_initial_diameter = data['second_initial_diameter']
+        second_initial_dev_up = data['second_initial_dev_up']
+        second_initial_dev_down = data['second_initial_dev_down']
+        second_initial_threshold = data['second_initial_threshold']
+    except FileNotFoundError:
+        print("No saved variables found. Using default values.")
+
 def step_motor(steps, direction_flag):
     direction.value = direction_flag
     for _ in range(steps):
@@ -252,41 +293,35 @@ def update_window():
         except cv2.error as e:
             # Ignore the error if the window doesn't exist
             pass
-        composite_image = np.hstack((masked_image, masked_binary_image))
+        composite_image = np.hstack((original_image, second_original_image))
         height, width = composite_image.shape[:2]
         composite_image = cv2.resize(composite_image, (width // 2, height // 2))
         cv2.imshow("first_camera", composite_image)
-        cv2.waitKey(100)
-    elif current_view == "second_camera":
-        try:
-            cv2.destroyWindow("original_image")
-            cv2.destroyWindow("first_camera")
-        except cv2.error as e:
-            # Ignore the error if the window doesn't exist
-            pass
-        composite_image = np.hstack((second_masked_image, second_masked_binary_image))
-        height, width = composite_image.shape[:2]
-        composite_image = cv2.resize(composite_image, (width // 2, height // 2))
-        cv2.imshow("second_camera", composite_image)
         cv2.waitKey(100)
 # Function to handle button clicks
 def on_button_click(view_name):
     global current_view
     current_view = view_name
 
+def on_save_button_clicked():
+    save_variables()
+    print("Variables saved.")
+
 def create_GUI():
     global root
     # Create Tkinter window
     root.title("OpenCV Viewer")
-    original_image_button = Button(root, text="Original Image", command=lambda: on_button_click("original_image"))
+    original_image_button = Button(root, text="Processing Image", command=lambda: on_button_click("original_image"))
     original_image_button.pack(side="left")
-    masked_image_button = Button(root, text="First Camera", command=lambda: on_button_click("first_camera"))
+    masked_image_button = Button(root, text="Raw image", command=lambda: on_button_click("first_camera"))
     masked_image_button.pack(side="left")
-    second_camera_button = Button(root, text="Second Camera", command=lambda: on_button_click("second_camera"))
-    second_camera_button.pack(side="left")
+    save_button = tk.Button(root, text="Save Variables", command=on_save_button_clicked)
+    save_button.pack()
     # Start Tkinter main loop
     root.update()
     root.update_idletasks()
+
+load_variables()
 
 #Setting up the pi cam
 picam2 = Picamera2(1)
