@@ -52,6 +52,20 @@ second_camera_status = "Waiting"
 font = cv2.FONT_HERSHEY_PLAIN
 
 def save_variables():
+    initial_x = cv2.getTrackbarPos("Circle_X", "Trackbars")
+    initial_y = cv2.getTrackbarPos("Circle_Y", "Trackbars")
+    initial_diameter = cv2.getTrackbarPos("Circle_Diameter", "Trackbars")
+    initial_dev_up = cv2.getTrackbarPos("Threshold_upper", "Trackbars")
+    initial_dev_down = cv2.getTrackbarPos("Threshold_lower", "Trackbars")
+    initial_threshold = cv2.getTrackbarPos("Impurity_pixel_amount", "Trackbars")
+    initial_detection = cv2.getTrackbarPos("detection_threshold", "Trackbars")
+
+    second_initial_x = cv2.getTrackbarPos("second_Circle_X", "Trackbars")
+    second_initial_y = cv2.getTrackbarPos("second_Circle_Y", "Trackbars")
+    second_initial_diameter = cv2.getTrackbarPos("second_Circle_Diameter", "Trackbars")
+    second_initial_dev_up = cv2.getTrackbarPos("second_Threshold_upper", "Trackbars")
+    second_initial_dev_down = cv2.getTrackbarPos("second_Threshold_lower", "Trackbars")
+    second_initial_threshold = cv2.getTrackbarPos("second_Impurity_pixel_amount", "Trackbars")
     data = {
         'initial_x': initial_x, 'initial_y': initial_y, 'initial_diameter': initial_diameter,
         'initial_dev_up': initial_dev_up, 'initial_dev_down': initial_dev_down,
