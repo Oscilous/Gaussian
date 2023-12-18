@@ -288,8 +288,8 @@ def update_window():
         height, width = composite_image.shape[:2]
         composite_image = cv2.resize(composite_image, (width // 2, height // 2))
         cv2.imshow("original_image", composite_image)
-        cv2.putText(composite_image, first_camera_status , (28,30),font,2,(255,255,255),2,cv2.LINE_AA)
-        cv2.putText(composite_image, second_camera_status , (28,60),font,2,(255,255,255),2,cv2.LINE_AA)
+        cv2.putText(composite_image, str(first_camera_status) , (28,30),font,2,(255,255,255),2,cv2.LINE_AA)
+        cv2.putText(composite_image, str(second_camera_status) , (28,60),font,2,(255,255,255),2,cv2.LINE_AA)
         cv2.waitKey(100)
     elif current_view == "first_camera":
         try:
