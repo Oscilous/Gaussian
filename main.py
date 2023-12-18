@@ -244,7 +244,7 @@ def update_window():
         height, width = composite_image.shape[:2]
         composite_image = cv2.resize(composite_image, (width // 2, height // 2))
         cv2.imshow("original_image", composite_image)
-        cv2.waitKey(500)
+        cv2.waitKey(100)
     elif current_view == "first_camera":
         try:
             cv2.destroyWindow("original_image")
@@ -256,7 +256,7 @@ def update_window():
         height, width = composite_image.shape[:2]
         composite_image = cv2.resize(composite_image, (width // 2, height // 2))
         cv2.imshow("first_camera", composite_image)
-        cv2.waitKey(500)
+        cv2.waitKey(100)
     elif current_view == "second_camera":
         try:
             cv2.destroyWindow("original_image")
@@ -268,7 +268,7 @@ def update_window():
         height, width = composite_image.shape[:2]
         composite_image = cv2.resize(composite_image, (width // 2, height // 2))
         cv2.imshow("second_camera", composite_image)
-        cv2.waitKey(500)
+        cv2.waitKey(100)
 # Function to handle button clicks
 def on_button_click(view_name):
     global current_view
@@ -376,7 +376,7 @@ while True:
             forward_90()
         forward_90()
         shimmy()
-        time.sleep(1)
+        time.sleep(0.5)
         solenoid.off()
         fast_auto_home()
         auto_home()
