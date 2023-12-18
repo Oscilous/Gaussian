@@ -34,16 +34,16 @@ ms3 = OutputDevice(ms3_pin, initial_value=False)
 # Initial values for trackbars
 IMG_DIMS = (1640, 1232)
 initial_x, initial_y, initial_diameter = 808,612,380
-initial_dev_up, initial_dev_down = 31,42
+initial_dev_up, initial_dev_down = 31,40
 initial_threshold = 2000
 initial_detection = 0
 
-second_initial_x, second_initial_y, second_initial_diameter = 884,691,511
+second_initial_x, second_initial_y, second_initial_diameter = 857,682,538
 second_initial_dev_up, second_initial_dev_down = 26,25
 second_initial_threshold = 2000
 
 debug_mode = False
-enable_plots = True
+enable_plots = False
 pause_mode = True
 edit_mode = False
 def step_motor(steps, direction_flag):
@@ -137,7 +137,7 @@ def histogram_and_threshold(image, mask, camera):
     upper_threshold = mean_value + std_dev_multiplier_upper
     
     if enable_plots:
-        plot_histogram(camera, work_image, lower_threshold, upper_threshold, std_dev_multiplier_lower, std_dev_multiplier_upper, mean_value)
+        plot_histogram(work_image, lower_threshold, upper_threshold, std_dev_multiplier_lower, std_dev_multiplier_upper, mean_value)
     
     # Perform thresholding using mean and brightness deviation
     binary_image = ((work_image >= lower_threshold) & (work_image <= upper_threshold)).astype(np.uint8) * 255
@@ -186,7 +186,7 @@ def count_black_pixels(binary_image, mask, camera):
         print("GOOD")
         return True
 
-def plot_histogram(camera, masked_image, lower_threshold, upper_threshold, std_dev_multiplier_lower, std_dev_multiplier_upper, mean_value):
+def plot_histogram(masked_image, lower_threshold, upper_threshold, std_dev_multiplier_lower, std_dev_multiplier_upper, mean_value):
     # Clear the previous plot
     plt.clf()
     flattened_data = masked_image.ravel()
@@ -210,7 +210,6 @@ def plot_histogram(camera, masked_image, lower_threshold, upper_threshold, std_d
 
     # Pause for a short time to allow the plot window to update
     plt.pause(0.1)
-    plt.savefig(f'{camera}_histogram.png')
 
 def is_pellet_present(image, mask):
     global masked_image
@@ -251,31 +250,10 @@ def update_window():
         except cv2.error as e:
             # Ignore the error if the window doesn't exist
             pass
-        # Your existing code for creating composite_image
-        composite_image = np.hstack((second_masked_image, second_masked_binary_image))
-
-        # Get the dimensions of the composite image
+        composite_image = np.hstack((masked_image, masked_binary_image))
         height, width = composite_image.shape[:2]
-
-        # Resize the composite image
         composite_image = cv2.resize(composite_image, (width // 2, height // 2))
-
-        # Convert composite_image to BGR if it's grayscale
-        if len(composite_image.shape) == 2:
-            composite_image = cv2.cvtColor(composite_image, cv2.COLOR_GRAY2BGR)
-
-        # Load and resize histogram image
-        histogram_image = cv2.imread('2_histogram.png')
-
-        # Correctly resize the histogram image to match the height of composite_image
-        new_width = int(histogram_image.shape[1] * height / histogram_image.shape[0])
-        histogram_image_resized = cv2.resize(histogram_image, (new_width, height))
-
-        # Concatenate the images
-        composite_image_with_histogram = np.hstack((composite_image, histogram_image_resized))
-
-        # Display the final image
-        cv2.imshow("first_camera", composite_image_with_histogram)
+        cv2.imshow("first_camera", composite_image)
         cv2.waitKey(500)
     elif current_view == "second_camera":
         try:
@@ -284,31 +262,10 @@ def update_window():
         except cv2.error as e:
             # Ignore the error if the window doesn't exist
             pass
-        # Your existing code for creating composite_image
         composite_image = np.hstack((second_masked_image, second_masked_binary_image))
-
-        # Get the dimensions of the composite image
         height, width = composite_image.shape[:2]
-
-        # Resize the composite image
         composite_image = cv2.resize(composite_image, (width // 2, height // 2))
-
-        # Convert composite_image to BGR if it's grayscale
-        if len(composite_image.shape) == 2:
-            composite_image = cv2.cvtColor(composite_image, cv2.COLOR_GRAY2BGR)
-
-        # Load and resize histogram image
-        histogram_image = cv2.imread('2_histogram.png')
-
-        # Correctly resize the histogram image to match the height of composite_image
-        new_width = int(histogram_image.shape[1] * height / histogram_image.shape[0])
-        histogram_image_resized = cv2.resize(histogram_image, (new_width, height))
-
-        # Concatenate the images
-        composite_image_with_histogram = np.hstack((composite_image, histogram_image_resized))
-
-        # Display the final image
-        cv2.imshow("second_camera", composite_image_with_histogram)
+        cv2.imshow("second_camera", composite_image)
         cv2.waitKey(500)
 # Function to handle button clicks
 def on_button_click(view_name):
