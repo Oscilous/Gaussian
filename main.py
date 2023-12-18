@@ -34,11 +34,11 @@ ms3 = OutputDevice(ms3_pin, initial_value=False)
 # Initial values for trackbars
 IMG_DIMS = (1640, 1232)
 initial_x, initial_y, initial_diameter = 808,612,380
-initial_dev_up, initial_dev_down = 31,40
+initial_dev_up, initial_dev_down = 31,42
 initial_threshold = 2000
 initial_detection = 0
 
-second_initial_x, second_initial_y, second_initial_diameter = 857,682,538
+second_initial_x, second_initial_y, second_initial_diameter = 884,691,511
 second_initial_dev_up, second_initial_dev_down = 26,25
 second_initial_threshold = 2000
 
@@ -255,6 +255,9 @@ def update_window():
         height, width = composite_image.shape[:2]
         composite_image = cv2.resize(composite_image, (width // 2, height // 2))
         histogram_image = cv2.imread('1_histogram.png')
+        width = int(histogram_image.shape[1] * height / histogram_image.shape[0])
+        histogram_image_resized = cv2.resize(histogram_image, (width, height))
+        composite_image = cv2.cvtColor(composite_image, cv2.COLOR_GRAY2BGR)
         composite_image = np.hstack((composite_image, histogram_image))
         cv2.imshow("first_camera", composite_image)
         cv2.waitKey(500)
@@ -269,6 +272,9 @@ def update_window():
         height, width = composite_image.shape[:2]
         composite_image = cv2.resize(composite_image, (width // 2, height // 2))
         histogram_image = cv2.imread('2_histogram.png')
+        composite_image = cv2.cvtColor(composite_image, cv2.COLOR_GRAY2BGR)
+        width = int(histogram_image.shape[1] * height / histogram_image.shape[0])
+        histogram_image_resized = cv2.resize(histogram_image, (width, height))
         composite_image = np.hstack((composite_image, histogram_image))
         cv2.imshow("second_camera", composite_image)
         cv2.waitKey(500)
