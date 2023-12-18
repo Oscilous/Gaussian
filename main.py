@@ -288,8 +288,21 @@ def update_window():
         height, width = composite_image.shape[:2]
         composite_image = cv2.resize(composite_image, (width // 2, height // 2))
         cv2.imshow("original_image", composite_image)
-        cv2.putText(composite_image, str(first_camera_status) , (28,30),font,2,(255,255,255),2,cv2.LINE_AA)
-        cv2.putText(composite_image, str(second_camera_status) , (28,60),font,2,(255,255,255),2,cv2.LINE_AA)
+        # Get the size of the text box
+        text_size = cv2.getTextSize(str(first_camera_status), font, 2, 2)[0]
+
+        # Get the width and height of the text box
+        text_width, text_height = text_size
+
+        # Calculate the x and y coordinates
+        x_centered = (composite_image.shape[1] - text_width) // 2
+        y_centered_first = (composite_image.shape[0] + text_height) // 2  # For the first line of text
+        y_centered_second = (composite_image.shape[0] + text_height) // 2 + 30  # For the second line, adjust 30 or more for spacing
+
+        # Put the text on the center of the image
+        cv2.putText(composite_image, str(first_camera_status), (x_centered, y_centered_first), font, 2, (255, 255, 255), 2, cv2.LINE_AA)
+        cv2.putText(composite_image, str(second_camera_status), (x_centered, y_centered_second), font, 2, (255, 255, 255), 2, cv2.LINE_AA)
+
         cv2.waitKey(100)
     elif current_view == "first_camera":
         try:
