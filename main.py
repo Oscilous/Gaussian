@@ -80,10 +80,10 @@ def forward_90():
 def shimmy():
     for i in range(0,5):
         step_motor(1, True)
-        time.sleep(0.1)
+        time.sleep(0.05)
     for i in range(0,5):
         step_motor(1, False)
-        time.sleep(0.1)
+        time.sleep(0.05)
 
 def nothing(val):
     pass
@@ -376,7 +376,6 @@ while True:
             forward_90()
         forward_90()
         shimmy()
-        time.sleep(0.5)
         solenoid.off()
         fast_auto_home()
         auto_home()
