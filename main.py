@@ -46,6 +46,10 @@ debug_mode = False
 enable_plots = False
 pause_mode = True
 edit_mode = False
+first_camera_status = "Empty"
+second_camera_status = "Waiting"
+
+font = cv2.FONT_HERSHEY_PLAIN
 
 def save_variables():
     data = {
@@ -189,7 +193,6 @@ def histogram_and_threshold(image, mask, camera):
 def create_trackbars():
     # Set up the window and trackbars
     cv2.namedWindow("Trackbars")
-
     # Create trackbars with default values
     cv2.createTrackbar("Circle_X", "Trackbars", initial_x, 5000, nothing)
     cv2.createTrackbar("Circle_Y", "Trackbars", initial_y, 5000, nothing)
@@ -205,7 +208,7 @@ def create_trackbars():
     cv2.createTrackbar("second_Threshold_upper", "Trackbars", second_initial_dev_up, 60, nothing)
     cv2.createTrackbar("second_Threshold_lower", "Trackbars", second_initial_dev_down, 60, nothing)
     cv2.createTrackbar("second_Impurity_pixel_amount", "Trackbars", second_initial_threshold,10000, nothing)
-
+    cv2.waitKey(100)
 
 def count_black_pixels(binary_image, mask, camera):
     global masked_binary_image
@@ -285,6 +288,8 @@ def update_window():
         height, width = composite_image.shape[:2]
         composite_image = cv2.resize(composite_image, (width // 2, height // 2))
         cv2.imshow("original_image", composite_image)
+        cv2.putText(composite_image, first_camera_status , (28,30),font,2,(255,255,255),2,cv2.LINE_AA)
+        cv2.putText(composite_image, second_camera_status , (28,60),font,2,(255,255,255),2,cv2.LINE_AA)
         cv2.waitKey(100)
     elif current_view == "first_camera":
         try:
@@ -371,7 +376,7 @@ while True:
     #We check if the pellet is present
 
     if is_pellet_present(original_image, pellet_center_mask):
-        print("Pellet detected")
+        first_camera_status = "Detected"
         #Clear the previous image
         #Recapture, to ensure a fully stable image
         original_image = picam2.capture_array()
@@ -381,6 +386,11 @@ while True:
         update_window()
         #Preform relative mean based thresholding
         is_good_pellet = histogram_and_threshold(original_image, pellet_center_mask, 1)
+        if is_good_pellet:
+            first_camera_status = "Good"
+        else:
+            first_camera_status = "Bad"
+            second_camera_status = "Pass"
         update_mask()
         update_window()
         if is_good_pellet:
@@ -393,6 +403,7 @@ while True:
             second_original_image = second_camera.capture_array()
             second_original_image = second_original_image[:IMG_DIMS[1], :IMG_DIMS[0]]
             second_original_image = cv2.resize(second_original_image, (IMG_DIMS[0], IMG_DIMS[1]))
+            second_camera_status = "Detected"
             update_window()
             #Call update_mask, if adjustments were made with trackbars
             second_update_mask()
@@ -403,18 +414,23 @@ while True:
             second_update_mask()
             if is_good_pellet:
                 solenoid.off()
+                second_camera_status = "Good"
             else:
                 solenoid.on()
+                second_camera_status = "Bad"
         else:
             solenoid.on()
             forward_90()
         forward_90()
         shimmy()
         solenoid.off()
+        first_camera_status = "Empty"
+        second_camera_status = "Empty"
         fast_auto_home()
         auto_home()
     else:
-        print("Empty")
+        first_camera_status = "Empty"
+        second_camera_status = "Empty"
     
     # Update the Tkinter window
     root.update()
