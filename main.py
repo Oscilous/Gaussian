@@ -262,10 +262,12 @@ def update_window():
 
         # Load and resize histogram image
         histogram_image = cv2.imread('2_histogram.png')
-        # Resize to match the height of composite_image
-        histogram_image_resized = cv2.resize(histogram_image, (histogram_image.shape[1] // 2, height))
 
-        # Now concatenate
+        # Correctly resize the histogram image to match the height of composite_image
+        new_width = int(histogram_image.shape[1] * height / histogram_image.shape[0])
+        histogram_image_resized = cv2.resize(histogram_image, (new_width, height))
+
+        # Concatenate the images
         composite_image_with_histogram = np.hstack((composite_image, histogram_image_resized))
 
         # Display the final image
@@ -289,10 +291,12 @@ def update_window():
 
         # Load and resize histogram image
         histogram_image = cv2.imread('2_histogram.png')
-        # Resize to match the height of composite_image
-        histogram_image_resized = cv2.resize(histogram_image, (histogram_image.shape[1] // 2, height))
 
-        # Now concatenate
+        # Correctly resize the histogram image to match the height of composite_image
+        new_width = int(histogram_image.shape[1] * height / histogram_image.shape[0])
+        histogram_image_resized = cv2.resize(histogram_image, (new_width, height))
+
+        # Concatenate the images
         composite_image_with_histogram = np.hstack((composite_image, histogram_image_resized))
 
         # Display the final image
