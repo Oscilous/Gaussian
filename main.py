@@ -238,7 +238,9 @@ def update_window():
         except cv2.error as e:
             # Ignore the error if the window doesn't exist
             pass
-        composite_image = np.hstack((original_image, second_original_image))
+        top_composite_image = np.hstack((masked_image, masked_binary_image))
+        bot_composite_image = np.hstack((second_masked_image, second_masked_binary_image))
+        composite_image = np.vstack((top_composite_image, bot_composite_image))
         height, width = composite_image.shape[:2]
         composite_image = cv2.resize(composite_image, (width // 2, height // 2))
         cv2.imshow("original_image", composite_image)
