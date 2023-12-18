@@ -26,8 +26,8 @@ step = OutputDevice(step_pin)
 end_switch = DigitalInputDevice(end_switch_pin, pull_up=True)
 
 #Init and set to half-step
-ms1 = OutputDevice(ms1_pin, initial_value=True)
-ms2 = OutputDevice(ms2_pin, initial_value=False)
+ms1 = OutputDevice(ms1_pin, initial_value=False)
+ms2 = OutputDevice(ms2_pin, initial_value=True)
 ms3 = OutputDevice(ms3_pin, initial_value=False)
 
 # Initial values for trackbars

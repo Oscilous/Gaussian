@@ -19,7 +19,7 @@ step = OutputDevice(step_pin)
 end_switch = DigitalInputDevice(end_switch_pin, pull_up=True)
 
 ms1 = OutputDevice(ms1_pin, initial_value=False)
-ms2 = OutputDevice(ms2_pin, initial_value=False)
+ms2 = OutputDevice(ms2_pin, initial_value=True)
 ms3 = OutputDevice(ms3_pin, initial_value=False)
 
 def step_motor(steps, direction_flag):
@@ -41,7 +41,7 @@ def auto_home():
     step_motor(9, True)
 
 def forward_90():
-    step_motor(101, True)
+    step_motor(200, True)
 
 def fast_auto_home():
     steps = 0
