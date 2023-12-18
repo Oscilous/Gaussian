@@ -287,20 +287,27 @@ def update_window():
         composite_image = np.vstack((top_composite_image, bot_composite_image))
         height, width = composite_image.shape[:2]
         composite_image = cv2.resize(composite_image, (width // 2, height // 2))
-        cv2.imshow("original_image", composite_image)
-        # For the first text at the right side on the vertical midline
         text_size_first = cv2.getTextSize(str(first_camera_status), font, 5, 2)[0]
-        text_x_first = composite_image.shape[1] - text_size_first[0] - 10  # 10 pixels margin from the right
+        text_x_first = composite_image.shape[1] - text_size_first[0] - 10  # Right align, 10 pixels margin
         text_y_first = composite_image.shape[0] // 2 + text_size_first[1] // 2  # Midpoint of the image height
+
+        # Adjust position if text is out of bounds
+        if text_x_first < 0:
+            text_x_first = 10  # Move text to the right if it's too wide
 
         cv2.putText(composite_image, str(first_camera_status), (text_x_first, text_y_first), font, 5, (255, 255, 255), 2, cv2.LINE_AA)
 
         # For the second text at the left bottom corner
         text_size_second = cv2.getTextSize(str(second_camera_status), font, 5, 2)[0]
-        text_x_second = composite_image.shape[1] - text_size_first[0] -  10  # 10 pixels margin from the right
+        text_x_second = 10  # Left align, 10 pixels margin from the left
         text_y_second = composite_image.shape[0] - 10  # 10 pixels margin from the bottom
 
+        # Adjust position if text is out of bounds
+        if text_y_second < text_size_second[1]:
+            text_y_second = composite_image.shape[0] - text_size_second[1] - 10
+
         cv2.putText(composite_image, str(second_camera_status), (text_x_second, text_y_second), font, 5, (255, 255, 255), 2, cv2.LINE_AA)
+
         cv2.imshow("original_image", composite_image)
         cv2.waitKey(100)
     elif current_view == "first_camera":
@@ -388,7 +395,6 @@ while True:
     #We check if the pellet is present
 
     if is_pellet_present(original_image, pellet_center_mask):
-        first_camera_status = "Detected"
         #Clear the previous image
         #Recapture, to ensure a fully stable image
         original_image = picam2.capture_array()
@@ -415,7 +421,6 @@ while True:
             second_original_image = second_camera.capture_array()
             second_original_image = second_original_image[:IMG_DIMS[1], :IMG_DIMS[0]]
             second_original_image = cv2.resize(second_original_image, (IMG_DIMS[0], IMG_DIMS[1]))
-            second_camera_status = "Detected"
             update_window()
             #Call update_mask, if adjustments were made with trackbars
             second_update_mask()
