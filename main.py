@@ -17,7 +17,8 @@ solenoid_pin = 19
 dir_pin = 4
 step_pin = 2
 end_switch_pin = 22
-speed = 0.0075
+speed = 0.001
+step_to_home = 20
 
 # Initialize devices
 solenoid = OutputDevice(solenoid_pin, initial_value=False)
@@ -57,29 +58,24 @@ def auto_home():
     direction.off()  # Towards end stop
     while end_switch.value:
         step.on()
-        time.sleep(0.02)
+        time.sleep(0.01)
         step.off()
-        time.sleep(0.02)
+        time.sleep(0.01)
     direction.on()  # Away from end stop
-    step_motor(9, True)
+    step_motor(step_to_home, True)
 
 def fast_auto_home():
-    steps = 0
     direction.off()  # Towards end stop
     while end_switch.value:
         step.on()
         time.sleep(speed)
         step.off()
         time.sleep(speed)
-        steps = steps + 1
     direction.on()  # Away from end stop
-    step_motor(9, True)
+    step_motor(step_to_home, True)
 
 def forward_90():
-    step_motor(100, True)
-
-def back_180():
-    step_motor(200, False)
+    step_motor(200, True)
 
 def shimmy():
     step_motor(1, True)

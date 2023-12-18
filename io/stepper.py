@@ -55,6 +55,14 @@ def fast_auto_home():
     direction.on()  # Away from end stop
     step_motor(step_to_home, True)
 
+def shimmy():
+    for i in range(0,5):
+        step_motor(1, True)
+        time.sleep(0.1)
+    for i in range(0,5):
+        step_motor(1, False)
+        time.sleep(0.1)
+
 try:
     auto_home()
     while True:
@@ -63,7 +71,7 @@ try:
         time.sleep(1)
         solenoid.on()
         forward_90()
-        time.sleep(1)
+        shimmy()
         solenoid.off()
         fast_auto_home()
         auto_home()
