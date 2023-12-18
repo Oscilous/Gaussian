@@ -251,15 +251,33 @@ def update_window():
         except cv2.error as e:
             # Ignore the error if the window doesn't exist
             pass
-        composite_image = np.hstack((masked_image, masked_binary_image))
+        # Your existing code for creating composite_image
+        composite_image = np.hstack((second_masked_image, second_masked_binary_image))
         height, width = composite_image.shape[:2]
         composite_image = cv2.resize(composite_image, (width // 2, height // 2))
-        histogram_image = cv2.imread('1_histogram.png')
-        width = int(histogram_image.shape[1] * height / histogram_image.shape[0])
-        histogram_image_resized = cv2.resize(histogram_image, (width, height))
-        composite_image = cv2.cvtColor(composite_image, cv2.COLOR_GRAY2BGR)
-        composite_image = np.hstack((composite_image, histogram_image_resized))
-        cv2.imshow("first_camera", composite_image)
+
+        # Convert composite_image to BGR if it's grayscale
+        if len(composite_image.shape) == 2:
+            composite_image = cv2.cvtColor(composite_image, cv2.COLOR_GRAY2BGR)
+
+        # Load and resize histogram image
+        histogram_image = cv2.imread('2_histogram.png')
+        histogram_height, histogram_width = histogram_image.shape[:2]
+        new_width = int(histogram_width * (height / histogram_height))
+        histogram_image_resized = cv2.resize(histogram_image, (new_width, height))
+
+        # Debugging: print dimensions to verify
+        print("Composite Image Dimensions:", composite_image.shape)
+        print("Histogram Image Resized Dimensions:", histogram_image_resized.shape)
+
+        # Ensure both images have the same height before concatenating
+        if composite_image.shape[0] == histogram_image_resized.shape[0]:
+            composite_image = np.hstack((composite_image, histogram_image_resized))
+        else:
+            print("Error: Mismatched heights")
+
+        # Display the final image
+        cv2.imshow("second_camera", composite_image)
         cv2.waitKey(500)
     elif current_view == "second_camera":
         try:
@@ -268,15 +286,31 @@ def update_window():
         except cv2.error as e:
             # Ignore the error if the window doesn't exist
             pass
+        # Your existing code for creating composite_image
         composite_image = np.hstack((second_masked_image, second_masked_binary_image))
         height, width = composite_image.shape[:2]
         composite_image = cv2.resize(composite_image, (width // 2, height // 2))
+
+        # Convert composite_image to BGR if it's grayscale
+        if len(composite_image.shape) == 2:
+            composite_image = cv2.cvtColor(composite_image, cv2.COLOR_GRAY2BGR)
+
+        # Load and resize histogram image
         histogram_image = cv2.imread('2_histogram.png')
-        composite_image = cv2.cvtColor(composite_image, cv2.COLOR_GRAY2BGR)
-        width = int(histogram_image.shape[1] * height / histogram_image.shape[0])
-        histogram_image_resized = cv2.resize(histogram_image, (width, height))
-        composite_image = np.hstack((composite_image, histogram_image_resized))
-        cv2.imshow("second_camera", composite_image)
+        histogram_height, histogram_width = histogram_image.shape[:2]
+        new_width = int(histogram_width * (height / histogram_height))
+        histogram_image_resized = cv2.resize(histogram_image, (new_width, height))
+
+        # Debugging: print dimensions to verify
+        print("Composite Image Dimensions:", composite_image.shape)
+        print("Histogram Image Resized Dimensions:", histogram_image_resized.shape)
+
+        # Ensure both images have the same height before concatenating
+        if composite_image.shape[0] == histogram_image_resized.shape[0]:
+            composite_image = np.hstack((composite_image, histogram_image_resized))
+        else:
+            print("Error: Mismatched heights")
+        cv2.imshow("Second Camera", composite_image)
         cv2.waitKey(500)
 # Function to handle button clicks
 def on_button_click(view_name):
