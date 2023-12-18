@@ -43,7 +43,7 @@ second_initial_dev_up, second_initial_dev_down = 26,25
 second_initial_threshold = 2000
 
 debug_mode = False
-enable_plots = False
+enable_plots = True
 pause_mode = True
 edit_mode = False
 def step_motor(steps, direction_flag):
@@ -137,7 +137,7 @@ def histogram_and_threshold(image, mask, camera):
     upper_threshold = mean_value + std_dev_multiplier_upper
     
     if enable_plots:
-        plot_histogram(work_image, lower_threshold, upper_threshold, std_dev_multiplier_lower, std_dev_multiplier_upper, mean_value)
+        plot_histogram(camera, work_image, lower_threshold, upper_threshold, std_dev_multiplier_lower, std_dev_multiplier_upper, mean_value)
     
     # Perform thresholding using mean and brightness deviation
     binary_image = ((work_image >= lower_threshold) & (work_image <= upper_threshold)).astype(np.uint8) * 255
@@ -186,7 +186,7 @@ def count_black_pixels(binary_image, mask, camera):
         print("GOOD")
         return True
 
-def plot_histogram(masked_image, lower_threshold, upper_threshold, std_dev_multiplier_lower, std_dev_multiplier_upper, mean_value):
+def plot_histogram(camera, masked_image, lower_threshold, upper_threshold, std_dev_multiplier_lower, std_dev_multiplier_upper, mean_value):
     # Clear the previous plot
     plt.clf()
     flattened_data = masked_image.ravel()
@@ -210,6 +210,7 @@ def plot_histogram(masked_image, lower_threshold, upper_threshold, std_dev_multi
 
     # Pause for a short time to allow the plot window to update
     plt.pause(0.1)
+    plt.savefig(f'{camera}_histogram.png')
 
 def is_pellet_present(image, mask):
     global masked_image
@@ -253,6 +254,8 @@ def update_window():
         composite_image = np.hstack((masked_image, masked_binary_image))
         height, width = composite_image.shape[:2]
         composite_image = cv2.resize(composite_image, (width // 2, height // 2))
+        histogram_image = cv2.imread('1_histogram.png')
+        composite_image = np.hstack((composite_image, histogram_image))
         cv2.imshow("first_camera", composite_image)
         cv2.waitKey(500)
     elif current_view == "second_camera":
@@ -265,6 +268,8 @@ def update_window():
         composite_image = np.hstack((second_masked_image, second_masked_binary_image))
         height, width = composite_image.shape[:2]
         composite_image = cv2.resize(composite_image, (width // 2, height // 2))
+        histogram_image = cv2.imread('2_histogram.png')
+        composite_image = np.hstack((composite_image, histogram_image))
         cv2.imshow("second_camera", composite_image)
         cv2.waitKey(500)
 # Function to handle button clicks
