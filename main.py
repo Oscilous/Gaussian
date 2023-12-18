@@ -253,8 +253,12 @@ def update_window():
             pass
         # Your existing code for creating composite_image
         composite_image = np.hstack((second_masked_image, second_masked_binary_image))
-        composite_image = cv2.resize(composite_image, (width // 2, height // 2))
+
+        # Get the dimensions of the composite image
         height, width = composite_image.shape[:2]
+
+        # Resize the composite image
+        composite_image = cv2.resize(composite_image, (width // 2, height // 2))
 
         # Convert composite_image to BGR if it's grayscale
         if len(composite_image.shape) == 2:
@@ -282,8 +286,12 @@ def update_window():
             pass
         # Your existing code for creating composite_image
         composite_image = np.hstack((second_masked_image, second_masked_binary_image))
-        composite_image = cv2.resize(composite_image, (width // 2, height // 2))
+
+        # Get the dimensions of the composite image
         height, width = composite_image.shape[:2]
+
+        # Resize the composite image
+        composite_image = cv2.resize(composite_image, (width // 2, height // 2))
 
         # Convert composite_image to BGR if it's grayscale
         if len(composite_image.shape) == 2:
