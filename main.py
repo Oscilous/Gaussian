@@ -288,20 +288,19 @@ def update_window():
         height, width = composite_image.shape[:2]
         composite_image = cv2.resize(composite_image, (width // 2, height // 2))
         cv2.imshow("original_image", composite_image)
-        # Get the size of the text box
-        text_size = cv2.getTextSize(str(first_camera_status), font, 2, 2)[0]
+        # For the first text at the right side on the vertical midline
+        text_size_first = cv2.getTextSize(str(first_camera_status), font, 5, 2)[0]
+        text_x_first = composite_image.shape[1] - text_size_first[0] - 10  # 10 pixels margin from the right
+        text_y_first = composite_image.shape[0] // 2 + text_size_first[1] // 2  # Midpoint of the image height
 
-        # Get the width and height of the text box
-        text_width, text_height = text_size
+        cv2.putText(composite_image, str(first_camera_status), (text_x_first, text_y_first), font, 5, (255, 255, 255), 2, cv2.LINE_AA)
 
-        # Calculate the x and y coordinates
-        x_centered = (composite_image.shape[1] - text_width) // 2
-        y_centered_first = (composite_image.shape[0] + text_height) // 2  # For the first line of text
-        y_centered_second = (composite_image.shape[0] + text_height) // 2 + 30  # For the second line, adjust 30 or more for spacing
+        # For the second text at the left bottom corner
+        text_size_second = cv2.getTextSize(str(second_camera_status), font, 5, 2)[0]
+        text_x_second = composite_image.shape[1] - text_size_first[0] -  10  # 10 pixels margin from the right
+        text_y_second = composite_image.shape[0] - 10  # 10 pixels margin from the bottom
 
-        # Put the text on the center of the image
-        cv2.putText(composite_image, str(first_camera_status), (x_centered, y_centered_first), font, 2, (255, 255, 255), 2, cv2.LINE_AA)
-        cv2.putText(composite_image, str(second_camera_status), (x_centered, y_centered_second), font, 2, (255, 255, 255), 2, cv2.LINE_AA)
+        cv2.putText(composite_image, str(second_camera_status), (text_x_second, text_y_second), font, 5, (255, 255, 255), 2, cv2.LINE_AA)
         cv2.imshow("original_image", composite_image)
         cv2.waitKey(100)
     elif current_view == "first_camera":
@@ -431,7 +430,8 @@ while True:
             else:
                 solenoid.on()
                 second_camera_status = "Bad"
-        else:
+		update_window() 
+       else:
             solenoid.on()
             forward_90()
         forward_90()
