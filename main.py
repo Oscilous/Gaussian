@@ -262,22 +262,14 @@ def update_window():
 
         # Load and resize histogram image
         histogram_image = cv2.imread('2_histogram.png')
-        histogram_height, histogram_width = histogram_image.shape[:2]
-        new_width = int(histogram_width * (height / histogram_height))
-        histogram_image_resized = cv2.resize(histogram_image, (new_width, height))
+        # Resize to match the height of composite_image
+        histogram_image_resized = cv2.resize(histogram_image, (histogram_image.shape[1] // 2, height))
 
-        # Debugging: print dimensions to verify
-        print("Composite Image Dimensions:", composite_image.shape)
-        print("Histogram Image Resized Dimensions:", histogram_image_resized.shape)
-
-        # Ensure both images have the same height before concatenating
-        if composite_image.shape[0] == histogram_image_resized.shape[0]:
-            composite_image = np.hstack((composite_image, histogram_image_resized))
-        else:
-            print("Error: Mismatched heights")
+        # Now concatenate
+        composite_image_with_histogram = np.hstack((composite_image, histogram_image_resized))
 
         # Display the final image
-        cv2.imshow("second_camera", composite_image)
+        cv2.imshow("first_camera", composite_image_with_histogram)
         cv2.waitKey(500)
     elif current_view == "second_camera":
         try:
@@ -297,20 +289,14 @@ def update_window():
 
         # Load and resize histogram image
         histogram_image = cv2.imread('2_histogram.png')
-        histogram_height, histogram_width = histogram_image.shape[:2]
-        new_width = int(histogram_width * (height / histogram_height))
-        histogram_image_resized = cv2.resize(histogram_image, (new_width, height))
+        # Resize to match the height of composite_image
+        histogram_image_resized = cv2.resize(histogram_image, (histogram_image.shape[1] // 2, height))
 
-        # Debugging: print dimensions to verify
-        print("Composite Image Dimensions:", composite_image.shape)
-        print("Histogram Image Resized Dimensions:", histogram_image_resized.shape)
+        # Now concatenate
+        composite_image_with_histogram = np.hstack((composite_image, histogram_image_resized))
 
-        # Ensure both images have the same height before concatenating
-        if composite_image.shape[0] == histogram_image_resized.shape[0]:
-            composite_image = np.hstack((composite_image, histogram_image_resized))
-        else:
-            print("Error: Mismatched heights")
-        cv2.imshow("Second Camera", composite_image)
+        # Display the final image
+        cv2.imshow("second_camera", composite_image_with_histogram)
         cv2.waitKey(500)
 # Function to handle button clicks
 def on_button_click(view_name):
