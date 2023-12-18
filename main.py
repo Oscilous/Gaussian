@@ -72,7 +72,7 @@ def fast_auto_home():
         step.off()
         time.sleep(speed)
     direction.on()  # Away from end stop
-    step_motor(step_to_home, True)
+    step_motor(10, True)
 
 def forward_90():
     step_motor(200, True)
@@ -336,8 +336,7 @@ while True:
     #We check if the pellet is present
 
     if is_pellet_present(original_image, pellet_center_mask):
-        time.sleep(0.1)
-        print("Pellet")
+        print("Pellet detected")
         #Clear the previous image
         #Recapture, to ensure a fully stable image
         original_image = picam2.capture_array()
@@ -380,7 +379,7 @@ while True:
         fast_auto_home()
         auto_home()
     else:
-        print("No")
+        print("Empty")
     
     # Update the Tkinter window
     root.update()
