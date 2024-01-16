@@ -46,6 +46,7 @@ debug_mode = False
 enable_plots = False
 pause_mode = True
 edit_mode = False
+calibration_mode = False
 first_camera_status = "Empty"
 second_camera_status = "Waiting"
 
@@ -337,6 +338,16 @@ def on_save_button_clicked():
     save_variables()
     print("Variables saved.")
 
+def on_calibrate_cam_one_button_clicked():
+    global calibration_cam_one
+    calibration_cam_one = not calibration_cam_one
+    print("Calibration cam one mode: " + str(calibration_cam_one))
+
+def on_calibrate_cam_two_button_clicked():
+    global calibration_cam_two
+    calibration_cam_two = not calibration_cam_two
+    print("Calibration cam two mode: " + str(calibration_cam_two))
+
 def create_GUI():
     global root
     # Create Tkinter window
@@ -347,6 +358,10 @@ def create_GUI():
     masked_image_button.pack(side="left")
     save_button = tk.Button(root, text="Save Variables", command=on_save_button_clicked)
     save_button.pack()
+    calibrate_cam_one_button = tk.Button(root, text="Calibrate Cam1", command=on_calibrate_cam_one_button_clicked)
+    calibrate_cam_one_button.pack()
+    calibrate_cam_two_button = tk.Button(root, text="Calibrate Cam2", command=on_calibrate_cam_two_button_clicked)
+    calibrate_cam_two_button.pack()
     # Start Tkinter main loop
     root.update()
     root.update_idletasks()
@@ -403,20 +418,26 @@ while True:
     if is_pellet_present(original_image, pellet_center_mask):
         #Clear the previous image
         #Recapture, to ensure a fully stable image
-        original_image = picam2.capture_array()
-        original_image = original_image[:IMG_DIMS[1], :IMG_DIMS[0]]
-        original_image = cv2.resize(original_image, (IMG_DIMS[0], IMG_DIMS[1]))
-        update_mask()
-        update_window()
-        #Preform relative mean based thresholding
-        is_good_pellet = histogram_and_threshold(original_image, pellet_center_mask, 1)
-        if is_good_pellet:
-            first_camera_status = "Good"
-        else:
-            first_camera_status = "Bad"
-            second_camera_status = "Pass"
-        update_mask()
-        update_window()
+        while(True): 
+            original_image = picam2.capture_array()
+            original_image = original_image[:IMG_DIMS[1], :IMG_DIMS[0]]
+            original_image = cv2.resize(original_image, (IMG_DIMS[0], IMG_DIMS[1]))
+            update_mask()
+            update_window()
+            #Preform relative mean based thresholding
+            is_good_pellet = histogram_and_threshold(original_image, pellet_center_mask, 1)
+            if is_good_pellet:
+                first_camera_status = "Good"
+            else:
+                first_camera_status = "Bad"
+                second_camera_status = "Pass"
+            update_mask()
+            update_window()
+            if calibration_mode: 
+                continue
+            else: 
+                break
+
         if is_good_pellet:
             solenoid.off()
             forward_90()
