@@ -381,9 +381,6 @@ def on_slider_change(slider_name, value):
     # Update the corresponding value in the dictionary
     initial_values[slider_name] = int(value)
 
-def stop_code():
-    sys.exit(0)
-
 def create_sliders_buttons():
     # Create button
     start_button = tk.Button(window, text="Start", command=on_button_start)
@@ -394,7 +391,7 @@ def create_sliders_buttons():
     calibrate_cam_two_button.grid(row=2, column=0)
     save_variables_button = tk.Button(window, text="Save values", command=on_save_button_clicked)
     save_variables_button.grid(row=3, column=0)
-    exit_button = tk.Button(window, text="Exit", command=stop_code)
+    exit_button = tk.Button(window, text="Exit", command=window.destroy)
     exit_button.grid(row=4, column=0)
     # Create slider
 
@@ -456,9 +453,9 @@ create_sliders_buttons()
 # Create label for displaying the image
 label = tk.Label(window)
 label.grid(row=0, column=2, rowspan=window.grid_size()[1])
+update_window()
 window.update()
 window.update_idletasks()
-update_window()
 
 #auto_home()
 # Main loop
