@@ -186,7 +186,7 @@ def histogram_and_threshold(image, mask, camera):
         std_dev_multiplier_lower = cv2.getTrackbarPos("Threshold_lower", "Trackbars")
         work_image = masked_image
     elif camera == 2:
-        display_cam_second_masked_image = cv2.bitwise_and(image, mask);
+        display_cam_two_masked_image = cv2.bitwise_and(image, mask);
         second_masked_image = np.ma.array(image, mask=~mask)
         display_cam_one_masked_image = masked_image
         second_update_mask()
@@ -297,7 +297,6 @@ def update_window():
     global current_view, original_image, second_original_image, masked_image, masked_binary_image, second_masked_image, second_masked_binary_image
     if current_view == "original_image":
         try:
-            cv2.destroyWindow("raw_image")
             cv2.destroyWindow("first_camera_calibrate")
             cv2.destroyWindow("second_camera_calibrate")
         except cv2.error as e:
@@ -322,23 +321,9 @@ def update_window():
 
         cv2.imshow("original_image", composite_image)
         cv2.waitKey(100)
-    elif current_view == "raw_image":
-        try:
-            cv2.destroyWindow("original_image")
-            cv2.destroyWindow("first_camera_calibrate")
-            cv2.destroyWindow("second_camera_calibrate")
-        except cv2.error as e:
-            # Ignore the error if the window doesn't exist
-            pass
-        composite_image = np.hstack((original_image, second_original_image))
-        height, width = composite_image.shape[:2]
-        composite_image = cv2.resize(composite_image, (width // 2, height // 2))
-        cv2.imshow("raw_image", composite_image)
-        cv2.waitKey(100)
     elif current_view == "first_camera_calibrate":
         try:
             cv2.destroyWindow("original_image")
-            cv2.destroyWindow("raw_image")
             cv2.destroyWindow("second_camera_calibrate")
         except cv2.error as e:
             # Ignore the error if the window doesn't exist
@@ -361,7 +346,6 @@ def update_window():
     elif current_view == "second_camera_calibrate":
         try:
             cv2.destroyWindow("original_image")
-            cv2.destroyWindow("raw_image")
             cv2.destroyWindow("first_camera_calibrate")
         except cv2.error as e:
             # Ignore the error if the window doesn't exist
@@ -410,8 +394,6 @@ def create_GUI():
     root.title("OpenCV Viewer")
     original_image_button = Button(root, text="Processing Image", command=lambda: on_button_click("original_image"))
     original_image_button.pack(side="left")
-    masked_image_button = Button(root, text="Raw image", command=lambda: on_button_click("raw_image"))
-    masked_image_button.pack(side="left")
     save_button = tk.Button(root, text="Save Variables", command=on_save_button_clicked)
     save_button.pack()
     calibrate_cam_one_button = tk.Button(root, text="Calibrate Cam1", command=on_calibrate_cam_one_button_clicked)
