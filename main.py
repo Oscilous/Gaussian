@@ -353,20 +353,20 @@ def create_GUI():
 load_variables()
 
 #Setting up the pi cam
-picam2 = Picamera2(1)
+picam2 = Picamera2(0)
 picam2.preview_configuration.main.size = IMG_DIMS
 picam2.preview_configuration.main.format = "YUV420"
 picam2.preview_configuration.align()
 picam2.configure("preview")
-picam2.set_controls({"ExposureTime": 1000})
+picam2.set_controls({"ExposureTime": 500})
 picam2.start()
 
-second_camera = Picamera2(0)
+second_camera = Picamera2(1)
 second_camera.preview_configuration.main.size = IMG_DIMS
 second_camera.preview_configuration.main.format = "YUV420"
 second_camera.preview_configuration.align()
 second_camera.configure("preview")
-second_camera.set_controls({"ExposureTime": 500})
+second_camera.set_controls({"ExposureTime": 1000})
 second_camera.start()
 
 # Create the Trackbars, so the mask can be created
