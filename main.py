@@ -394,14 +394,6 @@ def create_sliders_buttons():
     calibrate_cam_two_button = tk.Button(window, text="Calibrate Cam Two", command=on_calibrate_cam_two_button_clicked)
     calibrate_cam_two_button.grid(row=2, column=0)
 
-    Var1 = StringVar()
- 
-    RBttn = Radiobutton(window, text = "Option1", variable = Var1, value = 1)
-    RBttn.grid(row=2, column=0)
-    
-    RBttn2 = Radiobutton(window, text = "Option2", variable = Var1, value = 2)
-    RBttn2.grid(row=3, column=0)
-
     # Create slider
     slider = tk.Scale(window, from_=0, to=100, orient=tk.HORIZONTAL, command=on_slider_change)
     slider.grid(row=4, column=0)
