@@ -451,7 +451,9 @@ while True:
                 second_camera_status = "Pass"
             update_mask()
             update_window()
-            time.sleep(0.1)
+            # Update the Tkinter window
+            root.update()
+            root.update_idletasks()
             if calibration_cam_one: 
                 continue
             else: 
