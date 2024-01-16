@@ -174,10 +174,11 @@ def second_update_mask():
     cv2.circle(second_pellet_center_mask, second_Csys, second_Dia, 255, -1)
 
 def histogram_and_threshold(image, mask, camera):
-    global masked_image, second_masked_image
+    global masked_image, second_masked_image, display_cam_one_masked_image, display_cam_two_masked_image
     if camera == 1:
         # Apply the mask to the image
         masked_image = np.ma.array(image, mask=~mask)
+        display_cam_one_masked_image = masked_image
         update_window()
         # Calculate the mean and standard deviation
         mean_value = np.mean(masked_image.compressed())
@@ -186,6 +187,7 @@ def histogram_and_threshold(image, mask, camera):
         work_image = masked_image
     elif camera == 2:
         second_masked_image = np.ma.array(image, mask=~mask)
+        display_cam_one_masked_image = masked_image
         second_update_mask()
         # Calculate the mean and standard deviation
         mean_value = np.mean(second_masked_image.compressed())
@@ -328,7 +330,7 @@ def update_window():
         composite_image = np.hstack((original_image, second_original_image))
         height, width = composite_image.shape[:2]
         composite_image = cv2.resize(composite_image, (width // 2, height // 2))
-        cv2.imshow("Raw_image", composite_image)
+        cv2.imshow("raw_image", composite_image)
         cv2.waitKey(100)
     elif current_view == "first_camera_calibrate":
         try:
@@ -337,7 +339,7 @@ def update_window():
         except cv2.error as e:
             # Ignore the error if the window doesn't exist
             pass
-        composite_image = np.hstack((masked_image, masked_binary_image))
+        composite_image = np.hstack((display_cam_one_masked_image, masked_binary_image))
         height, width = composite_image.shape[:2]
         composite_image = cv2.resize(composite_image, (width // 2, height // 2))
         cv2.imshow("first_camera_calibrate", composite_image)
@@ -418,6 +420,9 @@ masked_binary_image = np.zeros((IMG_DIMS[1], IMG_DIMS[0]), dtype="uint8")
 
 second_masked_image = np.zeros((IMG_DIMS[1], IMG_DIMS[0]), dtype="uint8")
 second_masked_binary_image = np.zeros((IMG_DIMS[1], IMG_DIMS[0]), dtype="uint8")
+
+display_cam_one_masked_image = np.zeros((IMG_DIMS[1], IMG_DIMS[0]), dtype="uint8")
+display_cam_two_masked_image = np.zeros((IMG_DIMS[1], IMG_DIMS[0]), dtype="uint8")
 
 auto_home()
 # Main loop
