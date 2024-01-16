@@ -443,7 +443,7 @@ window.update()
 window.update_idletasks()
 update_window()
 
-#auto_home()
+auto_home()
 # Main loop
 while True:
     original_image = picam2.capture_array()
