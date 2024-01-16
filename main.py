@@ -288,10 +288,9 @@ def update_window():
         cv2.putText(top_composite_image, str(first_camera_status), (text_x_second, text_y_second), font, 5, (255, 255, 255), 2, cv2.LINE_AA)
         
         status = str("There is " + str(percentage__of_pellet) + "%" + "of a pellet")
-        text_size_status = cv2.getTextSize(status, font, 5, 2)[0]
         text_x_status = 15
         text_y_status = top_composite_image.shape[0] - 10  # 10 pixels margin from the bottom
-        cv2.putText(top_composite_image, text_size_status, (text_x_status, text_y_status), font, 5, (255, 255, 255), 2, cv2.LINE_AA)
+        cv2.putText(top_composite_image, status, (text_x_status, text_y_status), font, 5, (255, 255, 255), 2, cv2.LINE_AA)
 
         # Bot composite image is just a white image
         bot_composite_image = np.hstack((display_cam_two_masked_image, second_masked_binary_image))
