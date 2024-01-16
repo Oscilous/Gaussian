@@ -178,7 +178,10 @@ def histogram_and_threshold(image, mask, camera):
     if camera == 1:
         # Apply the mask to the image
         masked_image = np.ma.array(image, mask=~mask)
-        display_cam_one_masked_image = masked_image
+        display_cam_one_masked_image = masked_image.filled(0)
+        if display_cam_one_masked_image.dtype != np.uint8:
+            display_cam_one_masked_image = display_cam_one_masked_image.astype(np.uint8)
+        display_cam_one_masked_image = cv2.cvtColor(display_cam_one_masked_image, cv2.COLOR_BGR2GRAY)
         update_window()
         # Calculate the mean and standard deviation
         mean_value = np.mean(masked_image.compressed())
