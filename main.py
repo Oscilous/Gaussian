@@ -340,8 +340,8 @@ def update_window():
 
         composite_image = np.vstack((top_composite_image, bot_composite_image))
 
-    new_width = int(composite_image.shape[1] * 0.5)
-    new_height = int(composite_image.shape[0] * 0.5)
+    new_width = int(composite_image.shape[1] * 0.25)
+    new_height = int(composite_image.shape[0] * 0.25)
     new_size = (new_width, new_height)
 
     # Resize the image
