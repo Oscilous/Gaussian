@@ -186,6 +186,7 @@ def histogram_and_threshold(image, mask, camera):
         std_dev_multiplier_lower = cv2.getTrackbarPos("Threshold_lower", "Trackbars")
         work_image = masked_image
     elif camera == 2:
+        display_cam_second_masked_image = cv2.bitwise_and(image, mask);
         second_masked_image = np.ma.array(image, mask=~mask)
         display_cam_one_masked_image = masked_image
         second_update_mask()
@@ -298,6 +299,7 @@ def update_window():
         try:
             cv2.destroyWindow("raw_image")
             cv2.destroyWindow("first_camera_calibrate")
+            cv2.destroyWindow("second_camera_calibrate")
         except cv2.error as e:
             # Ignore the error if the window doesn't exist
             pass
@@ -324,6 +326,7 @@ def update_window():
         try:
             cv2.destroyWindow("original_image")
             cv2.destroyWindow("first_camera_calibrate")
+            cv2.destroyWindow("second_camera_calibrate")
         except cv2.error as e:
             # Ignore the error if the window doesn't exist
             pass
@@ -336,13 +339,44 @@ def update_window():
         try:
             cv2.destroyWindow("original_image")
             cv2.destroyWindow("raw_image")
+            cv2.destroyWindow("second_camera_calibrate")
         except cv2.error as e:
             # Ignore the error if the window doesn't exist
             pass
         composite_image = np.hstack((display_cam_one_masked_image, masked_binary_image))
         height, width = composite_image.shape[:2]
         composite_image = cv2.resize(composite_image, (width // 2, height // 2))
+
+        # Display the status of the first camera
+        text_size_first = cv2.getTextSize(str(first_camera_status), font, 5, 2)[0]
+        text_x_first = composite_image.shape[1] - text_size_first[0] - 15  # Right align, 10 pixels margin
+        text_y_first = composite_image.shape[0] // 2 + text_size_first[1] // 2  + 5 # Midpoint of the image height
+
+        cv2.putText(composite_image, str(first_camera_status), (text_x_first, text_y_first), font, 5, (255, 255, 255), 2, cv2.LINE_AA)
+
+
+
         cv2.imshow("first_camera_calibrate", composite_image)
+        cv2.waitKey(100)
+    elif current_view == "second_camera_calibrate":
+        try:
+            cv2.destroyWindow("original_image")
+            cv2.destroyWindow("raw_image")
+            cv2.destroyWindow("first_camera_calibrate")
+        except cv2.error as e:
+            # Ignore the error if the window doesn't exist
+            pass
+        composite_image = np.hstack((display_cam_two_masked_image, second_masked_binary_image))
+        height, width = composite_image.shape[:2]
+        composite_image = cv2.resize(composite_image, (width // 2, height // 2))
+
+        # Display the status of the second camera
+        text_size_second = cv2.getTextSize(str(second_camera_status), font, 5, 2)[0]
+        text_x_second = composite_image.shape[1] - text_size_second[0] - 15  # Left align, 10 pixels margin from the left
+        text_y_second = composite_image.shape[0] - 10  # 10 pixels margin from the bottom
+        cv2.putText(composite_image, str(second_camera_status), (text_x_second, text_y_second), font, 5, (255, 255, 255), 2, cv2.LINE_AA)
+
+        cv2.imshow("second_camera_calibrate", composite_image)
         cv2.waitKey(100)
 # Function to handle button clicks
 def on_button_click(view_name):
@@ -357,13 +391,15 @@ def on_save_button_clicked():
     print("Variables saved.")
 
 def on_calibrate_cam_one_button_clicked():
-    global calibration_cam_one, current_view
+    global calibration_cam_one, current_view, calibration_cam_two
     calibration_cam_one = True
+    calibration_cam_two = False
     current_view = "first_camera_calibrate"
     print("Calibration cam one mode: " + str(calibration_cam_one))
 
 def on_calibrate_cam_two_button_clicked():
-    global calibration_cam_two, current_view
+    global calibration_cam_two, current_view, calibration_cam_one
+    calibration_cam_one = False
     calibration_cam_two = True
     current_view = "second_camera_calibrate"
     print("Calibration cam two mode: " + str(calibration_cam_two))
@@ -470,25 +506,32 @@ while True:
             time.sleep(0.25)
             update_window()
             #Call update_mask, if adjustments were made with trackbars
-            second_update_mask()
-            second_original_image = second_camera.capture_array()
-            second_original_image = second_original_image[:IMG_DIMS[1], :IMG_DIMS[0]]
-            second_original_image = cv2.resize(second_original_image, (IMG_DIMS[0], IMG_DIMS[1]))
-            update_window()
-            #Call update_mask, if adjustments were made with trackbars
-            second_update_mask()
-            #Preform relative mean based thresholding
-            is_good_pellet = histogram_and_threshold(second_original_image, second_pellet_center_mask, 2)
-            update_window()
-            #Call update_mask, if adjustments were made with trackbars
-            second_update_mask()
-            if is_good_pellet:
-                solenoid.off()
-                second_camera_status = "Good"
-            else:
-                solenoid.on()
-                second_camera_status = "Bad"
-            update_window() 
+            while True:
+                second_update_mask()
+                second_original_image = second_camera.capture_array()
+                second_original_image = second_original_image[:IMG_DIMS[1], :IMG_DIMS[0]]
+                second_original_image = cv2.resize(second_original_image, (IMG_DIMS[0], IMG_DIMS[1]))
+                update_window()
+                #Call update_mask, if adjustments were made with trackbars
+                second_update_mask()
+                #Preform relative mean based thresholding
+                is_good_pellet = histogram_and_threshold(second_original_image, second_pellet_center_mask, 2)
+                update_window()
+                #Call update_mask, if adjustments were made with trackbars
+                second_update_mask()
+                if is_good_pellet:
+                    solenoid.off()
+                    second_camera_status = "Good"
+                else:
+                    solenoid.on()
+                    second_camera_status = "Bad"
+                update_window() 
+                root.update()
+                root.update_idletasks()
+                if calibration_cam_two: 
+                    continue
+                else: 
+                    break
         else:
             solenoid.on()
             forward_90()
