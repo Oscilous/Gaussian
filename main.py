@@ -9,6 +9,8 @@ import tkinter as tk
 from tkinter import Button
 from gpiozero import OutputDevice, DigitalInputDevice
 import json
+from PIL import ImageTk, Image
+
 # Pin setup
 ms1_pin = 3
 ms2_pin = 17
@@ -389,20 +391,36 @@ def on_calibrate_cam_two_button_clicked():
     print("Calibration cam two mode: " + str(calibration_cam_two))
 
 def create_GUI():
-    global root
+    global window
     # Create Tkinter window
-    root.title("OpenCV Viewer")
-    original_image_button = Button(root, text="Processing Image", command=lambda: on_button_click("original_image"))
-    original_image_button.pack(side="left")
-    save_button = tk.Button(root, text="Save Variables", command=on_save_button_clicked)
-    save_button.pack()
-    calibrate_cam_one_button = tk.Button(root, text="Calibrate Cam1", command=on_calibrate_cam_one_button_clicked)
-    calibrate_cam_one_button.pack()
-    calibrate_cam_two_button = tk.Button(root, text="Calibrate Cam2", command=on_calibrate_cam_two_button_clicked)
-    calibrate_cam_two_button.pack()
-    # Start Tkinter main loop
-    root.update()
-    root.update_idletasks()
+    window.attributes('-fullscreen', True)
+    window.title("Image Processing")
+
+    # Create slider
+    slider = tk.Scale(window, from_=0, to=100, orient=tk.HORIZONTAL, command=on_slider_change)
+    slider.grid(row=1, column=0)
+
+    # Create button
+    button = tk.Button(window, text="Show Histogram", command=on_button_click)
+    button.grid(row=0, column=0)
+
+    # Create label for displaying the image
+    label = tk.Label(window)
+    label.grid(row=0, column=1, rowspan=2)
+    window.update()
+    window.update_idletasks()
+
+def on_slider_change(value):
+    update_mask()
+    render_image(original_image)
+
+def render_image(picture):
+    global masked_image, label
+    img = Image.fromarray(picture)
+    img_tk = ImageTk.PhotoImage(img)
+    label.config(image=img_tk)
+    label.image = img_tk
+
 
 load_variables()
 
@@ -428,7 +446,7 @@ current_view = "original_image"
 # Create trackbars for adjusting mask
 create_trackbars()
 #Creating GUI
-root = tk.Tk()
+window = tk.Tk()
 create_GUI()
 #Creating blank canvas of images that will be rendered
 original_image = np.zeros((IMG_DIMS[1], IMG_DIMS[0]), dtype="uint8")
@@ -475,8 +493,8 @@ while True:
             update_mask()
             update_window()
             # Update the Tkinter window
-            root.update()
-            root.update_idletasks()
+            window.update()
+            window.update_idletasks()
             if calibration_cam_one: 
                 continue
             else: 
@@ -508,8 +526,8 @@ while True:
                     solenoid.on()
                     second_camera_status = "Bad"
                 update_window() 
-                root.update()
-                root.update_idletasks()
+                window.update()
+                window.update_idletasks()
                 if calibration_cam_two: 
                     continue
                 else: 
@@ -529,8 +547,8 @@ while True:
         second_camera_status = "Empty"
     
     # Update the Tkinter window
-    root.update()
-    root.update_idletasks()
+    window.update()
+    window.update_idletasks()
     key = cv2.waitKey(1) & 0xFF
     if key == 27:  # Press 'Esc' to exit
         break
