@@ -76,13 +76,11 @@ initial_values = {
 
 def save_variables():
     data = {
-        'initial_x': initial_values["Circle_X"], 'initial_y': initial_y, 'initial_diameter': initial_diameter,
-        'initial_dev_up': initial_dev_up, 'initial_dev_down': initial_dev_down,
-        'initial_threshold': initial_threshold, 'initial_detection': initial_detection,
-        'second_initial_x': second_initial_x, 'second_initial_y': second_initial_y,
-        'second_initial_diameter': second_initial_diameter,
-        'second_initial_dev_up': second_initial_dev_up, 'second_initial_dev_down': second_initial_dev_down,
-        'second_initial_threshold': second_initial_threshold
+        'initial_x': initial_values["Circle_X"], 'initial_y': initial_values["Circle_Y"], 'initial_diameter': initial_values["Circle_Diameter"],
+        'initial_dev_up': initial_values["Threshold_upper"], 'initial_dev_down': initial_values["Threshold_lower"], 'initial_threshold': initial_values["Impurity_pixel_amount"],
+        'initial_detection': initial_values["detection_threshold"], 'second_initial_x': initial_values["second_Circle_X"], 'second_initial_y': initial_values["second_Circle_Y"],
+        'second_initial_diameter': initial_values["second_Circle_Diameter"], 'second_initial_dev_up': initial_values["second_Threshold_upper"], 'second_initial_dev_down': initial_values["second_Threshold_lower"],
+        'second_initial_threshold': initial_values["second_Impurity_pixel_amount"]
     }
     with open('variables.json', 'w') as file:
         json.dump(data, file)
@@ -98,19 +96,19 @@ def load_variables():
             data = json.load(file)
 
         # Assigning values from JSON to the global variables
-        initial_x = data['initial_x']
-        initial_y = data['initial_y']
-        initial_diameter = data['initial_diameter']
-        initial_dev_up = data['initial_dev_up']
-        initial_dev_down = data['initial_dev_down']
-        initial_threshold = data['initial_threshold']
-        initial_detection = data['initial_detection']
-        second_initial_x = data['second_initial_x']
-        second_initial_y = data['second_initial_y']
-        second_initial_diameter = data['second_initial_diameter']
-        second_initial_dev_up = data['second_initial_dev_up']
-        second_initial_dev_down = data['second_initial_dev_down']
-        second_initial_threshold = data['second_initial_threshold']
+        initial_values["Circle_X"] = data['initial_x']
+        initial_values["Circle_Y"] = data['initial_y']
+        initial_values["Circle_Diameter"] = data['initial_diameter']
+        initial_values["Threshold_upper"] = data['initial_dev_up']
+        initial_values["Threshold_lower"] = data['initial_dev_down']
+        initial_values["Impurity_pixel_amount"] = data['initial_threshold']
+        initial_values["detection_threshold"] = data['initial_detection']
+        initial_values["second_Circle_X"] = data['second_initial_x']
+        initial_values["second_Circle_Y"] = data['second_initial_y']
+        initial_values["second_Circle_Diameter"] = data['second_initial_diameter']
+        initial_values["second_Threshold_upper"] = data['second_initial_dev_up']
+        initial_values["second_Threshold_lower"] = data['second_initial_dev_down']
+        initial_values["second_Impurity_pixel_amount"] = data['second_initial_threshold']
     except FileNotFoundError:
         print("No saved variables found. Using default values.")
 
