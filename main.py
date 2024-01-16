@@ -296,7 +296,7 @@ def is_pellet_present(image, mask):
     
 # Function to switch the current view based on button press
 def update_window():
-    global current_view, original_image, second_original_image, masked_image, masked_binary_image, second_masked_image, second_masked_binary_image
+    global current_view, original_image, second_original_image, masked_image, masked_binary_image, second_masked_image, second_masked_binary_image, composite_image
     if current_view == "original_image":
         top_composite_image = np.hstack((masked_image, masked_binary_image))
         bot_composite_image = np.hstack((second_masked_image, second_masked_binary_image))
@@ -440,6 +440,8 @@ second_masked_binary_image = np.zeros((IMG_DIMS[1], IMG_DIMS[0]), dtype="uint8")
 
 display_cam_one_masked_image = np.zeros((IMG_DIMS[1], IMG_DIMS[0]), dtype="uint8")
 display_cam_two_masked_image = np.zeros((IMG_DIMS[1], IMG_DIMS[0]), dtype="uint8")
+
+composite_image = np.zeros((IMG_DIMS[1], IMG_DIMS[0]), dtype="uint8")
 
 auto_home()
 # Main loop
