@@ -321,7 +321,7 @@ def update_window():
         text_size_second = cv2.getTextSize(str(second_camera_status), font, 5, 2)[0]
         text_x_second = top_composite_image.shape[1] - text_size_second[0] - 15  # Left align, 10 pixels margin from the left
         text_y_second = top_composite_image.shape[0] - 10  # 10 pixels margin from the bottom
-        cv2.putText(composite_image, str(second_camera_status), (text_x_second, text_y_second), font, 5, (255, 255, 255), 2, cv2.LINE_AA)
+        cv2.putText(top_composite_image, str(second_camera_status), (text_x_second, text_y_second), font, 5, (255, 255, 255), 2, cv2.LINE_AA)
 
         white = np.full_like(second_masked_image, 255)
         bot_composite_image = np.hstack((white, white))
