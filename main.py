@@ -326,6 +326,7 @@ def update_window():
         white = np.full_like(second_masked_image, 255)
         bot_composite_image = np.hstack((white, white))
         composite_image = np.vstack((top_composite_image, bot_composite_image))
+
         
 
     elif current_view == "second_camera_calibrate":
@@ -443,7 +444,7 @@ window.update()
 window.update_idletasks()
 update_window()
 
-auto_home()
+#auto_home()
 # Main loop
 while True:
     original_image = picam2.capture_array()
