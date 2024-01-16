@@ -364,10 +364,12 @@ def on_slider_change(value):
     pass
 
 def create_slider(window, name, row, col, from_, to):
+    label = tk.Label(window, text=name)
+    label.grid(row=row, column=col)
     slider = tk.Scale(window, from_=from_, to=to, orient=tk.HORIZONTAL,
                       command=partial(on_slider_change, name))
     slider.set(initial_values[name])  # Set to initial value
-    slider.grid(row=row, column=col)
+    slider.grid(row=row, column=col+1)
     return slider
 
 # Function to be called when a slider value changes
@@ -446,7 +448,7 @@ create_sliders_buttons()
 
 # Create label for displaying the image
 label = tk.Label(window)
-label.grid(row=0, column=1, rowspan=window.grid_size()[1])
+label.grid(row=0, column=2, rowspan=window.grid_size()[1])
 window.update()
 window.update_idletasks()
 update_window()
