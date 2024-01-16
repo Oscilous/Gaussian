@@ -441,7 +441,7 @@ create_sliders_buttons()
 
 # Create label for displaying the image
 label = tk.Label(window)
-label.grid(row=0, column=1, rowspan=window.grid_size()[0])
+label.grid(row=0, column=1, rowspan=window.grid_size()[1])
 window.update()
 window.update_idletasks()
 update_window()
