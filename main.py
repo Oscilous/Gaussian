@@ -11,6 +11,7 @@ from gpiozero import OutputDevice, DigitalInputDevice
 import json
 from PIL import ImageTk, Image
 from functools import partial
+import sys
 
 # Pin setup
 ms1_pin = 3
@@ -390,7 +391,7 @@ def create_sliders_buttons():
     calibrate_cam_two_button.grid(row=2, column=0)
     save_variables_button = tk.Button(window, text="Save values", command=on_save_button_clicked)
     save_variables_button.grid(row=3, column=0)
-    exit_button = tk.Button(window, text="Exit", command=window.destroy)
+    exit_button = tk.Button(window, text="Exit", command=sys.exit)
     exit_button.grid(row=4, column=0)
     # Create slider
 
