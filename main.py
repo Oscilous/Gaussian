@@ -46,7 +46,8 @@ debug_mode = False
 enable_plots = False
 pause_mode = True
 edit_mode = False
-calibration_mode = False
+calibration_cam_one = False
+calibration_cam_two = False
 first_camera_status = "Empty"
 second_camera_status = "Waiting"
 
