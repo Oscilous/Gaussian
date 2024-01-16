@@ -328,12 +328,7 @@ def update_window():
         cv2.putText(composite_image, str(first_camera_status), (text_x_first, text_y_first), font, 5, (255, 255, 255), 2, cv2.LINE_AA)
 
     elif current_view == "second_camera_calibrate":
-        try:
-            cv2.destroyWindow("original_image")
-            cv2.destroyWindow("first_camera_calibrate")
-        except cv2.error as e:
-            # Ignore the error if the window doesn't exist
-            pass
+
         composite_image = np.hstack((display_cam_two_masked_image, second_masked_binary_image))
         height, width = composite_image.shape[:2]
         composite_image = cv2.resize(composite_image, (width // 2, height // 2))
@@ -447,7 +442,7 @@ window.update()
 window.update_idletasks()
 update_window()
 
-auto_home()
+#auto_home()
 # Main loop
 while True:
     original_image = picam2.capture_array()
