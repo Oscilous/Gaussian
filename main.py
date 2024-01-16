@@ -294,8 +294,8 @@ def update_window():
     global current_view, original_image, second_original_image, masked_image, masked_binary_image, second_masked_image, second_masked_binary_image
     if current_view == "original_image":
         try:
-            cv2.destroyWindow("first_camera")
-            cv2.destroyWindow("second_camera")
+            cv2.destroyWindow("raw_image")
+            cv2.destroyWindow("first_camera_calibrate")
         except cv2.error as e:
             # Ignore the error if the window doesn't exist
             pass
@@ -318,35 +318,52 @@ def update_window():
 
         cv2.imshow("original_image", composite_image)
         cv2.waitKey(100)
-    elif current_view == "first_camera":
+    elif current_view == "raw_image":
         try:
             cv2.destroyWindow("original_image")
-            cv2.destroyWindow("second_camera")
+            cv2.destroyWindow("first_camera_calibrate")
         except cv2.error as e:
             # Ignore the error if the window doesn't exist
             pass
         composite_image = np.hstack((original_image, second_original_image))
         height, width = composite_image.shape[:2]
         composite_image = cv2.resize(composite_image, (width // 2, height // 2))
-        cv2.imshow("first_camera", composite_image)
+        cv2.imshow("Raw_image", composite_image)
+        cv2.waitKey(100)
+    elif current_view == "first_camera_calibrate":
+        try:
+            cv2.destroyWindow("original_image")
+            cv2.destroyWindow("raw_image")
+        except cv2.error as e:
+            # Ignore the error if the window doesn't exist
+            pass
+        composite_image = np.hstack((masked_image, masked_binary_image))
+        height, width = composite_image.shape[:2]
+        composite_image = cv2.resize(composite_image, (width // 2, height // 2))
+        cv2.imshow("first_camera_calibrate", composite_image)
         cv2.waitKey(100)
 # Function to handle button clicks
 def on_button_click(view_name):
-    global current_view
+    global current_view, calibration_cam_one, calibration_cam_two
     current_view = view_name
+    calibration_cam_one = False
+    calibration_cam_two = False
+
 
 def on_save_button_clicked():
     save_variables()
     print("Variables saved.")
 
 def on_calibrate_cam_one_button_clicked():
-    global calibration_cam_one
-    calibration_cam_one = not calibration_cam_one
+    global calibration_cam_one, current_view
+    calibration_cam_one = True
+    current_view = "first_camera_calibrate"
     print("Calibration cam one mode: " + str(calibration_cam_one))
 
 def on_calibrate_cam_two_button_clicked():
-    global calibration_cam_two
-    calibration_cam_two = not calibration_cam_two
+    global calibration_cam_two, current_view
+    calibration_cam_two = True
+    current_view = "second_camera_calibrate"
     print("Calibration cam two mode: " + str(calibration_cam_two))
 
 def create_GUI():
@@ -355,7 +372,7 @@ def create_GUI():
     root.title("OpenCV Viewer")
     original_image_button = Button(root, text="Processing Image", command=lambda: on_button_click("original_image"))
     original_image_button.pack(side="left")
-    masked_image_button = Button(root, text="Raw image", command=lambda: on_button_click("first_camera"))
+    masked_image_button = Button(root, text="Raw image", command=lambda: on_button_click("raw_image"))
     masked_image_button.pack(side="left")
     save_button = tk.Button(root, text="Save Variables", command=on_save_button_clicked)
     save_button.pack()
