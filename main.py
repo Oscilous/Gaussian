@@ -357,9 +357,9 @@ def update_window():
     time.sleep(0.1)
 
 # Function to handle button clicks
-def on_button_click(view_name):
+def on_button_start():
     global current_view, calibration_cam_one, calibration_cam_two
-    current_view = view_name
+    current_view = "original_image"
     calibration_cam_one = False
     calibration_cam_two = False
 
@@ -385,6 +385,17 @@ def on_calibrate_cam_two_button_clicked():
 def on_slider_change(value):
     update_mask()
 
+def create_sliders_buttons():
+    # Create button
+    start_button = tk.Button(window, text="Start", command=on_button_start)
+    start_button.grid(row=0, column=0)
+    calibrate_cam_one_button = tk.Button(window, text="Calibrate Cam One", command=on_calibrate_cam_one_button_clicked)
+    calibrate_cam_one_button.grid(row=0, column=1)
+    calibrate_cam_two_button = tk.Button(window, text="Calibrate Cam Two", command=on_calibrate_cam_two_button_clicked)
+    calibrate_cam_two_button.grid(row=0, column=2)
+    # Create slider
+    slider = tk.Scale(window, from_=0, to=100, orient=tk.HORIZONTAL, command=on_slider_change)
+    slider.grid(row=2, column=0)
 
 load_variables()
 
@@ -426,13 +437,7 @@ window = tk.Tk()
 window.attributes('-fullscreen', True)
 window.title("Image Processing")
 
-# Create slider
-slider = tk.Scale(window, from_=0, to=100, orient=tk.HORIZONTAL, command=on_slider_change)
-slider.grid(row=1, column=0)
-
-# Create button
-button = tk.Button(window, text="Show Histogram", command=on_button_click)
-button.grid(row=0, column=0)
+create_sliders_buttons()
 
 # Create label for displaying the image
 label = tk.Label(window)
