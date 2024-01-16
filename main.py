@@ -284,7 +284,7 @@ def is_pellet_present(image, mask):
     detection_threshold = cv2.getTrackbarPos("detection_threshold", "Trackbars")
     percentage__of_pellet = int(impurity_pixel_count / area_pixel_count * 100)
     print(percentage__of_pellet)
-    if percentage__of_pellet >  detection_threshold:
+    if percentage__of_pellet >=  detection_threshold:
         return True
     else:
         return False
