@@ -282,9 +282,9 @@ def is_pellet_present(image, mask):
     percentage__of_pellet = int(impurity_pixel_count / area_pixel_count * 100)
     print(percentage__of_pellet)
     if percentage__of_pellet >  detection_threshold:
-        return False
-    else:
         return True
+    else:
+        return False
     
 # Function to switch the current view based on button press
 def update_window():
