@@ -10,6 +10,7 @@ from tkinter import Button, Radiobutton, StringVar
 from gpiozero import OutputDevice, DigitalInputDevice
 import json
 from PIL import ImageTk, Image
+from functools import partial
 
 # Pin setup
 ms1_pin = 3
@@ -55,21 +56,24 @@ second_camera_status = "Waiting"
 
 font = cv2.FONT_HERSHEY_PLAIN
 
-def save_variables():
-    initial_x = cv2.getTrackbarPos("Circle_X", "Trackbars")
-    initial_y = cv2.getTrackbarPos("Circle_Y", "Trackbars")
-    initial_diameter = cv2.getTrackbarPos("Circle_Diameter", "Trackbars")
-    initial_dev_up = cv2.getTrackbarPos("Threshold_upper", "Trackbars")
-    initial_dev_down = cv2.getTrackbarPos("Threshold_lower", "Trackbars")
-    initial_threshold = cv2.getTrackbarPos("Impurity_pixel_amount", "Trackbars")
-    initial_detection = cv2.getTrackbarPos("detection_threshold", "Trackbars")
+# Dictionary to store the initial values for each slider
+initial_values = {
+    "Circle_X": initial_x,
+    "Circle_Y": initial_y,
+    "Circle_Diameter": initial_diameter,
+    "Threshold_upper": initial_dev_up,
+    "Threshold_lower": initial_dev_down,
+    "Impurity_pixel_amount": initial_threshold,
+    "detection_threshold": initial_detection,
+    "second_Circle_X": second_initial_x,
+    "second_Circle_Y": second_initial_y,
+    "second_Circle_Diameter": second_initial_diameter,
+    "second_Threshold_upper": second_initial_dev_up,
+    "second_Threshold_lower": second_initial_dev_down,
+    "second_Impurity_pixel_amount": second_initial_threshold
+}
 
-    second_initial_x = cv2.getTrackbarPos("second_Circle_X", "Trackbars")
-    second_initial_y = cv2.getTrackbarPos("second_Circle_Y", "Trackbars")
-    second_initial_diameter = cv2.getTrackbarPos("second_Circle_Diameter", "Trackbars")
-    second_initial_dev_up = cv2.getTrackbarPos("second_Threshold_upper", "Trackbars")
-    second_initial_dev_down = cv2.getTrackbarPos("second_Threshold_lower", "Trackbars")
-    second_initial_threshold = cv2.getTrackbarPos("second_Impurity_pixel_amount", "Trackbars")
+def save_variables():
     data = {
         'initial_x': initial_x, 'initial_y': initial_y, 'initial_diameter': initial_diameter,
         'initial_dev_up': initial_dev_up, 'initial_dev_down': initial_dev_down,
@@ -154,9 +158,8 @@ def nothing(val):
 def update_mask():
     global Csys, Dia, pellet_center_mask, camera
     # Update circle parameters
-    Csys = (cv2.getTrackbarPos("Circle_X", "Trackbars"),
-            cv2.getTrackbarPos("Circle_Y", "Trackbars"))
-    Dia = cv2.getTrackbarPos("Circle_Diameter", "Trackbars")
+    Csys = (initial_x, initial_y)
+    Dia =  initial_diameter
 
     # Create a black canvas the size of the camera feed
     pellet_center_mask = np.zeros((IMG_DIMS[1], IMG_DIMS[0]), dtype="uint8")
@@ -166,9 +169,8 @@ def update_mask():
 def second_update_mask():
     global second_Csys, second_Dia, second_pellet_center_mask
     # Update circle parameters
-    second_Csys = (cv2.getTrackbarPos("second_Circle_X", "Trackbars"),
-            cv2.getTrackbarPos("second_Circle_Y", "Trackbars"))
-    second_Dia = cv2.getTrackbarPos("second_Circle_Diameter", "Trackbars")
+    second_Csys = (initial_x, initial_y)
+    second_Dia = initial_diameter
 
     # Create a black canvas the size of the camera feed
     second_pellet_center_mask = np.zeros((IMG_DIMS[1], IMG_DIMS[0]), dtype="uint8")
@@ -184,8 +186,8 @@ def histogram_and_threshold(image, mask, camera):
         update_window()
         # Calculate the mean and standard deviation
         mean_value = np.mean(masked_image.compressed())
-        std_dev_multiplier_upper = cv2.getTrackbarPos("Threshold_upper", "Trackbars")
-        std_dev_multiplier_lower = cv2.getTrackbarPos("Threshold_lower", "Trackbars")
+        std_dev_multiplier_upper = initial_dev_up
+        std_dev_multiplier_lower = initial_dev_down
         work_image = masked_image
     elif camera == 2:
         display_cam_two_masked_image = cv2.bitwise_and(image, mask);
@@ -194,8 +196,8 @@ def histogram_and_threshold(image, mask, camera):
         second_update_mask()
         # Calculate the mean and standard deviation
         mean_value = np.mean(second_masked_image.compressed())
-        std_dev_multiplier_upper = cv2.getTrackbarPos("second_Threshold_upper", "Trackbars")
-        std_dev_multiplier_lower = cv2.getTrackbarPos("second_Threshold_lower", "Trackbars")
+        std_dev_multiplier_upper = second_initial_dev_up
+        std_dev_multiplier_lower = second_initial_dev_down
         work_image = second_masked_image
 
     # Calculate the threshold range
@@ -211,25 +213,6 @@ def histogram_and_threshold(image, mask, camera):
     is_pellet_good = count_black_pixels(binary_image, mask, camera)
     return is_pellet_good
     
-def create_trackbars():
-    # Set up the window and trackbars
-    cv2.namedWindow("Trackbars")
-    # Create trackbars with default values
-    cv2.createTrackbar("Circle_X", "Trackbars", initial_x, 5000, nothing)
-    cv2.createTrackbar("Circle_Y", "Trackbars", initial_y, 5000, nothing)
-    cv2.createTrackbar("Circle_Diameter", "Trackbars", initial_diameter, 2000, nothing)
-    cv2.createTrackbar("Threshold_upper", "Trackbars", initial_dev_up, 60, nothing)
-    cv2.createTrackbar("Threshold_lower", "Trackbars", initial_dev_down, 60, nothing)
-    cv2.createTrackbar("Impurity_pixel_amount", "Trackbars", initial_threshold,10000, nothing)
-    cv2.createTrackbar("detection_threshold", "Trackbars", initial_detection ,100, nothing)
-    # Create trackbars with default values
-    cv2.createTrackbar("second_Circle_X", "Trackbars", second_initial_x, 5000, nothing)
-    cv2.createTrackbar("second_Circle_Y", "Trackbars", second_initial_y, 5000, nothing)
-    cv2.createTrackbar("second_Circle_Diameter", "Trackbars", second_initial_diameter, 2000, nothing)
-    cv2.createTrackbar("second_Threshold_upper", "Trackbars", second_initial_dev_up, 60, nothing)
-    cv2.createTrackbar("second_Threshold_lower", "Trackbars", second_initial_dev_down, 60, nothing)
-    cv2.createTrackbar("second_Impurity_pixel_amount", "Trackbars", second_initial_threshold,10000, nothing)
-    cv2.waitKey(100)
 
 def count_black_pixels(binary_image, mask, camera):
     global masked_binary_image
@@ -243,7 +226,7 @@ def count_black_pixels(binary_image, mask, camera):
         second_masked_binary_image = cv2.bitwise_and(~binary_image, mask)
         impurity_pixel_count = np.sum(second_masked_binary_image == 255)
     print(f'Impurities: {impurity_pixel_count}')
-    impurity_threshold = cv2.getTrackbarPos("Impurity_pixel_amount", "Trackbars")
+    impurity_threshold = impurity_threshold
     if impurity_pixel_count > impurity_threshold:
         print("BAD")
         return False
@@ -286,7 +269,7 @@ def is_pellet_present(image, mask):
     binary = cv2.inRange(masked_image, 100, 220)
     impurity_pixel_count = np.sum(binary == 255)
     area_pixel_count = np.sum(mask == 255)
-    detection_threshold = cv2.getTrackbarPos("detection_threshold", "Trackbars")
+    detection_threshold = initial_detection
     percentage__of_pellet = int(impurity_pixel_count / area_pixel_count * 100)
     print(percentage__of_pellet)
     if percentage__of_pellet >=  detection_threshold:
@@ -339,8 +322,8 @@ def update_window():
 
         composite_image = np.vstack((top_composite_image, bot_composite_image))
 
-    new_width = int(composite_image.shape[1] * 0.25)
-    new_height = int(composite_image.shape[0] * 0.25)
+    new_width = int(composite_image.shape[1] * 0.4)
+    new_height = int(composite_image.shape[0] * 0.4)
     new_size = (new_width, new_height)
 
     # Resize the image
@@ -378,7 +361,19 @@ def on_calibrate_cam_two_button_clicked():
 
 
 def on_slider_change(value):
-    update_mask()
+    pass
+
+def create_slider(window, name, row, col, from_, to):
+    slider = tk.Scale(window, from_=from_, to=to, orient=tk.HORIZONTAL,
+                      command=partial(on_slider_change, name))
+    slider.set(initial_values[name])  # Set to initial value
+    slider.grid(row=row, column=col)
+    return slider
+
+# Function to be called when a slider value changes
+def on_slider_change(slider_name, value):
+    # Update the corresponding value in the dictionary
+    initial_values[slider_name] = int(value)
 
 def create_sliders_buttons():
     # Create button
@@ -388,10 +383,25 @@ def create_sliders_buttons():
     calibrate_cam_one_button.grid(row=1, column=0)
     calibrate_cam_two_button = tk.Button(window, text="Calibrate Cam Two", command=on_calibrate_cam_two_button_clicked)
     calibrate_cam_two_button.grid(row=2, column=0)
-
+    save_variables_button = tk.Button(window, text="Save values", command=save_variables)
+    save_variables_button.grid(row=3, column=0)
     # Create slider
-    slider = tk.Scale(window, from_=0, to=100, orient=tk.HORIZONTAL, command=on_slider_change)
-    slider.grid(row=4, column=0)
+
+    create_slider(window, "Circle_X", 4, 0, 0, 5000)
+    create_slider(window, "Circle_Y", 5, 0, 0, 5000)
+    create_slider(window, "Circle_Diameter", 6, 0, 0, 2000)
+    create_slider(window, "Threshold_upper", 7, 0, 0, 60)
+    create_slider(window, "Threshold_lower", 8, 0, 0, 60)
+    create_slider(window, "Impurity_pixel_amount", 9, 0, 0, 10000)
+    create_slider(window, "detection_threshold", 10, 0, 0, 100)
+    create_slider(window, "second_Circle_X", 11, 0, 0, 5000)
+    create_slider(window, "second_Circle_Y", 12, 0, 0, 5000)
+    create_slider(window, "second_Circle_Diameter", 13, 0, 0, 2000)
+    create_slider(window, "second_Threshold_upper", 14, 0, 0, 60)
+    create_slider(window, "second_Threshold_lower", 15, 0, 0, 60)
+    create_slider(window, "second_Impurity_pixel_amount", 16, 0, 0, 10000)
+
+    
 
 load_variables()
 
@@ -427,7 +437,6 @@ display_cam_two_masked_image = np.zeros((IMG_DIMS[1], IMG_DIMS[0]), dtype="uint8
 # Create the Trackbars, so the mask can be created
 current_view = "original_image"
 # Create trackbars for adjusting mask
-create_trackbars()
 #Creating GUI
 window = tk.Tk()
 window.attributes('-fullscreen', True)
