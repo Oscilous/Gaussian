@@ -390,12 +390,12 @@ def create_sliders_buttons():
     start_button = tk.Button(window, text="Start", command=on_button_start)
     start_button.grid(row=0, column=0)
     calibrate_cam_one_button = tk.Button(window, text="Calibrate Cam One", command=on_calibrate_cam_one_button_clicked)
-    calibrate_cam_one_button.grid(row=0, column=1)
+    calibrate_cam_one_button.grid(row=1, column=0)
     calibrate_cam_two_button = tk.Button(window, text="Calibrate Cam Two", command=on_calibrate_cam_two_button_clicked)
-    calibrate_cam_two_button.grid(row=0, column=2)
+    calibrate_cam_two_button.grid(row=2, column=0)
     # Create slider
     slider = tk.Scale(window, from_=0, to=100, orient=tk.HORIZONTAL, command=on_slider_change)
-    slider.grid(row=2, column=0)
+    slider.grid(row=3, column=0)
 
 load_variables()
 
