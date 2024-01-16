@@ -425,7 +425,6 @@ create_trackbars()
 #Creating GUI
 window = tk.Tk()
 create_GUI()
-update_window()
 #Creating blank canvas of images that will be rendered
 original_image = np.zeros((IMG_DIMS[1], IMG_DIMS[0]), dtype="uint8")
 second_original_image = np.zeros((IMG_DIMS[1], IMG_DIMS[0]), dtype="uint8")
@@ -437,6 +436,8 @@ second_masked_binary_image = np.zeros((IMG_DIMS[1], IMG_DIMS[0]), dtype="uint8")
 
 display_cam_one_masked_image = np.zeros((IMG_DIMS[1], IMG_DIMS[0]), dtype="uint8")
 display_cam_two_masked_image = np.zeros((IMG_DIMS[1], IMG_DIMS[0]), dtype="uint8")
+
+update_window()
 
 auto_home()
 # Main loop
