@@ -451,6 +451,7 @@ while True:
                 second_camera_status = "Pass"
             update_mask()
             update_window()
+            time.sleep(0.1)
             if calibration_cam_one: 
                 continue
             else: 
