@@ -296,7 +296,7 @@ def is_pellet_present(image, mask):
     
 # Function to switch the current view based on button press
 def update_window():
-    global current_view, original_image, second_original_image, masked_image, masked_binary_image, second_masked_image, second_masked_binary_image, composite_image
+    global current_view, original_image, second_original_image, masked_image, masked_binary_image, second_masked_image, second_masked_binary_image, label
     if current_view == "original_image":
         top_composite_image = np.hstack((masked_image, masked_binary_image))
         bot_composite_image = np.hstack((second_masked_image, second_masked_binary_image))
@@ -344,8 +344,12 @@ def update_window():
         text_y_second = composite_image.shape[0] - 10  # 10 pixels margin from the bottom
         cv2.putText(composite_image, str(second_camera_status), (text_x_second, text_y_second), font, 5, (255, 255, 255), 2, cv2.LINE_AA)
 
-    render_image(composite_image)
+    img = Image.fromarray(composite_image)
+    img_tk = ImageTk.PhotoImage(img)
+    label.config(image=img_tk)
+    label.image = img_tk
     time.sleep(0.1)
+
 # Function to handle button clicks
 def on_button_click(view_name):
     global current_view, calibration_cam_one, calibration_cam_two
@@ -393,14 +397,6 @@ def create_GUI():
 
 def on_slider_change(value):
     update_mask()
-    render_image(original_image)
-
-def render_image(picture):
-    global masked_image, label
-    img = Image.fromarray(picture)
-    img_tk = ImageTk.PhotoImage(img)
-    label.config(image=img_tk)
-    label.image = img_tk
 
 
 load_variables()
@@ -429,6 +425,7 @@ create_trackbars()
 #Creating GUI
 window = tk.Tk()
 create_GUI()
+update_window()
 #Creating blank canvas of images that will be rendered
 original_image = np.zeros((IMG_DIMS[1], IMG_DIMS[0]), dtype="uint8")
 second_original_image = np.zeros((IMG_DIMS[1], IMG_DIMS[0]), dtype="uint8")
@@ -440,8 +437,6 @@ second_masked_binary_image = np.zeros((IMG_DIMS[1], IMG_DIMS[0]), dtype="uint8")
 
 display_cam_one_masked_image = np.zeros((IMG_DIMS[1], IMG_DIMS[0]), dtype="uint8")
 display_cam_two_masked_image = np.zeros((IMG_DIMS[1], IMG_DIMS[0]), dtype="uint8")
-
-composite_image = np.zeros((IMG_DIMS[1], IMG_DIMS[0]), dtype="uint8")
 
 auto_home()
 # Main loop
