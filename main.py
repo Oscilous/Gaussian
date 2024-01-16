@@ -287,7 +287,7 @@ def update_window():
         text_y_second = top_composite_image.shape[0] - 10  # 10 pixels margin from the bottom
         cv2.putText(top_composite_image, str(first_camera_status), (text_x_second, text_y_second), font, 5, (255, 255, 255), 2, cv2.LINE_AA)
         
-        status = "There is " + str(percentage__of_pellet) + "%" "of a pellet"
+        status = str("There is " + str(percentage__of_pellet) + "%" + "of a pellet")
         text_size_status = cv2.getTextSize(status, font, 5, 2)[0]
         text_x_status = 15
         text_y_status = top_composite_image.shape[0] - 10  # 10 pixels margin from the bottom
