@@ -298,12 +298,6 @@ def is_pellet_present(image, mask):
 def update_window():
     global current_view, original_image, second_original_image, masked_image, masked_binary_image, second_masked_image, second_masked_binary_image
     if current_view == "original_image":
-        try:
-            cv2.destroyWindow("first_camera_calibrate")
-            cv2.destroyWindow("second_camera_calibrate")
-        except cv2.error as e:
-            # Ignore the error if the window doesn't exist
-            pass
         top_composite_image = np.hstack((masked_image, masked_binary_image))
         bot_composite_image = np.hstack((second_masked_image, second_masked_binary_image))
         composite_image = np.vstack((top_composite_image, bot_composite_image))
@@ -321,15 +315,7 @@ def update_window():
 
         cv2.putText(composite_image, str(second_camera_status), (text_x_second, text_y_second), font, 5, (255, 255, 255), 2, cv2.LINE_AA)
 
-        cv2.imshow("original_image", composite_image)
-        cv2.waitKey(100)
     elif current_view == "first_camera_calibrate":
-        try:
-            cv2.destroyWindow("original_image")
-            cv2.destroyWindow("second_camera_calibrate")
-        except cv2.error as e:
-            # Ignore the error if the window doesn't exist
-            pass
         composite_image = np.hstack((display_cam_one_masked_image, masked_binary_image))
         height, width = composite_image.shape[:2]
         composite_image = cv2.resize(composite_image, (width // 2, height // 2))
@@ -341,10 +327,6 @@ def update_window():
 
         cv2.putText(composite_image, str(first_camera_status), (text_x_first, text_y_first), font, 5, (255, 255, 255), 2, cv2.LINE_AA)
 
-
-
-        cv2.imshow("first_camera_calibrate", composite_image)
-        cv2.waitKey(100)
     elif current_view == "second_camera_calibrate":
         try:
             cv2.destroyWindow("original_image")
@@ -362,15 +344,14 @@ def update_window():
         text_y_second = composite_image.shape[0] - 10  # 10 pixels margin from the bottom
         cv2.putText(composite_image, str(second_camera_status), (text_x_second, text_y_second), font, 5, (255, 255, 255), 2, cv2.LINE_AA)
 
-        cv2.imshow("second_camera_calibrate", composite_image)
-        cv2.waitKey(100)
+    render_image(composite_image)
+    time.sleep(0.1)
 # Function to handle button clicks
 def on_button_click(view_name):
     global current_view, calibration_cam_one, calibration_cam_two
     current_view = view_name
     calibration_cam_one = False
     calibration_cam_two = False
-
 
 def on_save_button_clicked():
     save_variables()
