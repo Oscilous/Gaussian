@@ -76,7 +76,7 @@ initial_values = {
 
 def save_variables():
     data = {
-        'initial_x': initial_x, 'initial_y': initial_y, 'initial_diameter': initial_diameter,
+        'initial_x': initial_values["Circle_X"], 'initial_y': initial_y, 'initial_diameter': initial_diameter,
         'initial_dev_up': initial_dev_up, 'initial_dev_down': initial_dev_down,
         'initial_threshold': initial_threshold, 'initial_detection': initial_detection,
         'second_initial_x': second_initial_x, 'second_initial_y': second_initial_y,
@@ -287,7 +287,7 @@ def update_window():
         text_y_second = top_composite_image.shape[0] - 10  # 10 pixels margin from the bottom
         cv2.putText(top_composite_image, str(first_camera_status), (text_x_second, text_y_second), font, 5, (255, 255, 255), 2, cv2.LINE_AA)
         
-        status = str("There is " + str(percentage__of_pellet) + "%" + "of a pellet")
+        status = str(str(percentage__of_pellet) + "%" + "of a pellet")
         text_x_status = 15
         text_y_status = top_composite_image.shape[0] - 10  # 10 pixels margin from the bottom
         cv2.putText(top_composite_image, status, (text_x_status, text_y_status), font, 5, (255, 255, 255), 2, cv2.LINE_AA)
@@ -407,8 +407,6 @@ def create_sliders_buttons():
     create_slider(window, "second_Threshold_upper", 14, 0, 0, 60)
     create_slider(window, "second_Threshold_lower", 15, 0, 0, 60)
     create_slider(window, "second_Impurity_pixel_amount", 16, 0, 0, 10000)
-
-    
 
 load_variables()
 
