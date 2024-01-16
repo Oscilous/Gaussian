@@ -53,6 +53,7 @@ calibration_cam_one = False
 calibration_cam_two = False
 first_camera_status = "Empty"
 second_camera_status = "Waiting"
+percentage__of_pellet = 0
 
 font = cv2.FONT_HERSHEY_PLAIN
 
@@ -260,7 +261,7 @@ def plot_histogram(masked_image, lower_threshold, upper_threshold, std_dev_multi
     plt.pause(0.1)
 
 def is_pellet_present(image, mask):
-    global masked_image
+    global masked_image, percentage__of_pellet
     masked_image = cv2.bitwise_and(image, mask)
     #Call update, as one of the displayed images have been updated
     update_window()
@@ -271,7 +272,6 @@ def is_pellet_present(image, mask):
     area_pixel_count = np.sum(mask == 255)
     detection_threshold = initial_detection
     percentage__of_pellet = int(impurity_pixel_count / area_pixel_count * 100)
-    print(percentage__of_pellet)
     if percentage__of_pellet >=  detection_threshold:
         return True
     else:
@@ -286,6 +286,12 @@ def update_window():
         text_x_second = top_composite_image.shape[1] - text_size_second[0] - 15  # Left align, 10 pixels margin from the left
         text_y_second = top_composite_image.shape[0] - 10  # 10 pixels margin from the bottom
         cv2.putText(top_composite_image, str(first_camera_status), (text_x_second, text_y_second), font, 5, (255, 255, 255), 2, cv2.LINE_AA)
+        
+        status = "There is " + str(percentage__of_pellet) + "%" "of a pellet"
+        text_size_status = cv2.getTextSize(status, font, 5, 2)[0]
+        text_x_status = 15
+        text_y_status = top_composite_image.shape[0] - 10  # 10 pixels margin from the bottom
+        cv2.putText(top_composite_image, text_size_status, (text_x_status, text_y_status), font, 5, (255, 255, 255), 2, cv2.LINE_AA)
 
         # Bot composite image is just a white image
         bot_composite_image = np.hstack((display_cam_two_masked_image, second_masked_binary_image))
@@ -385,7 +391,7 @@ def create_sliders_buttons():
     calibrate_cam_one_button.grid(row=1, column=0)
     calibrate_cam_two_button = tk.Button(window, text="Calibrate Cam Two", command=on_calibrate_cam_two_button_clicked)
     calibrate_cam_two_button.grid(row=2, column=0)
-    save_variables_button = tk.Button(window, text="Save values", command=save_variables)
+    save_variables_button = tk.Button(window, text="Save values", command=on_save_button_clicked)
     save_variables_button.grid(row=3, column=0)
     # Create slider
 
