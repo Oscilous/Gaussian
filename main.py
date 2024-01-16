@@ -418,13 +418,6 @@ second_camera.configure("preview")
 second_camera.set_controls({"ExposureTime": 500})
 second_camera.start()
 
-# Create the Trackbars, so the mask can be created
-current_view = "original_image"
-# Create trackbars for adjusting mask
-create_trackbars()
-#Creating GUI
-window = tk.Tk()
-create_GUI()
 #Creating blank canvas of images that will be rendered
 original_image = np.zeros((IMG_DIMS[1], IMG_DIMS[0]), dtype="uint8")
 second_original_image = np.zeros((IMG_DIMS[1], IMG_DIMS[0]), dtype="uint8")
@@ -437,6 +430,28 @@ second_masked_binary_image = np.zeros((IMG_DIMS[1], IMG_DIMS[0]), dtype="uint8")
 display_cam_one_masked_image = np.zeros((IMG_DIMS[1], IMG_DIMS[0]), dtype="uint8")
 display_cam_two_masked_image = np.zeros((IMG_DIMS[1], IMG_DIMS[0]), dtype="uint8")
 
+# Create the Trackbars, so the mask can be created
+current_view = "original_image"
+# Create trackbars for adjusting mask
+create_trackbars()
+#Creating GUI
+window = tk.Tk()
+window.attributes('-fullscreen', True)
+window.title("Image Processing")
+
+# Create slider
+slider = tk.Scale(window, from_=0, to=100, orient=tk.HORIZONTAL, command=on_slider_change)
+slider.grid(row=1, column=0)
+
+# Create button
+button = tk.Button(window, text="Show Histogram", command=on_button_click)
+button.grid(row=0, column=0)
+
+# Create label for displaying the image
+label = tk.Label(window)
+label.grid(row=0, column=1, rowspan=2)
+window.update()
+window.update_idletasks()
 update_window()
 
 auto_home()
