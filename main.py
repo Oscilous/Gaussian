@@ -277,7 +277,7 @@ def is_pellet_present(image, mask):
     update_window()
     # Apply thresholding to create a binary image
     #_, binary = cv2.threshold(masked_image, 100, 220, cv2.THRESH_BINARY)
-    binary = cv2.inRange(masked_image, 100, 230)
+    binary = cv2.inRange(masked_image, 100, 220)
     impurity_pixel_count = np.sum(binary == 255)
     area_pixel_count = np.sum(mask == 255)
     detection_threshold = cv2.getTrackbarPos("detection_threshold", "Trackbars")
