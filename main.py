@@ -157,8 +157,8 @@ def nothing(val):
 def update_mask():
     global Csys, Dia, pellet_center_mask, camera
     # Update circle parameters
-    Csys = (initial_x, initial_y)
-    Dia =  initial_diameter
+    Csys = (initial_values["Circle_X"], initial_values["Circle_Y"])
+    Dia =  initial_values["Circle_Diameter"]
 
     # Create a black canvas the size of the camera feed
     pellet_center_mask = np.zeros((IMG_DIMS[1], IMG_DIMS[0]), dtype="uint8")
@@ -168,8 +168,8 @@ def update_mask():
 def second_update_mask():
     global second_Csys, second_Dia, second_pellet_center_mask
     # Update circle parameters
-    second_Csys = (initial_x, initial_y)
-    second_Dia = initial_diameter
+    second_Csys = (initial_values["second_Circle_X"], initial_values["second_Circle_Y"])
+    second_Dia = initial_values["second_Circle_Diameter"]
 
     # Create a black canvas the size of the camera feed
     second_pellet_center_mask = np.zeros((IMG_DIMS[1], IMG_DIMS[0]), dtype="uint8")
@@ -185,8 +185,8 @@ def histogram_and_threshold(image, mask, camera):
         update_window()
         # Calculate the mean and standard deviation
         mean_value = np.mean(masked_image.compressed())
-        std_dev_multiplier_upper = initial_dev_up
-        std_dev_multiplier_lower = initial_dev_down
+        std_dev_multiplier_upper = initial_values["Threshold_upper"]
+        std_dev_multiplier_lower = initial_values["Threshold_lower"]
         work_image = masked_image
     elif camera == 2:
         display_cam_two_masked_image = cv2.bitwise_and(image, mask);
@@ -195,8 +195,8 @@ def histogram_and_threshold(image, mask, camera):
         second_update_mask()
         # Calculate the mean and standard deviation
         mean_value = np.mean(second_masked_image.compressed())
-        std_dev_multiplier_upper = second_initial_dev_up
-        std_dev_multiplier_lower = second_initial_dev_down
+        std_dev_multiplier_upper = initial_values["second_Threshold_upper"]
+        std_dev_multiplier_lower = initial_values["second_Threshold_lower"]
         work_image = second_masked_image
 
     # Calculate the threshold range
@@ -268,7 +268,7 @@ def is_pellet_present(image, mask):
     binary = cv2.inRange(masked_image, 100, 220)
     impurity_pixel_count = np.sum(binary == 255)
     area_pixel_count = np.sum(mask == 255)
-    detection_threshold = initial_detection
+    detection_threshold = initial_values["detection_threshold"]
     percentage__of_pellet = int(impurity_pixel_count / area_pixel_count * 100)
     if percentage__of_pellet >=  detection_threshold:
         return True
