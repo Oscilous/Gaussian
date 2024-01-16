@@ -344,7 +344,13 @@ def update_window():
         text_y_second = composite_image.shape[0] - 10  # 10 pixels margin from the bottom
         cv2.putText(composite_image, str(second_camera_status), (text_x_second, text_y_second), font, 5, (255, 255, 255), 2, cv2.LINE_AA)
 
-    img = Image.fromarray(composite_image)
+    new_width = int(composite_image.shape[1] * 0.5)
+    new_height = int(composite_image.shape[0] * 0.5)
+    new_size = (new_width, new_height)
+
+    # Resize the image
+    resized_composite_image = cv2.resize(composite_image, new_size)
+    img = Image.fromarray(resized_composite_image)
     img_tk = ImageTk.PhotoImage(img)
     label.config(image=img_tk)
     label.image = img_tk
@@ -375,25 +381,6 @@ def on_calibrate_cam_two_button_clicked():
     current_view = "second_camera_calibrate"
     print("Calibration cam two mode: " + str(calibration_cam_two))
 
-def create_GUI():
-    global window
-    # Create Tkinter window
-    window.attributes('-fullscreen', True)
-    window.title("Image Processing")
-
-    # Create slider
-    slider = tk.Scale(window, from_=0, to=100, orient=tk.HORIZONTAL, command=on_slider_change)
-    slider.grid(row=1, column=0)
-
-    # Create button
-    button = tk.Button(window, text="Show Histogram", command=on_button_click)
-    button.grid(row=0, column=0)
-
-    # Create label for displaying the image
-    label = tk.Label(window)
-    label.grid(row=0, column=1, rowspan=2)
-    window.update()
-    window.update_idletasks()
 
 def on_slider_change(value):
     update_mask()
