@@ -13,27 +13,26 @@ from PIL import ImageTk, Image
 from functools import partial
 import sys
 
-# Pin setup
-ms1_pin = 3
-ms2_pin = 17
-ms3_pin = 27
-solenoid_pin = 19
-dir_pin = 4
-step_pin = 2
-end_switch_pin = 22
 speed = 0.001
 step_to_home = 20
 
+# Pin setup
+ms2_pin = 10
+solenoid_pin = 19
+dir_pin = 9
+step_pin = 11
+end_switch_pin = 22
+relay_pin = 26
+
+relay = DigitalInputDevice(relay_pin, pull_up=True)
 # Initialize devices
 solenoid = OutputDevice(solenoid_pin, initial_value=False)
 direction = OutputDevice(dir_pin)
 step = OutputDevice(step_pin)
 end_switch = DigitalInputDevice(end_switch_pin, pull_up=True)
 
-#Init and set to half-step
-ms1 = OutputDevice(ms1_pin, initial_value=False)
+#Init and set to eight-step
 ms2 = OutputDevice(ms2_pin, initial_value=True)
-ms3 = OutputDevice(ms3_pin, initial_value=False)
 
 # Initial values for trackbars
 IMG_DIMS = (1640, 1232)
@@ -280,7 +279,7 @@ def is_pellet_present(image, mask):
 def update_window():
     global current_view, original_image, second_original_image, masked_image, masked_binary_image, second_masked_image, second_masked_binary_image, label
     if current_view == "original_image":
-        top_composite_image = np.hstack((display_cam_one_masked_image, masked_binary_image))
+        top_composite_image = np.hstack((original_image, masked_binary_image))
         text_size_second = cv2.getTextSize(str(first_camera_status), font, 5, 2)[0]
         text_x_second = top_composite_image.shape[1] - text_size_second[0] - 15  # Left align, 10 pixels margin from the left
         text_y_second = top_composite_image.shape[0] - 10  # 10 pixels margin from the bottom
@@ -292,7 +291,7 @@ def update_window():
         cv2.putText(top_composite_image, status, (text_x_status, text_y_status), font, 5, (255, 255, 255), 2, cv2.LINE_AA)
 
         # Bot composite image is just a white image
-        bot_composite_image = np.hstack((display_cam_two_masked_image, second_masked_binary_image))
+        bot_composite_image = np.hstack((second_original_image, second_masked_binary_image))
         text_size_second = cv2.getTextSize(str(second_camera_status), font, 5, 2)[0]
         text_x_second = top_composite_image.shape[1] - text_size_second[0] - 15  # Left align, 10 pixels margin from the left
         text_y_second = top_composite_image.shape[0] - 10  # 10 pixels margin from the bottom
@@ -457,99 +456,105 @@ update_window()
 window.update()
 window.update_idletasks()
 
-#auto_home()
-# Main loop
+i = 0
+
 while True:
-    original_image = picam2.capture_array()
-    original_image = original_image[:IMG_DIMS[1], :IMG_DIMS[0]]
-    original_image = cv2.resize(original_image, (IMG_DIMS[0], IMG_DIMS[1]))
-    #Make sure it is greyscale so we can use thresholding
-    #original_image = cv2.cvtColor(original_image, cv2.COLOR_BGR2GRAY)
-    #As we've updated the original_image, it needs to be rerendered
-    update_window()
-    #Call update_mask, if adjustments were made with trackbars
-    update_mask()
-    #We check if the pellet is present
-
-    if is_pellet_present(original_image, pellet_center_mask):
-        #Clear the previous image
-        #Recapture, to ensure a fully stable image
-        while(True): 
-            original_image = picam2.capture_array()
-            original_image = original_image[:IMG_DIMS[1], :IMG_DIMS[0]]
-            original_image = cv2.resize(original_image, (IMG_DIMS[0], IMG_DIMS[1]))
-            update_mask()
-            update_window()
-            #Preform relative mean based thresholding
-            is_good_pellet = histogram_and_threshold(original_image, pellet_center_mask, 1)
-            if is_good_pellet:
-                first_camera_status = "Good"
-            else:
-                first_camera_status = "Bad"
-                second_camera_status = "Pass"
-            update_mask()
-            update_window()
-            # Update the Tkinter window
-            window.update()
-            window.update_idletasks()
-            if calibration_cam_one: 
-                continue
-            else: 
-                break
-
-        if is_good_pellet:
-            solenoid.off()
-            forward_90()
-            time.sleep(0.25)
-            update_window()
-            #Call update_mask, if adjustments were made with trackbars
+    while relay.value:
+        i = i + 1
+        while i > 5:
+            auto_home()
+            # Main loop
             while True:
-                second_update_mask()
-                second_original_image = second_camera.capture_array()
-                second_original_image = second_original_image[:IMG_DIMS[1], :IMG_DIMS[0]]
-                second_original_image = cv2.resize(second_original_image, (IMG_DIMS[0], IMG_DIMS[1]))
+                original_image = picam2.capture_array()
+                original_image = original_image[:IMG_DIMS[1], :IMG_DIMS[0]]
+                original_image = cv2.resize(original_image, (IMG_DIMS[0], IMG_DIMS[1]))
+                #Make sure it is greyscale so we can use thresholding
+                #original_image = cv2.cvtColor(original_image, cv2.COLOR_BGR2GRAY)
+                #As we've updated the original_image, it needs to be rerendered
                 update_window()
                 #Call update_mask, if adjustments were made with trackbars
-                second_update_mask()
-                #Preform relative mean based thresholding
-                is_good_pellet = histogram_and_threshold(second_original_image, second_pellet_center_mask, 2)
-                update_window()
-                #Call update_mask, if adjustments were made with trackbars
-                second_update_mask()
-                if is_good_pellet:
+                update_mask()
+                #We check if the pellet is present
+
+                if is_pellet_present(original_image, pellet_center_mask):
+                    #Clear the previous image
+                    #Recapture, to ensure a fully stable image
+                    while(True): 
+                        original_image = picam2.capture_array()
+                        original_image = original_image[:IMG_DIMS[1], :IMG_DIMS[0]]
+                        original_image = cv2.resize(original_image, (IMG_DIMS[0], IMG_DIMS[1]))
+                        update_mask()
+                        update_window()
+                        #Preform relative mean based thresholding
+                        is_good_pellet = histogram_and_threshold(original_image, pellet_center_mask, 1)
+                        if is_good_pellet:
+                            first_camera_status = "Good"
+                        else:
+                            first_camera_status = "Bad"
+                            second_camera_status = "Pass"
+                        update_mask()
+                        update_window()
+                        # Update the Tkinter window
+                        window.update()
+                        window.update_idletasks()
+                        if calibration_cam_one: 
+                            continue
+                        else: 
+                            break
+
+                    if is_good_pellet:
+                        solenoid.off()
+                        forward_90()
+                        time.sleep(0.25)
+                        update_window()
+                        #Call update_mask, if adjustments were made with trackbars
+                        while True:
+                            second_update_mask()
+                            second_original_image = second_camera.capture_array()
+                            second_original_image = second_original_image[:IMG_DIMS[1], :IMG_DIMS[0]]
+                            second_original_image = cv2.resize(second_original_image, (IMG_DIMS[0], IMG_DIMS[1]))
+                            update_window()
+                            #Call update_mask, if adjustments were made with trackbars
+                            second_update_mask()
+                            #Preform relative mean based thresholding
+                            is_good_pellet = histogram_and_threshold(second_original_image, second_pellet_center_mask, 2)
+                            update_window()
+                            #Call update_mask, if adjustments were made with trackbars
+                            second_update_mask()
+                            if is_good_pellet:
+                                solenoid.off()
+                                second_camera_status = "Good"
+                            else:
+                                solenoid.on()
+                                second_camera_status = "Bad"
+                            update_window() 
+                            window.update()
+                            window.update_idletasks()
+                            if calibration_cam_two: 
+                                continue
+                            else: 
+                                break
+                    else:
+                        solenoid.on()
+                        forward_90()
+                    forward_90()
+                    shimmy()
                     solenoid.off()
-                    second_camera_status = "Good"
+                    first_camera_status = "Empty"
+                    second_camera_status = "Empty"
+                    fast_auto_home()
+                    auto_home()
                 else:
-                    solenoid.on()
-                    second_camera_status = "Bad"
-                update_window() 
+                    first_camera_status = "Empty"
+                    second_camera_status = "Empty"
+                
+                # Update the Tkinter window
                 window.update()
                 window.update_idletasks()
-                if calibration_cam_two: 
-                    continue
-                else: 
+                key = cv2.waitKey(1) & 0xFF
+                if key == 27:  # Press 'Esc' to exit
                     break
-        else:
-            solenoid.on()
-            forward_90()
-        forward_90()
-        shimmy()
-        solenoid.off()
-        first_camera_status = "Empty"
-        second_camera_status = "Empty"
-        fast_auto_home()
-        auto_home()
-    else:
-        first_camera_status = "Empty"
-        second_camera_status = "Empty"
-    
-    # Update the Tkinter window
-    window.update()
-    window.update_idletasks()
-    key = cv2.waitKey(1) & 0xFF
-    if key == 27:  # Press 'Esc' to exit
-        break
-    # Clear the stream in preparation for the next frame
+                # Clear the stream in preparation for the next frame
 
 # Release resources
 cv2.destroyAllWindows()
