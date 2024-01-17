@@ -3,24 +3,26 @@ import time
 from signal import pause
 
 # Pin setup
-ms1_pin = 3
-ms2_pin = 17
-ms3_pin = 27
+
+ms2_pin = 10
+
 solenoid_pin = 19
-dir_pin = 4
-step_pin = 2
+dir_pin = 9
+step_pin = 11
 end_switch_pin = 22
 speed = 0.001
 step_to_home = 20
+relay_pin = 26
+relay = DigitalInputDevice(relay_pin, pull_up=True)
 # Initialize devices
 solenoid = OutputDevice(solenoid_pin, initial_value=False)
 direction = OutputDevice(dir_pin)
 step = OutputDevice(step_pin)
 end_switch = DigitalInputDevice(end_switch_pin, pull_up=True)
 
-ms1 = OutputDevice(ms1_pin, initial_value=False)
+
 ms2 = OutputDevice(ms2_pin, initial_value=True)
-ms3 = OutputDevice(ms3_pin, initial_value=False)
+
 
 def step_motor(steps, direction_flag):
     direction.value = direction_flag
@@ -64,17 +66,25 @@ def shimmy():
         time.sleep(0.1)
 
 try:
-    auto_home()
+    i = 0
     while True:
-        time.sleep(1)
-        forward_90()
-        time.sleep(1)
-        solenoid.on()
-        forward_90()
-        shimmy()
-        solenoid.off()
-        fast_auto_home()
-        auto_home()
+        while relay.value:
+            i = i + 1
+            while i > 5:
+                auto_home()
+                while True:
+                    time.sleep(1)
+                    forward_90()
+                    time.sleep(1)
+                    solenoid.on()
+                    forward_90()
+                    shimmy()
+                    solenoid.off()
+                    if relay.value == 0:
+                        i = 0
+                        break
+                    fast_auto_home()
+                    auto_home()
     
 
 except KeyboardInterrupt:
