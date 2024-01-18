@@ -539,7 +539,7 @@ while True:
                     else:
                         solenoid.on()
                         forward_90()
-                    if (not calibration_cam_two or not calibration_cam_one):
+                    if (calibration_cam_two or calibration_cam_one):
                         solenoid.on()
                     forward_90()
                     shimmy()
