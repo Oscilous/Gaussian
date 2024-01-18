@@ -225,7 +225,7 @@ def count_black_pixels(binary_image, mask, camera):
         second_masked_binary_image = cv2.bitwise_and(~binary_image, mask)
         impurity_pixel_count = np.sum(second_masked_binary_image == 255)
     print(f'Impurities: {impurity_pixel_count}')
-    impurity_threshold = initial_values["impurity_threshold"]
+    impurity_threshold = initial_values["Impurity_pixel_amount"]
     if impurity_pixel_count > impurity_threshold:
         print("BAD")
         return False
