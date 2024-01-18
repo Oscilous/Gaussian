@@ -487,11 +487,12 @@ while True:
                         update_window()
                         #Preform relative mean based thresholding
                         is_good_pellet = histogram_and_threshold(original_image, pellet_center_mask, 1)
-                        if is_good_pellet:
-                            first_camera_status = "Good"
-                        else:
-                            first_camera_status = "Bad"
-                            second_camera_status = "Pass"
+                        if (not calibration_cam_two):
+                            if is_good_pellet:
+                                first_camera_status = "Good"
+                            else:
+                                first_camera_status = "Bad"
+                                second_camera_status = "Pass"
                         update_mask()
                         update_window()
                         # Update the Tkinter window
@@ -521,12 +522,13 @@ while True:
                             update_window()
                             #Call update_mask, if adjustments were made with trackbars
                             second_update_mask()
-                            if is_good_pellet:
-                                solenoid.off()
-                                second_camera_status = "Good"
-                            else:
-                                solenoid.on()
-                                second_camera_status = "Bad"
+                            if (not calibration_cam_two):
+                                if is_good_pellet:
+                                    solenoid.off()
+                                    second_camera_status = "Good"
+                                else:
+                                    solenoid.on()
+                                    second_camera_status = "Bad"
                             update_window() 
                             window.update()
                             window.update_idletasks()
