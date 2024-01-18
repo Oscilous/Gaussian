@@ -49,6 +49,7 @@ debug_mode = False
 enable_plots = False
 pause_mode = True
 edit_mode = False
+calibration_seal = False
 calibration_cam_one = False
 calibration_cam_two = False
 first_camera_status = "Empty"
@@ -499,6 +500,7 @@ while True:
                         window.update()
                         window.update_idletasks()
                         if calibration_cam_one: 
+                            calibration_seal = True
                             continue
                         else: 
                             break
@@ -533,14 +535,16 @@ while True:
                             window.update()
                             window.update_idletasks()
                             if calibration_cam_two: 
+                                calibration_seal = True
                                 continue
                             else: 
                                 break
                     else:
                         solenoid.on()
                         forward_90()
-                    if (calibration_cam_two or calibration_cam_one):
+                    if calibration_seal:
                         solenoid.on()
+                        calibration_seal = False
                     forward_90()
                     shimmy()
                     solenoid.off()
